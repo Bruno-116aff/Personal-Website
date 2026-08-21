@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.git/
+.playwright-mcp/
+.env
+.env.*
+!.env.example
+apps/contact-api/data/
+site-*.png
