@@ -2,7 +2,7 @@
 
 - Batch: 0
 - Area: task registry
-- State: IMPLEMENTED_PENDING_GATE
+- State: COMPLETE
 - Depends on: SITE-001
 
 ## Goal

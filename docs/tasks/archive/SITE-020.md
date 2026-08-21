@@ -2,7 +2,7 @@
 
 - Batch: 2
 - Area: design system
-- State: READY
+- State: COMPLETE
 - Depends on: SITE-014
 
 ## Goal
@@ -38,3 +38,17 @@ Turn the approved design direction into reusable tokens and primitives.
 ## Deferred batch gate
 
 Full responsive visual review.
+
+## Implementation note
+
+- Added light-theme CSS and Tailwind tokens for Inter/JetBrains Mono, surfaces,
+  text, blue accent, spacing, type scale, 72rem container and 42rem prose measure.
+- Added reusable `Tag`, `SectionIntro`, `Card`, `Button`, `Prose` and `Metric`
+  primitives in `src/components/primitives.tsx`.
+- Added visible focus, reduced-motion and narrow-width shell behavior; no
+  dark-mode code path was introduced.
+- Focused evidence: `npm.cmd run typecheck`, `npm.cmd run build` and
+  `git diff --check` passed. Manual contrast review passed WCAG AA for all
+  implemented text/control pairs; source review passed the narrow-width criteria.
+- Deferred: Batch 2 full responsive visual review and interactive browser
+  walkthrough remain for SITE-024 / the project visual gate.

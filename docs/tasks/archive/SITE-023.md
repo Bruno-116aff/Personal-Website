@@ -2,7 +2,7 @@
 
 - Batch: 2
 - Area: homepage contact UI
-- State: READY
+- State: COMPLETE
 - Depends on: SITE-020
 
 ## Goal
@@ -39,3 +39,18 @@ shell ready for later endpoint integration.
 ## Deferred batch gate
 
 SITE-024 runs the full homepage accessibility, content and visual gate.
+
+## Implementation note
+
+- Added the homepage Contact section with approved Email, LinkedIn and Telegram
+  actions and a non-prominent disabled GitHub action pending the real public URL.
+- Added an accessible form shell with labelled name, email and message controls,
+  a labelled keyboard-skipped honeypot, submit control and idle/submitting/
+  success/error status rendering.
+- Kept the form non-functional by default: no endpoint, secret, fake success or
+  invented GitHub URL was added. `ContactForm` accepts status and submit props for
+  later SITE-041 integration without changing the layout.
+- Focused evidence: `npm.cmd run typecheck`, `npm.cmd run build`,
+  `npm.cmd run verify:content`, generated DOM audit and `git diff --check` passed.
+- Deferred: interactive browser keyboard/focus walkthrough and SITE-024 full
+  homepage accessibility, content and responsive visual gate.

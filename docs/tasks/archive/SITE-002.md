@@ -2,7 +2,7 @@
 
 - Batch: 0
 - Area: project context
-- State: IMPLEMENTED_PENDING_GATE
+- State: COMPLETE
 - Depends on: none
 
 ## Goal

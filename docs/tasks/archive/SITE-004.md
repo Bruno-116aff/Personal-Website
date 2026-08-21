@@ -2,7 +2,7 @@
 
 - Batch: 0
 - Area: batch gate
-- State: READY
+- State: COMPLETE
 - Depends on: SITE-001, SITE-002, SITE-003
 - Gate type: mandatory full batch verification
 
@@ -30,3 +30,11 @@ Verify the complete process foundation and close Batch 0 only at 100%.
 
 Any failed or unavailable check keeps Batch 0 open. Record the exact issue and
 do not mark the batch complete.
+
+## Gate evidence
+
+- 2026-08-21: PASS — all three local project skills passed the skill-creator validator.
+- 2026-08-21: PASS — AGENTS.md, source-of-truth files, persistent context and local skill references exist.
+- 2026-08-21: PASS — ACTIVE.md has 32 unique rows, valid task links, required sections, acyclic dependencies and seven final gates.
+- 2026-08-21: PASS — no inherited product paths or commands were found in active project instructions; git diff --check passed.
+- 2026-08-21: DEFERRED — npm run typecheck, build and verification scripts; package.json is not present before Batch 1 scaffolding.

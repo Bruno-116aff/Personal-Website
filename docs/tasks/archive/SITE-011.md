@@ -2,7 +2,7 @@
 
 - Batch: 1
 - Area: prerender/routes
-- State: READY
+- State: COMPLETE
 - Depends on: SITE-010
 
 ## Goal
@@ -37,3 +37,19 @@ Generate meaningful HTML for all six known routes at build time.
 ## Deferred batch gate
 
 Full frontend route and prerender audit.
+
+## Implementation note
+
+- Added the six canonical route entries in `src/routes.ts` and route-aware
+  rendering in the shared React entry.
+- Added a Vite build plugin that writes each route to a static
+  `dist/**/index.html`, while preserving client hydration for enhancements.
+- Unknown-route redirect behavior remains deferred to the Traefik deployment
+  task; no Next.js or additional runtime framework was introduced.
+- Focused evidence: `npm.cmd run build`, `npm.cmd run typecheck`, inspection of
+  all six generated HTML files, and `git diff --check` passed on 2026-08-21.
+
+## Batch finalization
+
+- SITE-014 accumulated route and hard-refresh checks passed for all six routes
+  on 2026-08-21.

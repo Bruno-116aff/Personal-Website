@@ -2,7 +2,7 @@
 
 - Batch: 2
 - Area: homepage top
-- State: READY
+- State: COMPLETE
 - Depends on: SITE-020
 
 ## Goal
@@ -38,3 +38,15 @@ Work.
 ## Deferred batch gate
 
 Content and responsive visual gate.
+
+## Implementation note
+
+- Replaced the homepage placeholder with the Hero, Impact Strip, What I Do and
+  Featured Work sections in the approved order.
+- Added source-separated homepage copy and data in `src/content/home.ts`.
+- Used only approved positioning, metrics and four case-study teasers; links use
+  descriptive labels, and Account Automation remains last with quieter styling.
+- Focused evidence: `npm.cmd run typecheck`, `npm.cmd run build`,
+  `npm.cmd run verify:content`, generated homepage HTML review and
+  `git diff --check` passed.
+- Deferred: Batch 2 content and responsive visual gate remains for SITE-024.

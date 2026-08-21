@@ -2,7 +2,7 @@
 
 - Batch: 3
 - Area: case study
-- State: READY
+- State: COMPLETE
 - Depends on: SITE-030
 
 ## Goal
@@ -38,3 +38,17 @@ recoverability story.
 ## Deferred batch gate
 
 SITE-039 runs the complete content, NDA, metadata and human review gate.
+
+## Implementation note
+
+- Authored the Operations Automation content in the shared case-study model:
+  validation, RabbitMQ-backed independently retryable tasks, parallel
+  provisioning, destination verification and Telegram confirmation.
+- The internal tracking dependency is generalized; the published outcomes use
+  only the approved `1–3h → ~15m`, `~$7K/year` and near-zero manual-error facts.
+- Focused evidence: `npm.cmd run build` passed. Generated case HTML contains all
+  eight sections, the standard confidentiality sentence, approved metrics and
+  descriptive previous/next navigation. Source and generated HTML were checked
+  for internal tracking product names and restricted phrases; no matches found.
+- Deferred: SITE-039 must run the complete content, NDA, metadata and human
+  review gate after all Batch 3 routes are authored.

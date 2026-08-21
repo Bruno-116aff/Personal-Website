@@ -2,7 +2,7 @@
 
 - Batch: 3
 - Area: case study / NDA-sensitive
-- State: READY
+- State: COMPLETE
 - Depends on: SITE-030
 
 ## Goal
@@ -39,3 +39,19 @@ Publish the fourth case exclusively through the approved engineering framing.
 ## Deferred batch gate
 
 SITE-039 performs a mandatory second NDA-focused human read before Batch 3 closes.
+
+## Implementation note
+
+- Authored the Account Automation case exclusively with the approved lifecycle,
+  fixed-capacity scheduling, health-monitoring, state-synchronization,
+  circuit-breaker, budget-workflow and eligibility framing.
+- The case is fourth in route, case-study and homepage work order. It contains
+  no attrition figure, dollar claim, unsafe causal explanation or tooling detail
+  beyond the approved framing.
+- Focused evidence: `npm.cmd run build` passed. Generated HTML contains all eight
+  sections, the standard confidentiality sentence and descriptive previous
+  navigation. The selected case source, its metadata input and generated HTML
+  were checked for every prohibited Case 4 term/detail, Playwright and dollar
+  claims; no matches were found.
+- Deferred: SITE-039 must perform the complete content, metadata and mandatory
+  second NDA-focused human review before Batch 3 closes.

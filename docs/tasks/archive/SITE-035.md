@@ -2,7 +2,7 @@
 
 - Batch: 3
 - Area: CV route
-- State: READY
+- State: COMPLETE
 - Depends on: SITE-030
 
 ## Goal
@@ -39,3 +39,19 @@ approved factual claims.
 ## Deferred batch gate
 
 SITE-039 runs the complete content, metadata and responsive gate.
+
+## Implementation note
+
+- Added a separate typed CV content model and semantic `/cv` layout with the
+  approved career history, technical expertise and CV-only education context.
+  The layout links back to selected work and contact.
+- `/cv` uses the existing unique metadata with canonical
+  `https://ivan.hubko.me/cv` and `index, follow`. The supplied target/master CV
+  files were used only as structural references; unsupported legacy claims and
+  contact details were not imported.
+- Focused evidence: `npm.cmd run build` passed. Generated `/cv` HTML contains
+  the approved career history, skills, education, Work/Contact links, canonical
+  and indexing metadata. Public source and generated HTML were checked for the
+  unsupported proxy figure and restricted phrases; no matches were found.
+- Deferred: SITE-039 must run the complete content, metadata and responsive
+  batch gate after all Batch 3 routes are authored.

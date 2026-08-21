@@ -2,7 +2,7 @@
 
 - Batch: 3
 - Area: case study
-- State: READY
+- State: COMPLETE
 - Depends on: SITE-030
 
 ## Goal
@@ -38,3 +38,17 @@ failover story.
 ## Deferred batch gate
 
 SITE-039 runs the complete content, NDA, metadata and human review gate.
+
+## Implementation note
+
+- Authored the Infrastructure Reliability content in the shared case-study model:
+  hardware-aware worker responsibilities, safe private-access-control context,
+  plain-language failover flow, case-specific tags, verified direct savings and
+  reflective engineering lessons.
+- Focused evidence: `npm.cmd run build` passed. Generated case HTML contains all
+  eight sections, the standard confidentiality sentence, the approved
+  `~$3.5K/year` direct result and descriptive navigation. Source and generated
+  HTML were also checked for the prohibited proxy-savings figure and restricted
+  phrases; no matches were found.
+- Deferred: SITE-039 must run the complete content, NDA, metadata and human
+  review gate after all Batch 3 routes are authored.

@@ -2,7 +2,7 @@
 
 - Batch: 3
 - Area: case-study template
-- State: READY
+- State: COMPLETE
 - Depends on: SITE-024
 
 ## Goal
@@ -38,3 +38,16 @@ Create one reusable case-study template backed by separate structured content.
 ## Deferred batch gate
 
 Full content/NDA gate over all case routes.
+
+## Implementation note
+
+- Added typed case-study data contracts, ordered route metadata and the standard
+  confidentiality sentence in `src/content/case-studies.ts`.
+- Added one shared semantic `CaseStudyLayout` with all eight required sections,
+  plain-language architecture flow, case-specific technology/result slots and
+  descriptive home/previous/next links. Individual case copy remains scoped to
+  SITE-031 through SITE-034.
+- Focused evidence: `npm.cmd run typecheck` passed. A Vite SSR fixture rendered
+  all eight sections and descriptive navigation for each of the four case routes.
+- Deferred: SITE-039 must run the complete content, NDA, metadata and human
+  review gate after every case route and `/cv` are authored.
