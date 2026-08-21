@@ -14,8 +14,8 @@ Read only the context relevant to the current task:
 - `docs/02-copywriting-guidelines.md` — public copy and case-study structure.
 - `docs/03-site-structure-and-domains.md` — routes, navigation and domain rules.
 - `docs/04-tech-spec.md` — stack, rendering, hosting, accessibility and security.
-- `docs/DESIGN_SYSTEM.md` — implemented visual tokens and reusable UI decisions.
-- `docs/ARCHITECTURE.md` — implemented project structure and runtime contracts.
+- `docs/DESIGN_SYSTEM.md` — approved visual direction and reusable UI decisions.
+- `docs/ARCHITECTURE.md` — target project structure and runtime contracts.
 - `docs/PROJECT_STATUS.md` — current phase and decisions.
 - `docs/HANDOFF.md` — the latest session-to-session continuation note.
 - `docs/tasks/ACTIVE.md` and the linked task file — current task scope only.

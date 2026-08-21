@@ -56,8 +56,9 @@ the homepage. `CV` links to `/cv`. Keep nav minimal — no dropdown, no mega-men
 ## Contact
 - Buttons: Email (mailto: gubko360@gmail.com for now), LinkedIn, Telegram, GitHub
   (present but not emphasized — see 01-content-facts.md).
-- Plus a contact form (name, email, message) that forwards to the email above.
-  Backend: simple NestJS endpoint (Ivan's own infra — reuse his existing
-  stack/conventions). Needs basic spam protection: rate limit + honeypot field
-  at minimum; Cloudflare Turnstile if easy to add, not a blocker if not.
+- Plus a contact form (name, email, message) that stores submissions in a
+  server-side SQLite database for manual processing. Backend: simple NestJS
+  endpoint using Ivan's existing infrastructure conventions. It needs basic spam
+  protection: rate limit + honeypot at minimum; Cloudflare Turnstile is not a
+  launch blocker.
 - No live chat, no calendar booking widget — out of scope for launch.

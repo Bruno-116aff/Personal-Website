@@ -17,10 +17,11 @@
   Codex's choice, whichever is less friction in a React/Vite prerendered setup.
   Keep case-study content separate from layout components so copy edits don't
   require touching component code.
-- Contact form backend: a small NestJS endpoint on Ivan's existing infra,
-  forwarding submissions to gubko360@gmail.com. Reuse his standard patterns
-  (validation, rate limiting) rather than introducing a new framework for this
-  one endpoint.
+- Contact form backend: a small NestJS endpoint on Ivan's existing infra that
+  stores validated submissions in a server-side SQLite database for manual
+  processing. Reuse standard validation and rate-limiting patterns rather than
+  introducing a new framework for this one endpoint. Do not configure email
+  delivery for launch.
 
 ## Hosting
 - Ivan's own VPS via **Docker + Traefik**, same as his other infrastructure.
@@ -38,6 +39,9 @@ Practical requirements to hit these:
 - Lazy-load below-the-fold images.
 - No video backgrounds, no heavy animation dependencies.
 - Font loading optimized (subset/preload, avoid layout shift from web fonts).
+- The launch build uses only system-resident font fallbacks; it must not request a
+  remote font. If a local web font is added later, provide WOFF2 assets, metric
+  overrides and `font-display: optional` before enabling it.
 
 ## Accessibility
 Target: **WCAG 2.2 AA**.
@@ -63,6 +67,14 @@ canvas or as a background image with no text alternative.
 - Google Search Console — set up regardless.
 - Track at minimum: case_study_open, cv_click, email_click, linkedin_click,
   telegram_click, github_click.
+- Configure GA4 only with the user-owned `VITE_GA4_MEASUREMENT_ID`; an empty or
+  invalid value must not load GA4 or send analytics requests. No Measurement ID is
+  committed in the repository.
+- Consent UX is outside the launch scope. Before production configuration, the site
+  owner must confirm the applicable consent or lawful-basis approach. The Traefik
+  CSP work must allow GA4 only through `https://www.googletagmanager.com` for
+  scripts and `https://www.google-analytics.com` plus
+  `https://region1.google-analytics.com` for connections when GA4 is enabled.
 
 ## Security headers (even for a static/mostly-static site)
 HTTPS, HSTS, Content-Security-Policy, X-Content-Type-Options, Referrer-Policy,

@@ -31,7 +31,7 @@ Use a simple Vite-compatible structure and keep content separate from UI:
 - public — static fonts, photos, OG images, robots and sitemap inputs.
 - scripts — prerender, metadata and verification helpers when needed.
 - contact API — small NestJS endpoint using the existing infrastructure convention;
-  exact location is decided after the VPS/backend layout is inspected.
+  it persists submissions in SQLite and has no public read endpoint.
 
 Do not put internal source notes or restricted Case 4 material in public content
 modules.
@@ -50,11 +50,11 @@ Do not introduce Next.js or a heavy framework against docs/04.
 Contact form:
 
 Browser form -> client convenience validation -> public NestJS endpoint ->
-server-side validation/sanitization -> rate limit + honeypot check -> mail provider
--> gubko360@gmail.com.
+server-side validation/sanitization -> rate limit + honeypot check -> SQLite
+database for manual processing.
 
-Credentials remain server-side. Error responses expose only safe user-facing
-states.
+The SQLite path remains server-side. Error responses expose only safe
+user-facing states.
 
 Analytics uses a configurable GA4 Measurement ID and named events from docs/04.
 No fake IDs are committed.
@@ -62,9 +62,22 @@ No fake IDs are committed.
 ## Deployment
 
 Frontend: static build served from Docker through Traefik.
-Contact API: existing NestJS infrastructure, routed securely through Traefik.
-Production verification must test real responses, headers, direct routes, hard
-refresh, contact delivery and redirects.
+Contact API: existing NestJS infrastructure, routed securely through Traefik
+with a persistent volume for the SQLite database. Production verification must
+test real responses, headers, direct routes, hard refresh, contact persistence
+and redirects.
+
+The repository deployment contract is `compose.yml`: frontend serves only the
+six known static routes plus SEO assets, while `/api/contact` is stripped to the
+API's `/contact` endpoint. Neither service publishes a host port; both join the
+user-owned Traefik network. Required VPS-owned inputs stay in `.env`: the Traefik
+network and certificate resolver, hosts and optional analytics CSP sources.
+
+Traefik terminates TLS, redirects HTTP to HTTPS, applies HSTS, CSP,
+X-Content-Type-Options, Referrer-Policy and Permissions-Policy, routes the bare
+domain and otherwise-unclaimed `*.hubko.me` hosts to the canonical home page, and
+does not capture `cv.hubko.me`. Existing host-specific routers take priority over
+the low-priority unregistered-subdomain router.
 
 ## Verification commands
 
