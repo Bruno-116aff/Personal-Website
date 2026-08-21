@@ -2,7 +2,7 @@
 
 - Batch: 5
 - Area: SEO/social
-- State: READY
+- State: IMPLEMENTED_PENDING_GATE
 - Depends on: SITE-044
 
 ## Goal
@@ -39,3 +39,17 @@ Complete discoverability and share metadata for all public routes.
 ## Deferred batch gate
 
 npm run verify:meta and production URL checks.
+
+## Implementation evidence
+
+- Added route-specific OG/Twitter images and generated six 1200×630 PNG assets.
+- Generated `robots.txt` and `sitemap.xml` during the production build, including
+  `/cv` as an indexable primary route.
+- Homepage schema provides `WebSite` and `Person`; only the approved LinkedIn URL
+  appears in `sameAs` until a real GitHub URL is supplied. Case-study `Article`
+  schema uses no unverified publication or modification dates.
+- Focused checks passed: `npm.cmd run build`, `npm.cmd run verify:meta`, generated
+  HTML/JSON-LD inspection, sitemap/robots inspection and PNG dimension inspection.
+- Deferred to SITE-059: repeat the accumulated metadata verification after all
+  Batch 5 changes. Deferred to deployment access: HTTP verification that the
+  production host serves the sitemap, robots file and share assets.

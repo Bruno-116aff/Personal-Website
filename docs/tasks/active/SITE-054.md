@@ -2,7 +2,7 @@
 
 - Batch: 5
 - Area: deployment/security
-- State: READY
+- State: IMPLEMENTED_PENDING_GATE
 - Depends on: SITE-044
 
 ## Goal
@@ -41,3 +41,23 @@ conventions with secure routing and documented redirects.
 ## Deferred batch gate
 
 SITE-059 verifies real or production-like response headers, routes and redirects.
+
+## Implementation evidence
+
+- Added the root frontend image, contact API image, `compose.yml`, frontend
+  Nginx route configuration, `.dockerignore` and deployment verification script.
+- Configured environment-owned build values and deployment inputs; no secrets or
+  host ports are hardcoded. Traefik routes cover the six public site routes,
+  `/api/contact`, HTTPS, canonical host redirects and unregistered subdomains.
+- Configured HSTS, CSP, X-Content-Type-Options, Referrer-Policy and
+  Permissions-Policy through the shared Traefik security middleware.
+- Focused checks passed: `npm.cmd run build`,
+  `npm.cmd run verify:deployment`,
+  `docker compose --env-file .env.example config --quiet` (with a validation
+  certificate-resolver value), generated-output secret scan, and `git diff --check`.
+- Deferred: a complete local Docker image build was not completed in this
+  Windows/Unicode workspace. BuildKit failed on the context session header;
+  the non-Bake fallback reached the native `better-sqlite3` compilation but
+  exceeded the execution window. SITE-059 must perform the production-like
+  image/runtime, header, route and redirect checks against the real Traefik
+  environment.

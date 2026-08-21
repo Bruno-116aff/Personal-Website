@@ -2,7 +2,7 @@
 
 - Batch: 5
 - Area: accessibility
-- State: READY
+- State: IMPLEMENTED_PENDING_GATE
 - Depends on: SITE-044
 
 ## Goal
@@ -39,3 +39,18 @@ with performance optimization.
 ## Deferred batch gate
 
 SITE-059 runs all project checks and the final responsive/accessibility evidence.
+
+## Implementation evidence
+
+- Added `npm run verify:accessibility`, a generated-route audit covering one H1,
+  ordered heading levels, named navigation, main and skip landmarks, image alt
+  requirements, form ARIA status/error wiring, focus styling, reduced motion and
+  WCAG AA contrast pairs.
+- Removed the contact honeypot from the accessibility tree, added keyboard
+  `:focus-within` context for interactive cards and strengthened photo-slot text
+  contrast on the muted surface.
+- Focused checks passed: `npm.cmd run build` and
+  `npm.cmd run verify:accessibility` (six generated routes).
+- Deferred to SITE-059/browser availability: manual keyboard traversal, 200% zoom
+  review and reduced-motion verification on every interactive route. The current
+  environment has no callable browser-control runtime.
