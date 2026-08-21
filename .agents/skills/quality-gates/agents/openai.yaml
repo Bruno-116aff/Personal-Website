@@ -1,0 +1,4 @@
+interface:
+  display_name: "Quality Gates"
+  short_description: "Audit site frontend, content and release readiness"
+  default_prompt: "Use $quality-gates for an explicit site audit; report evidence without changing behavior."

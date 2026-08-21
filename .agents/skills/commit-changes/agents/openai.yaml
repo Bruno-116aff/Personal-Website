@@ -1,0 +1,4 @@
+interface:
+  display_name: "Commit Changes"
+  short_description: "Create focused commits for the personal site"
+  default_prompt: "Use $commit-changes for explicit site commit requests and preserve unrelated parent-repository changes."

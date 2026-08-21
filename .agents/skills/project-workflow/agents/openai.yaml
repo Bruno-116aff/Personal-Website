@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Workflow"
+  short_description: "Run fast tasks and deliberate batch finalization"
+  default_prompt: "Use $project-workflow for small site tasks and reserve full checks for explicit batch finalization."
