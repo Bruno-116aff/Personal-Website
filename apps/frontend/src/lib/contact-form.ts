@@ -7,6 +7,20 @@ export type ContactSubmission = {
 
 export type ContactValidationErrors = Partial<Record<keyof ContactSubmission, string>>;
 
+export const CONTACT_REQUEST_TIMEOUT_MS = 10_000;
+
+type ContactRequestOptions = {
+  fetchImpl?: typeof fetch;
+  timeoutMs?: number;
+};
+
+function isAcceptedResponse(value: unknown): value is { status: 'accepted' } {
+  return typeof value === 'object'
+    && value !== null
+    && 'status' in value
+    && value.status === 'accepted';
+}
+
 function normalize(value: string) {
   return value.trim();
 }
@@ -41,4 +55,52 @@ export function validateContactSubmission(values: ContactSubmission): ContactVal
   }
 
   return errors;
+}
+
+export function createContactSubmissionLock() {
+  let inFlight = false;
+
+  return {
+    acquire() {
+      if (inFlight) return false;
+
+      inFlight = true;
+      return true;
+    },
+    release() {
+      inFlight = false;
+    },
+  };
+}
+
+export async function submitContactRequest(
+  apiUrl: string,
+  payload: ContactSubmission,
+  options: ContactRequestOptions = {},
+) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    options.timeoutMs ?? CONTACT_REQUEST_TIMEOUT_MS,
+  );
+
+  try {
+    const response = await (options.fetchImpl ?? fetch)(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+
+    if (response.status !== 201) {
+      throw new Error('Contact submission failed.');
+    }
+
+    const responseBody: unknown = await response.json().catch(() => null);
+    if (!isAcceptedResponse(responseBody)) {
+      throw new Error('Contact submission failed.');
+    }
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }

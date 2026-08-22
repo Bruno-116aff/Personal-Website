@@ -1,7 +1,9 @@
-import { useState, type FormEventHandler } from 'react';
+import { useRef, useState, type FormEventHandler } from 'react';
 
 import {
+  createContactSubmissionLock,
   getContactApiUrl,
+  submitContactRequest,
   toContactSubmission,
   validateContactSubmission,
   type ContactValidationErrors,
@@ -21,6 +23,7 @@ const statusMessages: Record<ContactFormStatus, string> = {
 export default function ContactForm() {
   const [status, setStatus] = useState<ContactFormStatus>('idle');
   const [errors, setErrors] = useState<ContactValidationErrors>({});
+  const submissionLock = useRef(createContactSubmissionLock());
   const apiUrl = getContactApiUrl(import.meta.env?.VITE_CONTACT_API_URL);
   const isSubmitting = status === 'submitting';
 
@@ -51,24 +54,19 @@ export default function ContactForm() {
       return;
     }
 
+    if (!submissionLock.current.acquire()) return;
+
     setErrors({});
     setStatus('submitting');
 
     try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error('Contact submission failed.');
-      }
-
+      await submitContactRequest(apiUrl, payload);
       form.reset();
       setStatus('success');
     } catch {
       setStatus('error');
+    } finally {
+      submissionLock.current.release();
     }
   };
 
@@ -132,7 +130,7 @@ export default function ContactForm() {
           {errors.message && <p id="contact-message-error" className="form-field__error">{errors.message}</p>}
         </div>
 
-        <div className="contact-form__honeypot" aria-hidden="true">
+        <div className="contact-form__honeypot" aria-hidden="true" inert="">
           <label htmlFor="contact-website">Website</label>
           <input
             id="contact-website"
