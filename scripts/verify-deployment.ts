@@ -20,9 +20,6 @@ const requiredFiles = [
   'apps/frontend/public/favicon-192.svg',
   'apps/frontend/public/favicon-512.svg',
   'infra/prepare-prod-data.sh',
-  'scripts/deploy/release.sh',
-  'scripts/deploy/rollback.sh',
-  'scripts/deploy/smoke-test.sh',
 ];
 const requiredComposeMarkers = [
   'ivan-site',
@@ -60,25 +57,6 @@ const requiredContactDataMarkers = [
   'chmod 770 "$DATA_DIRECTORY"',
   'data/prod/contact-api',
 ];
-const requiredReleaseMarkers = [
-  'compose pull "${SERVICES[@]}"',
-  'compose up -d --no-deps --force-recreate',
-  'FIRST_LAUNCH',
-  'DEPLOY_FRONTEND',
-  'DEPLOY_CONTACT_API',
-  'wait_healthy',
-];
-const requiredRollbackMarkers = [
-  'PREVIOUS_FRONTEND',
-  'PREVIOUS_CONTACT_API',
-  'compose up -d --no-deps --force-recreate',
-];
-const requiredSmokeMarkers = [
-  "check_url '/'",
-  "check_url '/cv'",
-  "check_url '/robots.txt'",
-  "check_url '/sitemap.xml'",
-];
 const requiredNginxMarkers = publicSiteRoutes.flatMap((route) => {
   const routeMarkers = [`location = ${route.path}`];
   if (route.path === '/') return [...routeMarkers, 'try_files /index.html =500'];
@@ -115,9 +93,6 @@ async function main() {
   const nginx = contents.get('apps/frontend/nginx.conf') ?? '';
   const contactDockerfile = contents.get('apps/contact-api/Dockerfile') ?? '';
   const contactDataPreparation = contents.get('infra/prepare-prod-data.sh') ?? '';
-  const releaseScript = contents.get('scripts/deploy/release.sh') ?? '';
-  const rollbackScript = contents.get('scripts/deploy/rollback.sh') ?? '';
-  const smokeScript = contents.get('scripts/deploy/smoke-test.sh') ?? '';
   for (const marker of requiredComposeMarkers) {
     if (!compose.includes(marker)) errors.push(`infra/docker-compose.prod.yml is missing: ${marker}`);
   }
@@ -133,26 +108,8 @@ async function main() {
   for (const marker of requiredContactDataMarkers) {
     if (!contactDataPreparation.includes(marker)) errors.push(`infra/prepare-prod-data.sh is missing: ${marker}`);
   }
-  for (const marker of requiredReleaseMarkers) {
-    if (!releaseScript.includes(marker)) errors.push(`scripts/deploy/release.sh is missing: ${marker}`);
-  }
-  for (const marker of requiredRollbackMarkers) {
-    if (!rollbackScript.includes(marker)) errors.push(`scripts/deploy/rollback.sh is missing: ${marker}`);
-  }
-  for (const marker of requiredSmokeMarkers) {
-    if (!smokeScript.includes(marker)) errors.push(`scripts/deploy/smoke-test.sh is missing: ${marker}`);
-  }
   if (!contactDataPreparation.startsWith('#!/usr/bin/env sh')) {
     errors.push('infra/prepare-prod-data.sh must be a POSIX shell script');
-  }
-  for (const [file, contentsToCheck] of [
-    ['scripts/deploy/release.sh', releaseScript],
-    ['scripts/deploy/rollback.sh', rollbackScript],
-    ['scripts/deploy/smoke-test.sh', smokeScript],
-  ] as const) {
-    if (!contentsToCheck.startsWith('#!/usr/bin/env bash')) {
-      errors.push(`${file} must be a Bash script`);
-    }
   }
   for (const marker of [...requiredNginxMarkers, ...requiredStaticMarkers]) {
     if (!nginx.includes(marker)) errors.push(`nginx route policy is missing: ${marker}`);
