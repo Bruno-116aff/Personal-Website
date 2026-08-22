@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { mkdtemp, rm } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 
@@ -143,27 +143,38 @@ async function startLocalRuntime(dataDirectory: string) {
   return { frontendUrl: localFrontendUrl, contactUrl: localContactUrl, dataDirectory, local: true };
 }
 
-async function stopLocalRuntime() {
+async function stopLocalContainers() {
   await Promise.all([
     docker(['rm', '--force', frontendContainer]),
     docker(['rm', '--force', contactContainer]),
+  ]);
+}
+
+async function removeLocalRuntimeImages() {
+  await Promise.all([
     docker(['image', 'rm', '--force', frontendImage]),
     docker(['image', 'rm', '--force', contactImage]),
   ]);
 }
 
-async function restoreLocalDataDirectoryAccess(dataDirectory: string) {
+async function removeLocalDataDirectory(dataDirectory: string) {
   const image = await docker(['image', 'inspect', contactImage]);
-  if (image.code !== 0) return;
+  if (image.code === 0) {
+    const cleanup = await docker([
+      'run', '--rm', '--user', 'root',
+      '--volume', `${dirname(dataDirectory)}:/cleanup`,
+      '--env', `DATA_DIRECTORY_NAME=${basename(dataDirectory)}`,
+      contactImage,
+      'sh', '-c', 'rm -rf -- "/cleanup/$DATA_DIRECTORY_NAME"',
+    ]);
+    if (cleanup.code === 0) return;
+    console.error(`WARN: root-container cleanup failed${cleanup.stderr ? `: ${tail(cleanup.stderr)}` : ''}`);
+  }
 
-  const restore = await docker([
-    'run', '--rm', '--user', 'root',
-    '--volume', `${dataDirectory}:/data`,
-    contactImage,
-    'sh', '-c', 'chmod 777 /data',
-  ]);
-  if (restore.code !== 0) {
-    console.error(`WARN: could not restore access to the temporary contact volume${restore.stderr ? `: ${tail(restore.stderr)}` : ''}`);
+  try {
+    await rm(dataDirectory, { recursive: true, force: true });
+  } catch (error) {
+    console.error(`WARN: could not remove temporary contact volume${error instanceof Error ? `: ${error.message}` : ''}`);
   }
 }
 
@@ -325,9 +336,9 @@ async function main() {
       if (runtime.local) await restartAndVerifyContactData(runtime);
     }
   } finally {
-    if (localDataDirectory) await restoreLocalDataDirectoryAccess(localDataDirectory);
-    if (localRuntimeAttempted) await stopLocalRuntime();
-    if (localDataDirectory) await rm(localDataDirectory, { recursive: true, force: true });
+    if (localRuntimeAttempted) await stopLocalContainers();
+    if (localDataDirectory) await removeLocalDataDirectory(localDataDirectory);
+    if (localRuntimeAttempted) await removeLocalRuntimeImages();
   }
 
   console.log('\n=== PRODUCTION VERIFICATION SUMMARY ===');
