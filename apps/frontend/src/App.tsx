@@ -5,6 +5,7 @@ import SiteShell from './components/SiteShell';
 import { Button, Card, Metric, SectionIntro, Tag } from './components/primitives';
 import {
   featuredWork,
+  engineeringApproach,
   homeCapabilities,
   homeHero,
   homeMetrics,
@@ -45,8 +46,33 @@ export default function App({ pathname = '/', githubUrl }: AppProps) {
           previousCase={caseStudyRoutes[caseStudyIndex - 1]}
           nextCase={caseStudyRoutes[caseStudyIndex + 1]}
         />
-      ) : <RouteIntro route={route} />}
+      ) : route.kind === 'not-found' ? <NotFoundPage /> : <RouteIntro route={route} />}
     </SiteShell>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <section className="not-found-page" aria-labelledby="not-found-title">
+      <div className="not-found-page__visual" aria-hidden="true">
+        <span className="not-found-page__signal">route.status / 404</span>
+        <span className="not-found-page__number">404</span>
+        <span className="not-found-page__marker">●</span>
+      </div>
+      <div className="not-found-page__content">
+        <p className="not-found-page__eyebrow">Lost in the request</p>
+        <h1 id="not-found-title">This page took a wrong turn.</h1>
+        <p className="not-found-page__summary">
+          The URL does not lead to a published page. Let&apos;s get you back to useful ground.
+        </p>
+        <nav className="not-found-page__navigation" aria-label="404 page navigation">
+          <a className="button button--primary" href="/">Back to homepage <span aria-hidden="true">→</span></a>
+          <a className="button button--secondary" href="/#work">Explore selected work</a>
+          <a className="button button--secondary" href="/#contact">Start a conversation</a>
+          <a className="button button--secondary" href="/cv">View CV <span aria-hidden="true">↗</span></a>
+        </nav>
+      </div>
+    </section>
   );
 }
 
@@ -167,6 +193,23 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
         </ol>
       </section>
 
+      <section className="home-section" aria-labelledby="approach-heading">
+        <SectionIntro
+          eyebrow="Engineering approach"
+          title="Engineering Approach"
+          titleId="approach-heading"
+          description={engineeringApproach.description}
+        />
+        <div className="approach-grid">
+          {engineeringApproach.points.map((point) => (
+            <Card as="article" key={point.title} className="approach-card">
+              <h3>{point.title}</h3>
+              <p>{point.summary}</p>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       <section className="home-section" aria-labelledby="expertise-heading">
         <SectionIntro
           eyebrow="Technical expertise"
@@ -202,14 +245,14 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
             {aboutCopy.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
           </div>
           <figure className="about-photo">
-            <div
-              className="about-photo__slot"
-              role="img"
-              aria-label="Neutral photo slot for Ivan Hubko"
-            >
-              <span>Photo slot</span>
-            </div>
-            <figcaption>Replace the neutral slot with Ivan’s final photo before launch.</figcaption>
+            <img
+              className="about-photo__image"
+              src="/images/about/ivan-hubko.jpg"
+              alt="Ivan Hubko"
+              width="3687"
+              height="3687"
+            />
+            <figcaption>Ivan Hubko</figcaption>
           </figure>
         </div>
       </section>
@@ -277,9 +320,11 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
                   </Button>
                 )}
               </div>
-              <p id="github-config-note" className="contact-config-note">
-                GitHub will be enabled when the public profile URL is confirmed.
-              </p>
+              {!githubUrl && (
+                <p id="github-config-note" className="contact-config-note">
+                  GitHub will be enabled when the public profile URL is confirmed.
+                </p>
+              )}
             </div>
             <ContactForm />
           </div>

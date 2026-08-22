@@ -28,7 +28,7 @@ export default {
         prose: 'var(--prose-width)',
       },
       transitionDuration: {
-        motion: '200ms',
+        motion: 'var(--motion-duration)',
       },
     },
   },

@@ -13,11 +13,10 @@ function homepageAnchor(pathname: string, id: string) {
 
 export default function SiteShell({ pathname, children }: SiteShellProps) {
   const isHome = pathname === '/';
-  const isWork = pathname.startsWith('/work/');
   const isCv = pathname === '/cv';
 
   return (
-    <div className="site-shell min-h-screen">
+    <div className="site-shell">
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
@@ -35,7 +34,7 @@ export default function SiteShell({ pathname, children }: SiteShellProps) {
           </a>
 
           <div className="site-nav-links">
-            <a href={homepageAnchor(pathname, 'work')} aria-current={isWork ? 'page' : undefined}>
+            <a href={homepageAnchor(pathname, 'work')}>
               Work
             </a>
             <a href={homepageAnchor(pathname, 'about')}>About</a>
