@@ -152,6 +152,21 @@ async function stopLocalRuntime() {
   ]);
 }
 
+async function restoreLocalDataDirectoryAccess(dataDirectory: string) {
+  const image = await docker(['image', 'inspect', contactImage]);
+  if (image.code !== 0) return;
+
+  const restore = await docker([
+    'run', '--rm', '--user', 'root',
+    '--volume', `${dataDirectory}:/data`,
+    contactImage,
+    'sh', '-c', 'chmod 777 /data',
+  ]);
+  if (restore.code !== 0) {
+    console.error(`WARN: could not restore access to the temporary contact volume${restore.stderr ? `: ${tail(restore.stderr)}` : ''}`);
+  }
+}
+
 async function request(baseUrl: string, pathname: string, options: RequestInit = {}) {
   return fetch(`${baseUrl.replace(/\/$/, '')}${pathname}`, { redirect: 'manual', ...options });
 }
@@ -310,6 +325,7 @@ async function main() {
       if (runtime.local) await restartAndVerifyContactData(runtime);
     }
   } finally {
+    if (localDataDirectory) await restoreLocalDataDirectoryAccess(localDataDirectory);
     if (localRuntimeAttempted) await stopLocalRuntime();
     if (localDataDirectory) await rm(localDataDirectory, { recursive: true, force: true });
   }
