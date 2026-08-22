@@ -1,3 +1,5 @@
+import { caseStudies, type CaseStudyTitleKey } from './case-studies';
+
 export type HomeMetric = {
   value: string;
   label: string;
@@ -62,38 +64,63 @@ export const homeCapabilities = [
   },
 ] as const;
 
-export const featuredWork: readonly WorkTeaser[] = [
-  {
-    title: 'Infrastructure Reliability',
+export type EngineeringApproachPoint = {
+  title: string;
+  summary: string;
+};
+
+export const engineeringApproach = {
+  description: 'A practical way to move from a manual workflow to a system that can be trusted in production.',
+  points: [
+    {
+      title: 'Start with the manual failure',
+      summary: 'Identify the slow, unreliable or repetitive part of the workflow before choosing the architecture around it.',
+    },
+    {
+      title: 'Make failure recoverable',
+      summary: 'Use independent steps, persisted state and retries so a failed process can resume instead of starting over.',
+    },
+    {
+      title: 'Keep trade-offs explicit',
+      summary: 'Choose the smallest architecture that fits the current scope, then make the cost of change visible as the system grows.',
+    },
+    {
+      title: 'Own the production path',
+      summary: 'Treat deployment, health checks, monitoring and failure handling as part of the system rather than a handoff after coding.',
+    },
+  ] as const satisfies readonly EngineeringApproachPoint[],
+};
+
+const workPresentation: Record<CaseStudyTitleKey, Omit<WorkTeaser, 'title' | 'href'>> = {
+  infrastructureReliability: {
     summary:
       'A worker service for a 20-modem proxy station that rerouted failed connections and reduced direct proxy line-item cost by roughly $3.5K per year.',
-    href: '/work/infrastructure-reliability',
     linkLabel: 'Read the infrastructure reliability case study',
     tags: ['Workers', 'Ubuntu', 'Failover'],
   },
-  {
-    title: 'Operations Automation',
+  operationsAutomation: {
     summary:
       'A queued provisioning pipeline that reduced a server-and-domain request from 1–3 hours to around 15 minutes.',
-    href: '/work/operations-automation',
     linkLabel: 'Read the operations automation case study',
     tags: ['RabbitMQ', 'Cloud APIs', 'TLS'],
   },
-  {
-    title: 'Unified Platform',
+  unifiedPlatform: {
     summary:
       'A single operational platform that reconciled reported delivery, actual traffic and spend across previously fragmented systems.',
-    href: '/work/unified-platform',
     linkLabel: 'Read the unified platform case study',
     tags: ['NestJS', 'Microservices', 'Reconciliation'],
   },
-  {
-    title: 'Account Automation',
+  accountAutomation: {
     summary:
       'Lifecycle management for a large pool of operational accounts, with scheduling under fixed hardware limits, health monitoring and synchronized state.',
-    href: '/work/account-automation',
     linkLabel: 'Read the account automation case study',
     tags: ['Scheduling', 'Health monitoring', 'State sync'],
     quiet: true,
   },
-];
+};
+
+export const featuredWork: readonly WorkTeaser[] = caseStudies.map((caseStudy) => ({
+  title: caseStudy.title,
+  href: caseStudy.path,
+  ...workPresentation[caseStudy.titleKey],
+}));

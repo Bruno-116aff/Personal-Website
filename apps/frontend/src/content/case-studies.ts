@@ -1,5 +1,9 @@
+import { publicSiteRoutes, type SiteRouteTitleKey } from '../routes';
+
 export const caseStudyConfidentialityNote =
   'Internal business system. Some implementation details and identifiers have been generalized due to confidentiality obligations.';
+
+export type CaseStudyTitleKey = Exclude<SiteRouteTitleKey, 'home' | 'cv' | 'notFound'>;
 
 export type CaseStudyPath =
   | '/work/infrastructure-reliability'
@@ -18,9 +22,7 @@ export type CaseStudyResult = {
   detail?: string;
 };
 
-export type CaseStudy = {
-  path: CaseStudyPath;
-  title: string;
+type CaseStudyContent = {
   summary: string;
   context: readonly string[];
   problem: readonly string[];
@@ -32,21 +34,19 @@ export type CaseStudy = {
   engineeringLessons: readonly string[];
 };
 
+export type CaseStudy = CaseStudyContent & {
+  path: CaseStudyPath;
+  title: string;
+  titleKey: CaseStudyTitleKey;
+};
+
 export type CaseStudyRoute = {
   path: CaseStudyPath;
   title: string;
+  titleKey: CaseStudyTitleKey;
 };
 
-export const caseStudyRoutes: readonly CaseStudyRoute[] = [
-  { path: '/work/infrastructure-reliability', title: 'Infrastructure Reliability' },
-  { path: '/work/operations-automation', title: 'Operations Automation' },
-  { path: '/work/unified-platform', title: 'Unified Platform' },
-  { path: '/work/account-automation', title: 'Account Automation' },
-];
-
-const infrastructureReliabilityCase: CaseStudy = {
-  path: '/work/infrastructure-reliability',
-  title: 'Infrastructure Reliability',
+const infrastructureReliabilityCase: CaseStudyContent = {
   summary:
     'A hardware-aware worker service that made a 20-modem proxy station more reliable and reduced direct proxy line-item costs by roughly $3.5K per year.',
   context: [
@@ -107,9 +107,7 @@ const infrastructureReliabilityCase: CaseStudy = {
   ],
 };
 
-const operationsAutomationCase: CaseStudy = {
-  path: '/work/operations-automation',
-  title: 'Operations Automation',
+const operationsAutomationCase: CaseStudyContent = {
   summary:
     'A queued provisioning pipeline that reduced a server-and-domain request from 1–3 hours to around 15 minutes and removed a manual operational bottleneck.',
   context: [
@@ -173,9 +171,7 @@ const operationsAutomationCase: CaseStudy = {
   ],
 };
 
-const unifiedPlatformCase: CaseStudy = {
-  path: '/work/unified-platform',
-  title: 'Unified Platform',
+const unifiedPlatformCase: CaseStudyContent = {
   summary:
     'A single operational platform that consolidated fragmented systems, reconciled delivery, traffic and spend, and evolved from a modular monolith as the scope grew.',
   context: [
@@ -240,9 +236,7 @@ const unifiedPlatformCase: CaseStudy = {
   ],
 };
 
-const accountAutomationCase: CaseStudy = {
-  path: '/work/account-automation',
-  title: 'Account Automation',
+const accountAutomationCase: CaseStudyContent = {
   summary:
     'A lifecycle-management system for a large pool of operational accounts, combining scheduling under fixed execution capacity, health monitoring and synchronized state.',
   context: [
@@ -307,14 +301,31 @@ const accountAutomationCase: CaseStudy = {
   ],
 };
 
-// Case-specific copy is added incrementally by SITE-031 through SITE-034.
-// Keeping it separate from the route layout avoids duplicated presentation code.
-export const caseStudies: readonly CaseStudy[] = [
-  infrastructureReliabilityCase,
-  operationsAutomationCase,
-  unifiedPlatformCase,
-  accountAutomationCase,
-];
+const caseStudyContent = {
+  infrastructureReliability: infrastructureReliabilityCase,
+  operationsAutomation: operationsAutomationCase,
+  unifiedPlatform: unifiedPlatformCase,
+  accountAutomation: accountAutomationCase,
+} satisfies Record<CaseStudyTitleKey, CaseStudyContent>;
+
+export const caseStudies: readonly CaseStudy[] = publicSiteRoutes
+  .filter((route) => route.kind === 'case-study')
+  .map((route) => {
+    const titleKey = route.titleKey as CaseStudyTitleKey;
+
+    return {
+      ...caseStudyContent[titleKey],
+      path: route.path as CaseStudyPath,
+      title: route.heading,
+      titleKey,
+    };
+  });
+
+export const caseStudyRoutes: readonly CaseStudyRoute[] = caseStudies.map((caseStudy) => ({
+  path: caseStudy.path,
+  title: caseStudy.title,
+  titleKey: caseStudy.titleKey,
+}));
 
 export function getCaseStudy(pathname: string) {
   return caseStudies.find((caseStudy) => caseStudy.path === pathname);
@@ -325,6 +336,7 @@ export function getCaseStudy(pathname: string) {
 export const caseStudyFixture: CaseStudy = {
   path: '/work/infrastructure-reliability',
   title: 'Case Study Template',
+  titleKey: 'infrastructureReliability',
   summary: 'A structured fixture for verifying the reusable case-study layout.',
   context: ['A workflow needed a clear, maintainable case-study presentation.'],
   problem: ['The presentation needed one consistent structure across several routes.'],

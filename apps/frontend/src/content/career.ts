@@ -1,9 +1,6 @@
-export type CareerEntry = {
-  period: string;
-  company: string;
-  role: string;
-  summary: string;
-};
+import { careerFacts, skillFacts } from './profile';
+
+export type CareerEntry = (typeof careerFacts)[number];
 
 export type ExpertiseGroup = {
   title: string;
@@ -11,72 +8,43 @@ export type ExpertiseGroup = {
   supporting?: boolean;
 };
 
-export const careerTimeline: readonly CareerEntry[] = [
-  {
-    period: 'Sep 2021 – Feb 2022',
-    company: 'Fiverr / Upwork',
-    role: 'Frontend Web Developer, freelance',
-    summary: 'First commercial experience: landing pages, JavaScript, HTML and CSS.',
-  },
-  {
-    period: 'Mar 2022 – Mar 2023',
-    company: 'Alpha Tech',
-    role: 'Full Stack Developer, remote',
-    summary: 'Frontend-heavy product work with server-side, API and database responsibilities using PHP and JavaScript.',
-  },
-  {
-    period: 'Mar 2023 – Sep 2023',
-    company: 'PS Simple Traffic',
-    role: 'Frontend Developer',
-    summary: 'Built internal React and TypeScript applications while expanding into backend and infrastructure work as the team grew.',
-  },
-  {
-    period: 'Oct 2023 – Dec 2024',
-    company: 'PS Simple Traffic',
-    role: 'Backend Developer / Team Lead',
-    summary: 'Shifted primary focus to backend, led a frontend team of 3, co-built core platform architecture and took ownership of deployment and infrastructure.',
-  },
-  {
-    period: '2025 – present',
-    company: 'PS Simple Traffic',
-    role: 'Tech Lead / Senior Backend Developer',
-    summary: 'Owns backend technical direction and architecture decisions, supports team growth and remains hands-on in code.',
-  },
-];
+const combineSkills = (...groups: readonly (readonly string[])[]) => groups.flat();
+
+export const careerTimeline = careerFacts;
 
 export const expertiseGroups: readonly ExpertiseGroup[] = [
   {
     title: 'Languages',
-    items: ['TypeScript', 'JavaScript (ES6+)', 'SQL', 'PHP'],
+    items: skillFacts.languages,
   },
   {
     title: 'Backend & APIs',
-    items: ['Node.js', 'Express.js', 'NestJS', 'REST APIs', 'WebSocket', 'Webhooks', 'Background processing', 'Schedulers', 'Worker processes'],
+    items: skillFacts.backend,
   },
   {
     title: 'Architecture & messaging',
-    items: ['System design', 'Modular monoliths', 'Microservices', 'Service-oriented architecture', 'Event-driven architecture', 'BullMQ', 'Redis queues', 'Kafka', 'RabbitMQ', 'Retries and failure handling'],
+    items: skillFacts.architecture,
   },
   {
     title: 'Data & reliability',
-    items: ['MySQL', 'PostgreSQL', 'Redis', 'Schema design', 'Transactions', 'Query optimization', 'Indexing', 'Caching', 'Monitoring', 'Health checks', 'Failure recovery'],
+    items: skillFacts.dataReliability,
   },
   {
     title: 'Integrations & access',
-    items: ['Third-party APIs', 'Meta / Facebook Graph API', 'Cloudflare API', 'Payment and financial APIs', 'Telegram integrations', 'JWT', 'Access / refresh tokens', 'httpOnly cookies', 'Session management', 'RBAC', 'CORS', 'API validation'],
+    items: combineSkills(skillFacts.integrations, skillFacts.security),
   },
   {
     title: 'Cloud, delivery & security',
-    items: ['AWS', 'Google Cloud', 'Cloudflare', 'Docker', 'Linux / Ubuntu', 'Nginx', 'Traefik', 'GitHub Actions', 'JWT', 'RBAC', 'TLS / HTTPS', 'API validation'],
+    items: skillFacts.cloudDelivery,
   },
   {
     title: 'Supporting breadth',
-    items: ['React', 'TypeScript', 'Vite', 'MUI', 'HTML5 / CSS3'],
+    items: skillFacts.frontend,
     supporting: true,
   },
   {
     title: 'AI-assisted working style',
-    items: ['Cursor', 'Claude Code', 'OpenAI Codex'],
+    items: skillFacts.aiAssisted,
     supporting: true,
   },
 ];
