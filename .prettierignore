@@ -1,0 +1,6 @@
+node_modules/
+dist/
+infra/data/
+apps/frontend/public/images/
+apps/frontend/src/assets/brand/
+*.lock
