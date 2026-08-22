@@ -2,13 +2,17 @@
 
 ## Snapshot
 
-Date: 2026-08-21
+Date: 2026-08-22
 
-Batch 4 is complete after the SITE-044 accumulated gate. The repository now has
-the application foundation, shared visual system, complete homepage, four
-approved case-study routes and a CV route. The approved documentation remains the
-source of truth for product, content, NDA boundaries, routes and technical
-constraints.
+Batch 4 is complete after the SITE-044 accumulated gate. Batch 5 development
+hardening is complete through the sequential remediation chain; SITE-050 through
+SITE-055, SITE-062 through SITE-080 and SITE-059 are COMPLETE after the
+accumulated local gate. SITE-083 is implemented pending the Batch 6 gate. The
+repository has the application foundation, shared visual system, complete
+homepage, four approved case-study routes, a CV route and a branded 404
+fallback. The approved
+documentation remains the source of truth for product, content, NDA boundaries,
+routes and technical constraints.
 
 ## What changed in this session
 
@@ -40,6 +44,31 @@ constraints.
   passed API/UI tests, typechecks, builds, public-content/meta verification and
   a local HTTP-to-SQLite persistence check. SITE-040, SITE-041 and SITE-044 are
   COMPLETE and archived.
+- The 2026-08-22 full audit added the sequential Batch 5 remediation chain
+  SITE-062 through SITE-080. The compiled production API validates requests,
+  the dev command runs the compiled runtime, and SITE-059 passed the final local
+  full-audit gate.
+- SITE-083 added a prerendered `dist/404.html`, `noindex, follow` metadata, a
+  shared-shell 404 page with recovery navigation, and the Nginx internal
+  `error_page 404` fallback. Frontend typecheck, tests, build, metadata and
+  content checks pass from `apps/frontend`.
+- SITE-081 added selective GitHub Actions CI for the frontend and contact API,
+  repository-wide checks, production verification and immutable GHCR image
+  publishing with a release manifest.
+- SITE-082 added the production deploy workflow and remote release helpers:
+  selective service updates, first-launch deployment from the server-owned
+  `.env`, Docker health checks,
+  public smoke tests and rollback support. Production `.env` and server
+  access remain external inputs and are never committed.
+- The production compose was simplified to consume the existing server Traefik
+  over the external `traffic_net` network. It no longer configures a Traefik
+  service, certificate resolver, security middleware or catch-all host rules:
+  `ivan.hubko.me` goes to frontend, `/api/*` goes to the contact API, and
+  primary-host unknown paths keep the Nginx 404. The catch-all host redirect is
+  now intended for the server Traefik compose.
+- The final local verification completed with `12 PASS`, `0 DEFERRED` and
+  `0 FAIL`, including both Docker image builds and the local production
+  compose/runtime check.
 
 ## Resume recipe
 
@@ -54,12 +83,19 @@ constraints.
 
 ## Current open inputs
 
-- GitHub URL is missing.
-- Engineering Philosophy source is missing.
-- Photo is intentionally not blocking development; use the approved neutral slot.
-- VPS/Docker/Traefik and DNS access are not available in the repository.
-- Interactive browser runtime is unavailable in the current environment; static
-  shell evidence is recorded, but keyboard walkthrough remains deferred.
+- GitHub URL, final photo and GA4 Measurement ID are configured locally.
+- Engineering Approach uses the approved themes from `docs/00–02`; no separate
+  philosophy source is required.
+- Current scope is implementation and local verification only. GitHub Actions
+  and VPS execution are still external inputs. The deploy workflow expects
+  `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_PRIVATE_KEY`, `DEPLOY_PATH` and,
+  for a private GHCR, `GHCR_READ_TOKEN`. The production `.env` must already
+  exist at `$DEPLOY_PATH/.env`; the workflow does not upload or overwrite it.
+  The full contract is in `scripts/deploy/README.md`.
+- Local Playwright checks passed for routes, responsive width, overflow,
+  keyboard focus, form validation and configured GitHub/GA4/photo output.
+- Local Docker and Playwright verification are the applicable runtime checks for
+  this batch.
 
 ## Important safety notes
 
@@ -70,4 +106,8 @@ constraints.
 
 ## Next action
 
-Start SITE-050, the Batch 5 SEO/social assets task.
+Finish the remaining content review, then run SITE-061. The final gate should
+review the committed workflows, configure the GitHub/VPS secrets and perform
+the first controlled deployment when those external inputs are available.
+SITE-081, SITE-082 and SITE-083 remain IMPLEMENTED_PENDING_GATE until that
+full gate closes the batch.

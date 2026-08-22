@@ -39,24 +39,21 @@ Non-negotiable rules for the whole build:
   genuinely unspecified. Do not invent product requirements just to fill space.
 - Keep case-study content separate from layout/component code so copy can be reviewed
   and edited without changing UI implementation.
-- Never put secrets, API keys, SMTP credentials, GA credentials or deployment tokens
+- Never put secrets, API keys, GA credentials or deployment tokens
   in source control. Use the existing infrastructure's environment/secret pattern.
 
-### Known missing inputs — do not fabricate
+### External inputs — use approved documentation as truth
 
-Two inputs referenced by the specification are not actually present in `00–04`:
+The brand brief, content facts and copywriting guidelines are the authoritative
+source for the Engineering Approach themes. Do not invent attributed principles
+or add a separate philosophy document. The implemented section uses only the
+defensible themes approved in `00–02`.
 
-- `05` previously referred to an "original concept doc" for five Engineering
-  Philosophy principles. If that source exists elsewhere in the repository/workspace,
-  use it. If it is unavailable, **do not invent five attributed principles**. Build the
-  section/layout and surface the missing source at CHECKPOINT 2 so the final wording
-  can be approved from available evidence.
-- `01` says a GitHub profile exists, but does not provide the public GitHub URL. Do
-  not guess the handle. Keep the value configurable and require the real URL before
-  enabling the production Contact link and adding GitHub to `Person.sameAs`.
+`01` says a GitHub profile exists, and the owner-supplied public URL is now
+configured as `https://github.com/Bruno-116aff`.
 
-Other environment-owned values such as mail-forwarding credentials, GA4 Measurement
-ID and Search Console verification data should likewise be wired through configuration
+Other environment-owned values such as the GA4 Measurement ID
+verification data should likewise be wired through configuration
 and never invented. Missing credentials should not block implementation, but any
 required production integration must be verified before launch is called complete.
 
@@ -131,8 +128,8 @@ Write the full homepage content in the structure defined by `03`:
 - Technical Expertise — grouped text/categories, not skill percentages and not a logo
   wall. Frontend is supporting breadth, not the headline identity. AI-assisted
   engineering is a brief working-style note, not a headline skill.
-- About — concise, career-relevant context. Include a properly sized photo slot; a
-  neutral development placeholder is acceptable until Ivan adds the real image.
+- About — concise, career-relevant context with the supplied final photo in the
+  properly sized image treatment.
 - Contact — Email, LinkedIn, Telegram and GitHub treatment per `01/03`, plus the
   contact form. GitHub must remain non-prominent and must not imply an active public
   contribution history.
@@ -211,7 +208,7 @@ Before CHECKPOINT 2:
 
 **CHECKPOINT 2 — mandatory, do not skip:** surface the complete text of the homepage,
 all four case studies and `/cv` for a human read-through **before** final visual polish
-or public launch. Explicitly flag (a) any unresolved Engineering Approach source and
+or public launch. Explicitly flag (a) any unresolved Engineering Approach content and
 (b) the missing GitHub URL if still unresolved. Case 4 receives a second NDA-focused
 read. Public career copy with real confidentiality constraints must not bypass this
 checkpoint.
@@ -257,10 +254,11 @@ checkpoint.
 
 ### Contact form implementation
 
-Build the form UI (`name`, `email`, `message`) and a small NestJS forwarding endpoint
+Build the form UI (`name`, `email`, `message`) and a small NestJS contact endpoint
 on Ivan's existing infrastructure:
 
-- forward valid submissions to `gubko360@gmail.com`
+- store accepted submissions in a server-side SQLite database for manual processing
+- keep the `gubko360@gmail.com` contact button as a direct `mailto:` destination;
 - use the existing NestJS conventions where available
 - validate/sanitize expected inputs server-side; client validation is convenience,
   not the security boundary
@@ -268,9 +266,9 @@ on Ivan's existing infrastructure:
 - implement a honeypot field at minimum
 - add Cloudflare Turnstile only if it fits easily; it is not a launch blocker
 - show clear accessible submitting/success/error states without leaking internal
-  backend or mail-provider details
+  backend implementation details
 - prevent duplicate accidental submissions while a request is in flight
-- keep mail/API credentials server-side via environment/secret configuration
+- keep any API credentials server-side via environment/secret configuration
 - verify the deployed frontend can reach the endpoint through the intended production
   routing without weakening security unnecessarily
 
@@ -278,7 +276,7 @@ on Ivan's existing infrastructure:
 
 - Homepage: `WebSite` + `Person` as specified in `03`.
 - `Person.jobTitle`: `Senior Backend Engineer & Tech Lead`.
-- `Person.sameAs`: LinkedIn plus the real GitHub URL once supplied; never invent the
+- `Person.sameAs`: LinkedIn plus the configured GitHub URL; never invent the
   GitHub handle.
 - Each case study: `Article` with headline, author/Person relationship and valid
   publication/modified dates representing the page publication/update, not invented
@@ -300,8 +298,9 @@ measurable impact in one scroll for a non-technical reader.
   - homepage: `Ivan Hubko — Senior Backend Engineer & Tech Lead`
   - case studies: `[Page Topic] — Ivan Hubko`
 - Add a correct self-referencing canonical URL for each `ivan.hubko.me` page.
-- Ensure `/cv` on the primary site is the indexable main CV location; keep the
-  independent `cv.hubko.me` instance `noindex, follow` as required by `03`.
+- Ensure `/cv` on the primary site is the indexable main CV location; the
+  separate `cv.hubko.me` host redirects to the canonical site as required by
+  `03`.
 - Finish `robots.txt` and `sitemap.xml` with the actual launch routes/canonical URLs.
 - Create per-page OG/Twitter metadata and 1200×630 share images. Simple text-on-brand
   images are sufficient; do not over-design them.
@@ -348,7 +347,7 @@ Before launch, use production-like lab checks to catch obvious regressions. The 
 75th-percentile target is ultimately a field metric, so do not pretend local Lighthouse
 scores are the same thing; monitor real data after traffic exists.
 
-### Analytics and Search Console
+### Analytics
 
 - Add GA4 using a configurable production Measurement ID.
 - Track at minimum these named events:
@@ -360,10 +359,6 @@ scores are the same thing; monitor real data after traffic exists.
   - `github_click`
 - Verify each event fires once for the intended user action and is not duplicated by
   hydration/rerendering.
-- Set up Google Search Console for the primary site and submit/verify the sitemap when
-  access/verification data is available.
-- Do not invent analytics IDs or Search Console tokens; missing account-owned values
-  must be surfaced in the final launch checklist.
 
 ### Security
 
@@ -392,18 +387,19 @@ Also verify:
 - Point `ivan.hubko.me` to the production deployment and confirm HTTPS/certificate
   behavior through Traefik.
 - Confirm all six registered routes load directly by URL and after a hard refresh.
-- Keep `cv.hubko.me` independently live as-is with `noindex, follow` so it does not
-  compete with the primary `/cv` route.
+- Redirect `cv.hubko.me`, the bare domain and all other `hubko.me` subdomains to
+  the primary site through the server-owned Traefik catch-all.
 - Configure `hubko.me` bare domain to **301** redirect to `ivan.hubko.me`.
 - Configure the required catch-all for other unregistered `hubko.me` subdomains/routes
   to **301** redirect to the primary site, using the available DNS/Traefik conventions.
-- On `ivan.hubko.me`, any unmatched/unregistered route must redirect to the homepage
-  instead of ending on a dead 404 page, per `03`.
+- On `ivan.hubko.me`, any unmatched route must remain a branded HTTP 404 page;
+  only unmatched hosts redirect to the primary site, per `03`.
 - Verify canonical URLs always point to the intended `ivan.hubko.me` route and do not
   inherit the redirecting host.
 - Verify `robots.txt`, `sitemap.xml`, share images and any static assets resolve on the
   production host.
-- Verify Contact mail delivery end to end from the public production form.
+- Verify the public production form reaches the contact endpoint and accepted
+  submissions are persisted for manual processing.
 
 ---
 
@@ -457,7 +453,8 @@ the deployed production build.
 - Valid `Article` data on all four case-study pages.
 - OG/Twitter metadata is populated and the referenced 1200×630 assets resolve.
 - Primary content is visible in raw/generated HTML.
-- `cv.hubko.me` remains `noindex, follow`; `ivan.hubko.me/cv` is the primary CV page.
+- `ivan.hubko.me/cv` is the primary CV page; `cv.hubko.me` redirects to the
+  canonical host.
 
 ### Performance/security
 
@@ -470,35 +467,32 @@ the deployed production build.
 
 ### Integrations
 
-- Contact form succeeds with a valid submission and the message reaches
-  `gubko360@gmail.com`.
+- Contact form succeeds with a valid submission and the accepted record is stored
+  in server-side SQLite for manual processing.
 - Invalid form input is rejected cleanly.
 - Honeypot/rate limiting are active on the deployed endpoint.
-- Email, LinkedIn and Telegram actions point to the approved destinations.
+- Email, LinkedIn and Telegram actions point to the approved destinations; the
+  email action uses `mailto:gubko360@gmail.com`.
 - GitHub action is enabled only after the real profile URL is supplied.
 - All required GA4 events are verified.
-- Search Console property/verification and sitemap submission are complete when the
-  required account access is available.
 
 ### Domains/redirects
 
 - `ivan.hubko.me` is the canonical production host.
 - `hubko.me` redirects with 301 to the primary host.
 - Required unregistered host/route catch-alls behave as specified in `03`.
-- Unknown routes on the main site redirect home instead of producing a dead-end 404.
+- Unknown routes on the main site return the branded HTTP 404 page.
 - No redirect loop exists between `hubko.me`, `ivan.hubko.me` and `cv.hubko.me`.
 
 **CHECKPOINT 4 — launch review, mandatory:** perform a complete human walkthrough of
-the live production site after all automated/manual verification above. Review it once
+the locally built site after all automated/manual verification above. Review it once
 as a recruiter/HR reader (positioning, clarity, measurable impact) and once as a
 technical hiring reader (architecture signal, credibility, trade-offs, NDA safety).
 Resolve every launch-blocking item before calling the site done or sending it to
 recruiters.
 
-At this checkpoint, explicitly list any remaining external input that code cannot
-supply (for example the real GitHub URL, missing Engineering Philosophy source,
-production analytics/Search Console credentials, or final photo). Do not silently
-replace missing user-owned data with guesses.
+At this checkpoint, explicitly list any remaining input that code cannot supply.
+Do not silently replace user-owned data with guesses.
 
 ---
 
@@ -513,8 +507,7 @@ All of the following are true:
 - Contact works end to end with spam protection.
 - SEO metadata, structured data, sitemap, robots and share assets are live.
 - WCAG-oriented accessibility checks and performance checks are complete.
-- GA4 events and Search Console are configured/verified when account access is
-  available.
+- GA4 events are configured and verified in the local browser runtime.
 - Required security headers are confirmed on production responses.
 - Domain, canonical and redirect behavior matches `03`.
 - No unresolved **launch-blocking** placeholder, secret, invented fact or sensitive

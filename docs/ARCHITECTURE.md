@@ -14,9 +14,10 @@ The canonical host is ivan.hubko.me.
 | /work/unified-platform | case study 3 |
 | /work/account-automation | case study 4, always last in work ordering |
 | /cv | primary indexable CV page |
+| unknown primary-host path | branded `404.html` fallback with HTTP 404 |
 
-cv.hubko.me remains an independent noindex, follow instance. Bare hubko.me and
-unregistered hubko.me hosts/routes redirect as specified in docs/03.
+cv.hubko.me, bare hubko.me and unregistered hubko.me hosts/routes redirect to
+the canonical host as specified in docs/03.
 
 ## Source boundaries
 
@@ -47,7 +48,9 @@ modules.
 
 ## Rendering
 
-The six known routes must generate meaningful HTML at build time. Client JavaScript
+The six known routes must generate meaningful HTML at build time. The build also
+generates a non-indexable `404.html` fallback for unknown primary-host paths.
+Client JavaScript
 may enhance navigation, analytics and form submission but must not be required for
 primary copy or metadata.
 
@@ -80,16 +83,27 @@ and redirects.
 
 The repository deployment contract is `infra/docker-compose.prod.yml` with
 `infra/docker-compose.build.yml`: frontend serves only the six known static
-routes plus SEO assets, while `/api/contact` is stripped to the API's `/contact`
-endpoint. Neither production service publishes a host port; both join the
-user-owned Traefik network. Required VPS-owned inputs stay in `.env`: the Traefik
-network and certificate resolver, hosts and optional analytics CSP sources.
+routes, a branded `404.html` fallback and SEO assets, while `/api/contact` is
+stripped to the API's `/contact` endpoint. Nginx returns HTTP 404 for unknown
+paths while internally rendering the fallback. Neither production service publishes a host port; both join the
+server-owned external `traffic_net` network.
 
-Traefik terminates TLS, redirects HTTP to HTTPS, applies HSTS, CSP,
-X-Content-Type-Options, Referrer-Policy and Permissions-Policy, routes the bare
-domain and otherwise-unclaimed `*.hubko.me` hosts to the canonical home page, and
-does not capture `cv.hubko.me`. Existing host-specific routers take priority over
-the low-priority unregistered-subdomain router.
+The server-owned Traefik instance terminates the Cloudflare-origin TLS
+connection and receives only the routing labels from this compose: the frontend
+serves `ivan.hubko.me`, and `/api/*` is stripped and sent to the contact API.
+The separate server Traefik compose owns the catch-all redirect for every host
+except `ivan.hubko.me`; unknown paths on the primary host remain with Nginx so
+the branded HTTP 404 page is returned.
+
+CI/CD is split by responsibility. `.github/workflows/quality.yml` detects
+frontend, contact-API and shared-infrastructure changes, runs the relevant
+verification jobs, builds both Docker images only when their inputs changed and
+publishes immutable `sha-<commit>` images to GHCR on successful `main` builds.
+`.github/workflows/deploy.yml` consumes the CI release manifest, uploads only the
+deployment bundle, keeps `.env` server-owned, and selectively updates services
+with `--no-deps`. A manual first-launch dispatch requires both image references;
+the server release helper prepares SQLite storage, waits for health checks and
+records previous image references for rollback.
 
 ## Verification commands
 

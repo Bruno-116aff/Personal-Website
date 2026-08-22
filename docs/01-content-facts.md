@@ -13,12 +13,12 @@ a deliberate decision, not a gap to fill in.
 - LinkedIn (use this one, don't show raw URL — button only):
   https://www.linkedin.com/in/ivan-hubko-5a635b245
 - Telegram: @Ivan_devs
-- GitHub: exists but is currently empty (private/company repos only historically
-  under a different handle). Show a GitHub link/icon in Contact, but do NOT feature
-  it or imply an active public contribution history. No "pinned repos" widget.
-- Photo: Ivan will insert his own photo locally later. Build the About/Contact
-  layout with a photo slot (proper aspect ratio, alt text placeholder) but do not
-  block on having the actual image — use a neutral placeholder in dev.
+- GitHub: `https://github.com/Bruno-116aff` is the approved public profile. It is
+  currently empty (private/company repos only historically), so show the link in
+  Contact without implying an active public contribution history. No "pinned
+  repos" widget.
+- Photo: Ivan supplied the final local photo for the About section. Use it with
+  a proper aspect ratio and meaningful alt text.
 
 ## Career timeline (show honestly, no smoothing)
 - 2021 (Sep–Feb 2022): Fiverr/Upwork, Frontend Web Developer, freelance — first

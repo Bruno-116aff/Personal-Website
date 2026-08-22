@@ -35,6 +35,10 @@ The foundation uses CSS custom properties as the runtime source of truth and
 exposes the same values through Tailwind utilities. The page remains explicitly
 light-only.
 
+Styling ownership: custom component CSS is the primary styling layer. Tailwind
+remains a token-backed utility bridge for small layout and integration helpers;
+shared visual decisions belong in the CSS token layer.
+
 | Token group | Implemented values |
 | --- | --- |
 | Fonts | `Inter` for body/headings; `JetBrains Mono` for labels, metrics, technologies and code-like fragments |
@@ -68,7 +72,7 @@ The reusable UI vocabulary is:
 - ExpertiseGroups.
 - CaseStudyLayout with Context, Problem, Constraints, Approach, Architecture,
   Technology, Result and Engineering Lessons.
-- AboutPhotoSlot.
+- AboutPhoto.
 - ContactPanel and ContactForm.
 - SiteFooter.
 - Prose, Tag and ExternalLink primitives.

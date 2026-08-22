@@ -20,8 +20,16 @@
 - Contact form backend: a small NestJS endpoint on Ivan's existing infra that
   stores validated submissions in a server-side SQLite database for manual
   processing. Reuse standard validation and rate-limiting patterns rather than
-  introducing a new framework for this one endpoint. Do not configure email
-  delivery for launch.
+  introducing a new framework for this one endpoint.
+
+### Contact delivery contract
+
+At launch, the contact form POSTs validated submissions to the NestJS endpoint,
+which applies server-side validation, honeypot/rate-limit checks and stores
+accepted submissions in server-side SQLite for manual processing.
+
+The `gubko360@gmail.com` contact action is a direct `mailto:` destination for
+people who prefer email.
 
 ## Hosting
 - Ivan's own VPS via **Docker + Traefik**, same as his other infrastructure.
@@ -64,7 +72,6 @@ canvas or as a background image with no text alternative.
 
 ## Analytics & tracking
 - **Google Analytics 4** (Ivan's choice — not Plausible/Umami).
-- Google Search Console — set up regardless.
 - Track at minimum: case_study_open, cv_click, email_click, linkedin_click,
   telegram_click, github_click.
 - Configure GA4 only with the user-owned `VITE_GA4_MEASUREMENT_ID`; an empty or

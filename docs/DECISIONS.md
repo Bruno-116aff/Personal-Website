@@ -13,3 +13,4 @@ Short, durable decisions only. Detailed requirements stay in docs/00–05.
 | D-007 | Full checks run only at explicit batch finalization | Visual, production and cross-cutting gates are expensive and should not slow every small task. |
 | D-008 | Missing user-owned values stay configurable | Guessing URLs, IDs, credentials or source material would create factual or security defects. |
 | D-009 | No commit is implied by implementation | Commits require an explicit user request and use the dedicated commit skill. |
+| D-010 | Unknown primary-host paths use a branded static 404 fallback | Helpful recovery navigation must coexist with real HTTP 404 semantics and `noindex, follow`; the fallback is not a public sitemap route. |

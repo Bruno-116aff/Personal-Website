@@ -3,13 +3,10 @@
 ## Domains
 - `ivan.hubko.me` — **primary site**, canonical host for everything below.
 - `ivan.hubko.me/cv` — duplicates the CV content (see note below).
-- `cv.hubko.me` — stays live independently as-is (existing resume tool). Keep
-  `noindex, follow` on it so it doesn't compete with the main site in search.
-- `hubko.me` (bare) and any other unregistered subdomain/route on `hubko.me` →
-  **301 redirect to `ivan.hubko.me`**. Catch-all: any route not explicitly
-  registered on the main site redirects to the `ivan.hubko.me` homepage, not a
-  404 page — this is a personal brand site, not a large app, a dead-end 404 is
-  worse than a redirect to home.
+- `hubko.me` (bare), `cv.hubko.me` and any other subdomain/host on `hubko.me` →
+  **301 redirect to `ivan.hubko.me`**. Unknown paths on the primary host serve
+  the branded 404 page with HTTP status 404; this keeps navigation helpful while
+  preserving correct crawler and browser semantics.
 
 ## Routes (MVP)
 ```
@@ -21,12 +18,19 @@ ivan.hubko.me/work/infrastructure-reliability
 ivan.hubko.me/work/operations-automation
 ivan.hubko.me/work/unified-platform
 ivan.hubko.me/work/account-automation
-ivan.hubko.me/cv                        → duplicate/embed of cv.hubko.me content
+ivan.hubko.me/cv                        → CV route on the primary site
 ```
 
 No `/notes`, no `/about`, no `/contact` as standalone routes for launch — About
 and Contact are sections on the homepage (Ivan's explicit call). Nav can still
 anchor-link to `#about` and `#contact` from other pages.
+
+## Error handling
+
+`apps/frontend` prerenders `dist/404.html`. Nginx uses it as the internal
+`error_page 404` fallback, so an unknown primary-host path renders the shared
+site shell and navigation without being redirected to `/`. The fallback is
+`noindex, follow` and is excluded from `sitemap.xml`.
 
 ## Navigation
 ```
@@ -47,8 +51,10 @@ the homepage. `CV` links to `/cv`. Keep nav minimal — no dropdown, no mega-men
 - Homepage: `WebSite` (name: Ivan Hubko, url: https://ivan.hubko.me/) + `Person`
   (name, url, jobTitle: "Senior Backend Engineer & Tech Lead", sameAs: [LinkedIn
   URL, GitHub URL]).
-- Case study pages: `Article` (headline, datePublished, dateModified, author →
-  Person entity, image if available).
+- Case study pages: `Article` (headline, author → the stable `Person` entity,
+  `mainEntityOfPage`, image if available). `datePublished` and `dateModified`
+  remain optional until verified publication/update dates for the public pages
+  are supplied; never use confidential project dates as page metadata.
 - `robots.txt`, `sitemap.xml` at root, canonical URL on every page, OG metadata
   + Twitter/X card metadata on every page (1200×630 OG images — can be simple
   text-on-brand-color images, no need for elaborate design).
