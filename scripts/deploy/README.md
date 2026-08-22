@@ -1,33 +1,40 @@
 # Production deployment helpers
 
-The GitHub CD workflow uploads the production Compose file, the SQLite data
-preparation script and these helpers to the server directory held in the
-`DEPLOY_PATH` secret. The production `.env` is never committed and must already
-exist on the VPS at `$DEPLOY_PATH/.env`; the workflow never uploads or
-overwrites this file.
+The GitHub CD workflow does not upload or replace the production Compose file.
+Prepare the server directory once; it contains only the stable application
+compose and the server-owned environment file:
 
-`release.sh` accepts these environment variables:
+```text
+$DEPLOY_PATH/docker-compose.prod.yml
+$DEPLOY_PATH/.env
+```
 
-- `FRONTEND_IMAGE` and `CONTACT_API_IMAGE` — immutable GHCR image references;
-- `DEPLOY_FRONTEND` and `DEPLOY_CONTACT_API` — `true` for services to update;
-- `FIRST_LAUNCH=true` — requires both images, prepares SQLite storage and starts
-  both services;
-- `GHCR_USERNAME` and `GHCR_TOKEN_FILE` — optional private-GHCR pull credentials;
-- `DEPLOY_ENV_FILE`, `COMPOSE_FILE` and `DEPLOY_STATE_FILE` — optional paths.
+The production `.env` is never committed or uploaded by GitHub. The workflow
+connects over SSH, supplies immutable image references for the selected services,
+then runs `docker compose pull` and `docker compose up -d` against that server
+compose.
 
 Selective releases use `docker compose up -d --no-deps` for only the selected
-service. The previous image references are stored in `.deploy-state` so
-`rollback.sh` can restore the services changed by the latest release. The
-frontend and contact API Docker images both expose a container health check;
-public HTTP checks are run separately by `smoke-test.sh`.
+service. The workflow stores previous image references in a small server-side
+`.deploy-state` file so a failed release can be rolled back. The frontend and
+contact API Docker images both expose a container health check; public HTTP
+checks run in GitHub Actions after deployment.
 
 Required GitHub secrets:
 
 - `DEPLOY_HOST`, `DEPLOY_PORT` (optional), `DEPLOY_USER`, `DEPLOY_PATH`;
 - `DEPLOY_SSH_PRIVATE_KEY`;
-- `GHCR_READ_TOKEN` if the GHCR packages are private;
+- `GHCR_READ_TOKEN` when the GHCR packages are private; optionally
+  `GHCR_USERNAME` when the token belongs to a different account than the
+  repository owner;
 - `VITE_CONTACT_API_URL`, `VITE_SITE_URL`, `VITE_GA4_MEASUREMENT_ID`,
   `VITE_GITHUB_URL` and `VITE_LINKEDIN_URL` as applicable to the public build.
+
+When needed, the GitHub-hosted CD job passes the GHCR read token to the remote
+Docker command over SSH only for the pull and rollback operation. It uses a
+temporary Docker config and removes it when the command exits; the token is not
+stored in the server `.env` or passed into either application container. Public
+images require no GHCR read token.
 
 The server must have Docker Engine, the Compose plugin, the external Traefik
 network and a user permitted to run Docker. DNS and Cloudflare/TLS certificate

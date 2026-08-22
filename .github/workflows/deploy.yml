@@ -25,7 +25,7 @@ on:
         type: boolean
         default: false
       first_launch:
-        description: Bootstrap an empty server directory and start both services
+        description: Start the already-prepared server compose for the first time
         required: true
         type: boolean
         default: false
@@ -55,10 +55,6 @@ jobs:
       contact_api_image: ${{ steps.release.outputs.contact_api_image }}
       commit: ${{ steps.release.outputs.commit }}
     steps:
-      - name: Check out deployed revision
-        if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: actions/checkout@v4
-
       - name: Download CI release manifest
         if: ${{ github.event_name == 'workflow_run' }}
         uses: actions/download-artifact@v4
@@ -129,7 +125,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
   deploy:
-    name: Deploy selected services
+    name: Deploy selected services through the server compose
     runs-on: ubuntu-latest
     needs: release-inputs
     if: >-
@@ -139,11 +135,6 @@ jobs:
       name: production
       url: https://ivan.hubko.me
     steps:
-      - name: Check out deployed revision
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.release-inputs.outputs.commit }}
-
       - name: Configure SSH
         id: ssh
         shell: bash
@@ -167,23 +158,7 @@ jobs:
             exit 1
           }
 
-      - name: Upload deployment bundle
-        env:
-          SSH_KEY: ${{ steps.ssh.outputs.key }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT || '22' }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-        run: |
-          set -euo pipefail
-          ssh_args=(-i "$SSH_KEY" -p "$DEPLOY_PORT" -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
-          remote="$DEPLOY_USER@$DEPLOY_HOST"
-          ssh "${ssh_args[@]}" "$remote" "mkdir -p '$DEPLOY_PATH/infra' '$DEPLOY_PATH/scripts/deploy'"
-          scp "${ssh_args[@]}" infra/docker-compose.prod.yml "$remote:$DEPLOY_PATH/infra/docker-compose.prod.yml"
-          scp "${ssh_args[@]}" infra/prepare-prod-data.sh "$remote:$DEPLOY_PATH/infra/prepare-prod-data.sh"
-          scp "${ssh_args[@]}" scripts/deploy/release.sh scripts/deploy/rollback.sh scripts/deploy/smoke-test.sh "$remote:$DEPLOY_PATH/scripts/deploy/"
-
-      - name: Upload release parameters
+      - name: Pull and restart selected images with the server compose
         env:
           SSH_KEY: ${{ steps.ssh.outputs.key }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
@@ -195,47 +170,120 @@ jobs:
           FIRST_LAUNCH: ${{ needs.release-inputs.outputs.first_launch }}
           FRONTEND_IMAGE: ${{ needs.release-inputs.outputs.frontend_image }}
           CONTACT_API_IMAGE: ${{ needs.release-inputs.outputs.contact_api_image }}
-          GHCR_USERNAME: ${{ github.repository_owner }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME || github.repository_owner }}
           GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+        shell: bash
         run: |
           set -euo pipefail
           ssh_args=(-i "$SSH_KEY" -p "$DEPLOY_PORT" -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
           remote="$DEPLOY_USER@$DEPLOY_HOST"
-
-          release_env="$RUNNER_TEMP/release.env"
+          remote_path="$(printf '%q' "$DEPLOY_PATH")"
           {
-            printf 'DEPLOY_ENV_FILE=%q\n' "$DEPLOY_PATH/.env"
-            printf 'COMPOSE_FILE=%q\n' "$DEPLOY_PATH/infra/docker-compose.prod.yml"
-            printf 'DEPLOY_STATE_FILE=%q\n' "$DEPLOY_PATH/.deploy-state"
-            printf 'GHCR_TOKEN_FILE=%q\n' "$DEPLOY_PATH/.ghcr-token.ci"
             printf 'DEPLOY_FRONTEND=%q\n' "$DEPLOY_FRONTEND"
             printf 'DEPLOY_CONTACT_API=%q\n' "$DEPLOY_CONTACT_API"
             printf 'FIRST_LAUNCH=%q\n' "$FIRST_LAUNCH"
             printf 'FRONTEND_IMAGE=%q\n' "$FRONTEND_IMAGE"
             printf 'CONTACT_API_IMAGE=%q\n' "$CONTACT_API_IMAGE"
             printf 'GHCR_USERNAME=%q\n' "$GHCR_USERNAME"
-          } > "$release_env"
+            printf 'GHCR_READ_TOKEN=%q\n' "$GHCR_READ_TOKEN"
+            cat <<'REMOTE'
+          set -Eeuo pipefail
 
-          scp "${ssh_args[@]}" "$release_env" "$remote:$DEPLOY_PATH/.release.env.ci"
+          COMPOSE_FILE="$DEPLOY_PATH/docker-compose.prod.yml"
+          ENV_FILE="$DEPLOY_PATH/.env"
+          STATE_FILE="$DEPLOY_PATH/.deploy-state"
 
-          if [[ -n "$GHCR_READ_TOKEN" ]]; then
-            printf '%s\n' "$GHCR_READ_TOKEN" > "$RUNNER_TEMP/ghcr-token"
-            chmod 600 "$RUNNER_TEMP/ghcr-token"
-            scp "${ssh_args[@]}" "$RUNNER_TEMP/ghcr-token" "$remote:$DEPLOY_PATH/.ghcr-token.ci"
+          [[ -f "$COMPOSE_FILE" ]] || { echo "ERROR: server compose is missing: $COMPOSE_FILE" >&2; exit 1; }
+          [[ -f "$ENV_FILE" ]] || { echo "ERROR: server environment file is missing: $ENV_FILE" >&2; exit 1; }
+
+          set -a
+          # shellcheck disable=SC1090
+          . "$ENV_FILE"
+          set +a
+
+          compose() {
+            docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" "$@"
+          }
+
+          DOCKER_CONFIG="$(mktemp -d)"
+          trap 'rm -rf -- "$DOCKER_CONFIG"' EXIT
+          export DOCKER_CONFIG
+          if [[ -n "${GHCR_READ_TOKEN:-}" ]]; then
+            printf '%s\n' "$GHCR_READ_TOKEN" | docker login ghcr.io --username "$GHCR_USERNAME" --password-stdin >/dev/null
           fi
 
-      - name: Execute server release
-        env:
-          SSH_KEY: ${{ steps.ssh.outputs.key }}
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT || '22' }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
-        run: |
-          set -euo pipefail
-          ssh -i "$SSH_KEY" -p "$DEPLOY_PORT" -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            "$DEPLOY_USER@$DEPLOY_HOST" \
-            "cd '$DEPLOY_PATH' && set -a && . .release.env.ci && set +a && rm -f .release.env.ci && bash scripts/deploy/release.sh"
+          if [[ "$FIRST_LAUNCH" == "true" ]]; then
+            DEPLOY_FRONTEND=true
+            DEPLOY_CONTACT_API=true
+          fi
+
+          SERVICES=()
+          if [[ "$DEPLOY_FRONTEND" == "true" ]]; then SERVICES+=(frontend); fi
+          if [[ "$DEPLOY_CONTACT_API" == "true" ]]; then SERVICES+=(contact-api); fi
+          [[ "${#SERVICES[@]}" -gt 0 ]] || { echo "Nothing to deploy."; exit 0; }
+
+          if [[ -n "$FRONTEND_IMAGE" ]]; then export FRONTEND_IMAGE; fi
+          if [[ -n "$CONTACT_API_IMAGE" ]]; then export CONTACT_API_IMAGE; fi
+          compose config >/dev/null
+
+          current_image() {
+            local service="$1"
+            local container
+            container="$(compose ps -q "$service" 2>/dev/null || true)"
+            if [[ -n "$container" ]]; then
+              docker inspect --format '{{.Config.Image}}' "$container" 2>/dev/null || true
+            fi
+          }
+
+          PREVIOUS_FRONTEND="$(current_image frontend)"
+          PREVIOUS_CONTACT_API="$(current_image contact-api)"
+          {
+            printf 'PREVIOUS_FRONTEND=%q\n' "$PREVIOUS_FRONTEND"
+            printf 'PREVIOUS_CONTACT_API=%q\n' "$PREVIOUS_CONTACT_API"
+            printf 'DEPLOYED_FRONTEND=%q\n' "$DEPLOY_FRONTEND"
+            printf 'DEPLOYED_CONTACT_API=%q\n' "$DEPLOY_CONTACT_API"
+          } > "$STATE_FILE.tmp"
+          chmod 600 "$STATE_FILE.tmp"
+          mv -f "$STATE_FILE.tmp" "$STATE_FILE"
+
+          compose pull "${SERVICES[@]}"
+
+          if [[ "$DEPLOY_CONTACT_API" == "true" ]]; then
+            [[ -n "$CONTACT_API_IMAGE" ]] || { echo "ERROR: contact API image is required to prepare SQLite storage" >&2; exit 1; }
+            mkdir -p "$DEPLOY_PATH/data/prod/contact-api"
+            docker run --rm --user root --volume "$DEPLOY_PATH/data/prod/contact-api:/data" "$CONTACT_API_IMAGE" sh -c 'chown 1000:1000 /data && chmod 770 /data'
+          fi
+
+          compose up -d --no-deps --force-recreate "${SERVICES[@]}"
+
+          wait_healthy() {
+            local service="$1"
+            local container=""
+            local status=""
+            for _ in {1..30}; do
+              container="$(compose ps -q "$service" 2>/dev/null || true)"
+              if [[ -n "$container" ]]; then
+                status="$(docker inspect --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' "$container" 2>/dev/null || true)"
+                if [[ "$status" == "healthy" || "$status" == "running" ]]; then
+                  echo "$service is $status"
+                  return 0
+                fi
+                if [[ "$status" == "unhealthy" || "$status" == "exited" || "$status" == "dead" ]]; then
+                  docker logs --tail 100 "$container" >&2 || true
+                  echo "ERROR: $service did not become healthy" >&2
+                  exit 1
+                fi
+              fi
+              sleep 2
+            done
+            echo "ERROR: $service did not become healthy within 60 seconds" >&2
+            exit 1
+          }
+
+          for service in "${SERVICES[@]}"; do wait_healthy "$service"; done
+          echo "Release completed for: ${SERVICES[*]}"
+          REMOTE
+          } | ssh "${ssh_args[@]}" "$remote" "DEPLOY_PATH=$remote_path bash -s"
 
   smoke:
     name: Smoke test public release
@@ -245,15 +293,110 @@ jobs:
       needs.deploy.result == 'success' &&
       (needs.release-inputs.outputs.deploy_frontend == 'true' || needs.release-inputs.outputs.deploy_contact_api == 'true')
     steps:
-      - name: Check out deployed revision
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.release-inputs.outputs.commit }}
-
       - name: Run public smoke checks
         env:
           SITE_SMOKE_URL: ${{ secrets.SITE_SMOKE_URL || 'https://ivan.hubko.me' }}
-        run: bash scripts/deploy/smoke-test.sh
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="${SITE_SMOKE_URL%/}"
+          for path in / /cv /robots.txt /sitemap.xml; do
+            status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --max-time 20 "$base$path")"
+            case "$status" in
+              2*|3*) echo "PASS: $path -> $status" ;;
+              *) echo "FAIL: $path -> $status" >&2; exit 1 ;;
+            esac
+          done
+
+  cleanup:
+    name: Remove replaced images
+    runs-on: ubuntu-latest
+    needs: [release-inputs, deploy, smoke]
+    if: >-
+      needs.deploy.result == 'success' &&
+      needs.smoke.result == 'success'
+    steps:
+      - name: Configure SSH
+        id: ssh
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$RUNNER_TEMP/deploy-key"
+          chmod 600 "$RUNNER_TEMP/deploy-key"
+          echo "key=$RUNNER_TEMP/deploy-key" >> "$GITHUB_OUTPUT"
+
+      - name: Remove previous images after successful smoke checks
+        env:
+          SSH_KEY: ${{ steps.ssh.outputs.key }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT || '22' }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ssh_args=(-i "$SSH_KEY" -p "$DEPLOY_PORT" -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
+          remote="$DEPLOY_USER@$DEPLOY_HOST"
+          remote_path="$(printf '%q' "$DEPLOY_PATH")"
+          {
+            printf 'GHCR_USERNAME=%q\n' "$GHCR_USERNAME"
+            printf 'GHCR_READ_TOKEN=%q\n' "$GHCR_READ_TOKEN"
+            cat <<'REMOTE'
+          set -Eeuo pipefail
+          COMPOSE_FILE="$DEPLOY_PATH/docker-compose.prod.yml"
+          ENV_FILE="$DEPLOY_PATH/.env"
+          STATE_FILE="$DEPLOY_PATH/.deploy-state"
+          [[ -f "$COMPOSE_FILE" && -f "$ENV_FILE" && -f "$STATE_FILE" ]] || { echo 'No previous image state is available; nothing to clean.'; exit 0; }
+          set -a
+          # shellcheck disable=SC1090
+          . "$ENV_FILE"
+          # shellcheck disable=SC1090
+          . "$STATE_FILE"
+          set +a
+          compose() { docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" "$@"; }
+
+          current_image() {
+            local service="$1"
+            local container
+            container="$(compose ps -q "$service" 2>/dev/null || true)"
+            if [[ -n "$container" ]]; then
+              docker inspect --format '{{.Config.Image}}' "$container" 2>/dev/null || true
+            fi
+          }
+
+          remove_previous() {
+            local service="$1"
+            local previous="$2"
+            local current
+            current="$(current_image "$service")"
+            if [[ -n "$previous" && "$previous" != "$current" ]]; then
+              if docker image inspect "$previous" >/dev/null 2>&1; then
+                docker image rm "$previous"
+                echo "Removed previous $service image: $previous"
+              else
+                echo "Previous $service image is already absent: $previous"
+              fi
+            fi
+          }
+
+          if [[ "${DEPLOYED_FRONTEND:-false}" == "true" ]]; then
+            remove_previous frontend "${PREVIOUS_FRONTEND:-}"
+          fi
+          if [[ "${DEPLOYED_CONTACT_API:-false}" == "true" ]]; then
+            remove_previous contact-api "${PREVIOUS_CONTACT_API:-}"
+          fi
+
+          {
+            printf 'PREVIOUS_FRONTEND=\n'
+            printf 'PREVIOUS_CONTACT_API=\n'
+            printf 'DEPLOYED_FRONTEND=false\n'
+            printf 'DEPLOYED_CONTACT_API=false\n'
+          } > "$STATE_FILE.tmp"
+          chmod 600 "$STATE_FILE.tmp"
+          mv -f "$STATE_FILE.tmp" "$STATE_FILE"
+          REMOTE
 
   rollback:
     name: Roll back failed release
@@ -274,15 +417,49 @@ jobs:
           chmod 600 "$RUNNER_TEMP/deploy-key"
           echo "key=$RUNNER_TEMP/deploy-key" >> "$GITHUB_OUTPUT"
 
-      - name: Roll back changed services
+      - name: Restore previous images with the server compose
         env:
           SSH_KEY: ${{ steps.ssh.outputs.key }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_PORT: ${{ secrets.DEPLOY_PORT || '22' }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME || github.repository_owner }}
+          GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+        shell: bash
         run: |
           set -euo pipefail
-          ssh -i "$SSH_KEY" -p "$DEPLOY_PORT" -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-            "$DEPLOY_USER@$DEPLOY_HOST" \
-            "cd '$DEPLOY_PATH' && if [ -f scripts/deploy/rollback.sh ]; then DEPLOY_ENV_FILE='$DEPLOY_PATH/.env' COMPOSE_FILE='$DEPLOY_PATH/infra/docker-compose.prod.yml' DEPLOY_STATE_FILE='$DEPLOY_PATH/.deploy-state' bash scripts/deploy/rollback.sh; else echo 'Rollback helper is not available on the target; no previous release was changed.'; fi"
+          ssh_args=(-i "$SSH_KEY" -p "$DEPLOY_PORT" -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
+          remote="$DEPLOY_USER@$DEPLOY_HOST"
+          remote_path="$(printf '%q' "$DEPLOY_PATH")"
+          {
+            printf 'GHCR_USERNAME=%q\n' "$GHCR_USERNAME"
+            printf 'GHCR_READ_TOKEN=%q\n' "$GHCR_READ_TOKEN"
+            cat <<'REMOTE'
+          set -Eeuo pipefail
+          COMPOSE_FILE="$DEPLOY_PATH/docker-compose.prod.yml"
+          ENV_FILE="$DEPLOY_PATH/.env"
+          STATE_FILE="$DEPLOY_PATH/.deploy-state"
+          [[ -f "$COMPOSE_FILE" && -f "$ENV_FILE" && -f "$STATE_FILE" ]] || { echo 'No rollback state is available.'; exit 0; }
+          set -a
+          # shellcheck disable=SC1090
+          . "$ENV_FILE"
+          # shellcheck disable=SC1090
+          . "$STATE_FILE"
+          set +a
+          compose() { docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" "$@"; }
+          DOCKER_CONFIG="$(mktemp -d)"
+          trap 'rm -rf -- "$DOCKER_CONFIG"' EXIT
+          export DOCKER_CONFIG
+          if [[ -n "${GHCR_READ_TOKEN:-}" ]]; then
+            printf '%s\n' "$GHCR_READ_TOKEN" | docker login ghcr.io --username "$GHCR_USERNAME" --password-stdin >/dev/null
+          fi
+          SERVICES=()
+          if [[ "${DEPLOYED_FRONTEND:-false}" == "true" && -n "${PREVIOUS_FRONTEND:-}" ]]; then export FRONTEND_IMAGE="$PREVIOUS_FRONTEND"; SERVICES+=(frontend); fi
+          if [[ "${DEPLOYED_CONTACT_API:-false}" == "true" && -n "${PREVIOUS_CONTACT_API:-}" ]]; then export CONTACT_API_IMAGE="$PREVIOUS_CONTACT_API"; SERVICES+=(contact-api); fi
+          [[ "${#SERVICES[@]}" -gt 0 ]] || { echo 'No previous image is available for rollback.'; exit 0; }
+          compose pull "${SERVICES[@]}"
+          compose up -d --no-deps --force-recreate "${SERVICES[@]}"
+          echo "Rollback completed for: ${SERVICES[*]}"
+          REMOTE
+          } | ssh "${ssh_args[@]}" "$remote" "DEPLOY_PATH=$remote_path bash -s"
