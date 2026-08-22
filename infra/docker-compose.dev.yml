@@ -17,8 +17,8 @@ services:
     environment:
       VITE_SITE_URL: http://localhost:5173
       VITE_CONTACT_API_URL: http://localhost:3001/contact
-      VITE_GA4_MEASUREMENT_ID: ""
-      VITE_GITHUB_URL: ""
+      VITE_GA4_MEASUREMENT_ID: ${VITE_GA4_MEASUREMENT_ID:-G-HWWGVZNJ18}
+      VITE_GITHUB_URL: ${VITE_GITHUB_URL:-https://github.com/Bruno-116aff}
       VITE_LINKEDIN_URL: ""
     volumes:
       - ../apps/frontend:/app
@@ -51,7 +51,7 @@ services:
       - ./data/dev/contact-api:/data
     command: >-
       sh -c "if [ ! -x node_modules/.bin/tsx ]; then npm ci; fi
-      && npm run start"
+      && npm run start:dev"
     restart: unless-stopped
 
 volumes:

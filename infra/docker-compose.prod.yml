@@ -10,59 +10,25 @@ services:
       - no-new-privileges:true
     labels:
       - traefik.enable=true
-      - traefik.docker.network=${TRAEFIK_NETWORK:?Set TRAEFIK_NETWORK}
-      - traefik.http.routers.ivan-site-http.rule=Host(`${SITE_HOST:?Set SITE_HOST}`)
-      - traefik.http.routers.ivan-site-http.entrypoints=web
-      - traefik.http.routers.ivan-site-http.middlewares=ivan-force-https@docker
-      - traefik.http.routers.ivan-site-http.service=noop@internal
-      - traefik.http.routers.ivan-site.rule=Host(`${SITE_HOST:?Set SITE_HOST}`)
+      - traefik.docker.network=${TRAEFIK_NETWORK:-traffic_net}
+      - traefik.http.services.ivan-site.loadbalancer.server.port=8080
+      - traefik.http.routers.ivan-site.rule=Host(`${SITE_HOST:-ivan.hubko.me}`)
       - traefik.http.routers.ivan-site.entrypoints=websecure
       - traefik.http.routers.ivan-site.tls=true
-      - traefik.http.routers.ivan-site.tls.certresolver=${TRAEFIK_CERT_RESOLVER:?Set TRAEFIK_CERT_RESOLVER}
-      - traefik.http.routers.ivan-site.middlewares=ivan-security@docker
-      - traefik.http.services.ivan-site.loadbalancer.server.port=8080
+      - traefik.http.routers.ivan-site.service=ivan-site
+      - traefik.http.routers.ivan-site-http.rule=Host(`${SITE_HOST:-ivan.hubko.me}`)
+      - traefik.http.routers.ivan-site-http.entrypoints=web
+      - traefik.http.routers.ivan-site-http.middlewares=ivan-force-https
+      - traefik.http.routers.ivan-site-http.service=noop@internal
       - traefik.http.middlewares.ivan-force-https.redirectscheme.scheme=https
       - traefik.http.middlewares.ivan-force-https.redirectscheme.permanent=true
-      - traefik.http.middlewares.ivan-security.headers.stsSeconds=31536000
-      - traefik.http.middlewares.ivan-security.headers.stsIncludeSubdomains=true
-      - traefik.http.middlewares.ivan-security.headers.contentTypeNosniff=true
-      - traefik.http.middlewares.ivan-security.headers.frameDeny=true
-      - traefik.http.middlewares.ivan-security.headers.referrerPolicy=strict-origin-when-cross-origin
-      - traefik.http.middlewares.ivan-security.headers.permissionsPolicy=accelerometer=(), camera=(), geolocation=(), microphone=(), payment=(), usb=()
-      - >-
-        traefik.http.middlewares.ivan-security.headers.customResponseHeaders.Content-Security-Policy=default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src ${FRONTEND_CSP_SCRIPT_SRC:?Set FRONTEND_CSP_SCRIPT_SRC}; connect-src ${FRONTEND_CSP_CONNECT_SRC:?Set FRONTEND_CSP_CONNECT_SRC}; img-src 'self' data:; style-src 'self'; font-src 'self'; manifest-src 'self'; upgrade-insecure-requests
-      - traefik.http.routers.ivan-bare-http.rule=Host(`${BARE_HOST:?Set BARE_HOST}`)
-      - traefik.http.routers.ivan-bare-http.entrypoints=web
-      - traefik.http.routers.ivan-bare-http.middlewares=ivan-home-redirect@docker
-      - traefik.http.routers.ivan-bare-http.service=noop@internal
-      - traefik.http.routers.ivan-bare.rule=Host(`${BARE_HOST:?Set BARE_HOST}`)
-      - traefik.http.routers.ivan-bare.entrypoints=websecure
-      - traefik.http.routers.ivan-bare.tls=true
-      - traefik.http.routers.ivan-bare.tls.certresolver=${TRAEFIK_CERT_RESOLVER:?Set TRAEFIK_CERT_RESOLVER}
-      - traefik.http.routers.ivan-bare.middlewares=ivan-home-redirect@docker
-      - traefik.http.routers.ivan-bare.service=noop@internal
-      - traefik.http.middlewares.ivan-home-redirect.redirectregex.regex=^https?://[^/]+(?:/.*)?$
-      - traefik.http.middlewares.ivan-home-redirect.redirectregex.replacement=https://${SITE_HOST:?Set SITE_HOST}/
-      - traefik.http.middlewares.ivan-home-redirect.redirectregex.permanent=true
-      - traefik.http.routers.ivan-unregistered-http.rule=HostRegexp(`^.+[.]hubko[.]me$`) && !Host(`${SITE_HOST:?Set SITE_HOST}`) && !Host(`${CV_HOST:?Set CV_HOST}`)
-      - traefik.http.routers.ivan-unregistered-http.entrypoints=web
-      - traefik.http.routers.ivan-unregistered-http.priority=1
-      - traefik.http.routers.ivan-unregistered-http.middlewares=ivan-home-redirect@docker
-      - traefik.http.routers.ivan-unregistered-http.service=noop@internal
-      - traefik.http.routers.ivan-unregistered.rule=HostRegexp(`^.+[.]hubko[.]me$`) && !Host(`${SITE_HOST:?Set SITE_HOST}`) && !Host(`${CV_HOST:?Set CV_HOST}`)
-      - traefik.http.routers.ivan-unregistered.entrypoints=websecure
-      - traefik.http.routers.ivan-unregistered.priority=1
-      - traefik.http.routers.ivan-unregistered.tls=true
-      - traefik.http.routers.ivan-unregistered.tls.certresolver=${TRAEFIK_CERT_RESOLVER:?Set TRAEFIK_CERT_RESOLVER}
-      - traefik.http.routers.ivan-unregistered.middlewares=ivan-home-redirect@docker
-      - traefik.http.routers.ivan-unregistered.service=noop@internal
 
   contact-api:
     image: ${CONTACT_API_IMAGE:-ivan-hubko-site-contact-api:local}
     restart: unless-stopped
     environment:
       CONTACT_API_PORT: 3001
-      CONTACT_ALLOWED_ORIGIN: https://${SITE_HOST:?Set SITE_HOST}
+      CONTACT_ALLOWED_ORIGIN: https://${SITE_HOST:-ivan.hubko.me}
       CONTACT_DATABASE_PATH: /data/contact.sqlite
       CONTACT_RATE_LIMIT_WINDOW_SECONDS: ${CONTACT_RATE_LIMIT_WINDOW_SECONDS:-60}
       CONTACT_RATE_LIMIT_MAX_REQUESTS: ${CONTACT_RATE_LIMIT_MAX_REQUESTS:-5}
@@ -74,17 +40,17 @@ services:
       - no-new-privileges:true
     labels:
       - traefik.enable=true
-      - traefik.docker.network=${TRAEFIK_NETWORK:?Set TRAEFIK_NETWORK}
-      - traefik.http.routers.ivan-contact.rule=Host(`${SITE_HOST:?Set SITE_HOST}`) && Path(`/api/contact`)
+      - traefik.docker.network=${TRAEFIK_NETWORK:-traffic_net}
+      - traefik.http.services.ivan-contact.loadbalancer.server.port=3001
+      - traefik.http.routers.ivan-contact.rule=Host(`${SITE_HOST:-ivan.hubko.me}`) && PathPrefix(`/api`)
       - traefik.http.routers.ivan-contact.entrypoints=websecure
       - traefik.http.routers.ivan-contact.priority=100
       - traefik.http.routers.ivan-contact.tls=true
-      - traefik.http.routers.ivan-contact.tls.certresolver=${TRAEFIK_CERT_RESOLVER:?Set TRAEFIK_CERT_RESOLVER}
-      - traefik.http.routers.ivan-contact.middlewares=ivan-contact-strip@docker,ivan-security@docker
+      - traefik.http.routers.ivan-contact.service=ivan-contact
+      - traefik.http.routers.ivan-contact.middlewares=ivan-contact-strip
       - traefik.http.middlewares.ivan-contact-strip.stripprefix.prefixes=/api
-      - traefik.http.services.ivan-contact.loadbalancer.server.port=3001
 
 networks:
   traefik:
     external: true
-    name: ${TRAEFIK_NETWORK:?Set TRAEFIK_NETWORK}
+    name: ${TRAEFIK_NETWORK:-traffic_net}
