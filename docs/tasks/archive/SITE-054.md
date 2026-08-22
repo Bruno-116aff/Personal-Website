@@ -2,7 +2,7 @@
 
 - Batch: 5
 - Area: deployment/security
-- State: IMPLEMENTED_PENDING_GATE
+- State: COMPLETE
 - Depends on: SITE-044
 
 ## Goal

@@ -2,7 +2,7 @@
 
 - Batch: 5
 - Area: analytics
-- State: IMPLEMENTED_PENDING_GATE
+- State: COMPLETE
 - Depends on: SITE-044
 
 ## Goal
@@ -45,12 +45,12 @@ Configured GA4 event verification in a real browser session.
 - Added `case_study_open`, `cv_click`, `email_click`, `linkedin_click`,
   `telegram_click` and `github_click`. Case-study events use a module-level key
   set so React Strict Mode hydration and rerenders cannot duplicate them.
-- GitHub remains disabled without its user-owned public URL; when configured, its
-  contact link tracks `github_click`.
+- GitHub uses the configured public profile URL and its contact link tracks
+  `github_click`.
 - Documented the consent/configuration assumption and the narrow GA4 CSP sources
   required for the later Traefik configuration.
 - Focused checks passed: `npm.cmd run typecheck`, `npm.cmd run build`, generated
-  HTML inspection without a configured Measurement ID, and client event-wiring
-  inspection.
+  HTML inspection with `G-HWWGVZNJ18`, and client event-wiring inspection.
 - Deferred to SITE-054/SITE-059: apply and audit the Traefik CSP header. Deferred
-  to a configured browser session: verify live GA4 requests and event collection.
+  to a production analytics session: verify live GA4 requests and event
+  collection. The configured `G-HWWGVZNJ18` ID is present in the local build.

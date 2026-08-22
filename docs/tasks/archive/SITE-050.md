@@ -2,7 +2,7 @@
 
 - Batch: 5
 - Area: SEO/social
-- State: IMPLEMENTED_PENDING_GATE
+- State: COMPLETE
 - Depends on: SITE-044
 
 ## Goal
@@ -22,7 +22,7 @@ Complete discoverability and share metadata for all public routes.
 - Add Article JSON-LD to all four case routes.
 - Generate robots.txt, sitemap.xml and 1200x630 share assets.
 - Verify title, description, canonical and OG/Twitter metadata per route.
-- Omit GitHub sameAs until the real URL is supplied.
+- Include the owner-supplied GitHub URL in the homepage `sameAs` data.
 
 ## Acceptance criteria
 
@@ -45,8 +45,8 @@ npm run verify:meta and production URL checks.
 - Added route-specific OG/Twitter images and generated six 1200×630 PNG assets.
 - Generated `robots.txt` and `sitemap.xml` during the production build, including
   `/cv` as an indexable primary route.
-- Homepage schema provides `WebSite` and `Person`; only the approved LinkedIn URL
-  appears in `sameAs` until a real GitHub URL is supplied. Case-study `Article`
+- Homepage schema provides `WebSite` and `Person`; approved LinkedIn and the
+  configured GitHub URL appear in `sameAs`. Case-study `Article`
   schema uses no unverified publication or modification dates.
 - Focused checks passed: `npm.cmd run build`, `npm.cmd run verify:meta`, generated
   HTML/JSON-LD inspection, sitemap/robots inspection and PNG dimension inspection.

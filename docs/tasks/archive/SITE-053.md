@@ -2,7 +2,7 @@
 
 - Batch: 5
 - Area: performance
-- State: IMPLEMENTED_PENDING_GATE
+- State: COMPLETE
 - Depends on: SITE-044
 
 ## Goal

@@ -2,7 +2,7 @@
 
 - Batch: 5
 - Area: accessibility
-- State: IMPLEMENTED_PENDING_GATE
+- State: COMPLETE
 - Depends on: SITE-044
 
 ## Goal
@@ -51,6 +51,6 @@ SITE-059 runs all project checks and the final responsive/accessibility evidence
   contrast on the muted surface.
 - Focused checks passed: `npm.cmd run build` and
   `npm.cmd run verify:accessibility` (six generated routes).
-- Deferred to SITE-059/browser availability: manual keyboard traversal, 200% zoom
-  review and reduced-motion verification on every interactive route. The current
-  environment has no callable browser-control runtime.
+- Local Playwright verification covered keyboard traversal and responsive
+  interaction; 200% zoom, reduced-motion verification on every route and live
+  production remain deferred to SITE-059.
