@@ -1,0 +1,382 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      build_frontend:
+        description: Build and publish the frontend image
+        required: true
+        type: boolean
+        default: true
+      build_contact_api:
+        description: Build and publish the contact API image
+        required: true
+        type: boolean
+        default: true
+      publish_images:
+        description: Push manually built images to GHCR
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Detect changed applications
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.flags.outputs.frontend }}
+      contact_api: ${{ steps.flags.outputs.contact_api }}
+      repository: ${{ steps.flags.outputs.repository }}
+      shared: ${{ steps.filter.outputs.shared }}
+      operations: ${{ steps.filter.outputs.operations }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Detect changed paths
+        id: filter
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            frontend:
+              - 'apps/frontend/**'
+            contact_api:
+              - 'apps/contact-api/**'
+            shared:
+              - 'infra/**'
+              - 'package.json'
+              - '.env.example'
+              - '.github/workflows/**'
+              - 'scripts/verify.mjs'
+              - 'scripts/verify-*.ts'
+            operations:
+              - 'scripts/deploy/**'
+
+      - name: Normalize change flags
+        id: flags
+        shell: bash
+        env:
+          FRONTEND_CHANGED: ${{ steps.filter.outputs.frontend }}
+          CONTACT_API_CHANGED: ${{ steps.filter.outputs.contact_api }}
+          SHARED_CHANGED: ${{ steps.filter.outputs.shared }}
+          OPERATIONS_CHANGED: ${{ steps.filter.outputs.operations }}
+          MANUAL_FRONTEND: ${{ inputs.build_frontend }}
+          MANUAL_CONTACT_API: ${{ inputs.build_contact_api }}
+        run: |
+          set -euo pipefail
+
+          frontend=false
+          contact_api=false
+          repository=false
+
+          if [[ "$FRONTEND_CHANGED" == "true" || "$SHARED_CHANGED" == "true" || "$MANUAL_FRONTEND" == "true" ]]; then
+            frontend=true
+          fi
+          if [[ "$CONTACT_API_CHANGED" == "true" || "$SHARED_CHANGED" == "true" || "$MANUAL_CONTACT_API" == "true" ]]; then
+            contact_api=true
+          fi
+          if [[ "$frontend" == "true" || "$contact_api" == "true" || "$OPERATIONS_CHANGED" == "true" ]]; then
+            repository=true
+          fi
+
+          {
+            echo "frontend=$frontend"
+            echo "contact_api=$contact_api"
+            echo "repository=$repository"
+          } >> "$GITHUB_OUTPUT"
+
+  verify-repository:
+    name: Verify repository contracts
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.repository == 'true' }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/frontend/package-lock.json
+
+      - name: Install frontend verification dependencies
+        run: npm ci --prefix apps/frontend
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Verify deployment contract
+        if: ${{ needs.changes.outputs.shared == 'true' }}
+        run: npm run verify:deployment
+
+      - name: Validate development Compose configuration
+        if: ${{ needs.changes.outputs.shared == 'true' }}
+        run: npm run dev:config
+
+  verify-frontend:
+    name: Verify frontend
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    defaults:
+      run:
+        working-directory: apps/frontend
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/frontend/package-lock.json
+
+      - name: Install dependencies from lockfile
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck and build prerendered routes
+        run: npm run verify:frontend
+
+      - name: Run frontend tests
+        run: npm test
+
+      - name: Verify accessibility
+        run: npm run verify:accessibility
+
+      - name: Verify performance constraints
+        run: npm run verify:performance
+
+      - name: Verify public content
+        run: npm run verify:content
+
+      - name: Verify route metadata
+        run: npm run verify:meta
+
+  verify-contact-api:
+    name: Verify contact API
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.contact_api == 'true' }}
+    defaults:
+      run:
+        working-directory: apps/contact-api
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/contact-api/package-lock.json
+
+      - name: Install dependencies from lockfile
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build production runtime
+        run: npm run build
+
+  production-check:
+    name: Verify local production runtime
+    runs-on: ubuntu-latest
+    needs: [changes, verify-repository, verify-frontend, verify-contact-api]
+    if: >-
+      always() && !cancelled() &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      (needs.changes.outputs.frontend == 'true' || needs.changes.outputs.contact_api == 'true') &&
+      (needs.verify-repository.result == 'success' || needs.verify-repository.result == 'skipped') &&
+      (needs.verify-frontend.result == 'success' || needs.verify-frontend.result == 'skipped') &&
+      (needs.verify-contact-api.result == 'success' || needs.verify-contact-api.result == 'skipped')
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            apps/frontend/package-lock.json
+            apps/contact-api/package-lock.json
+
+      - name: Install verification dependencies
+        run: |
+          npm ci --prefix apps/frontend
+          npm ci --prefix apps/contact-api
+
+      - name: Verify Docker-backed production runtime
+        run: npm run verify:production
+
+  build-frontend-image:
+    name: Build frontend image
+    runs-on: ubuntu-latest
+    needs: [changes, verify-repository, verify-frontend]
+    if: >-
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      needs.changes.outputs.frontend == 'true' &&
+      needs.verify-frontend.result == 'success' &&
+      (needs.verify-repository.result == 'success' || needs.verify-repository.result == 'skipped')
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR for published builds
+        if: ${{ github.event_name == 'push' || inputs.publish_images == true }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve immutable image name
+        id: image
+        shell: bash
+        run: |
+          set -euo pipefail
+          owner="$(printf '%s' "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')"
+          image="ghcr.io/${owner}/ivan-hubko-site-frontend:sha-${GITHUB_SHA}"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+
+      - name: Build frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: apps/frontend
+          file: apps/frontend/Dockerfile
+          push: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_images == true) }}
+          tags: ${{ steps.image.outputs.image }}
+          build-args: |
+            VITE_CONTACT_API_URL=${{ secrets.VITE_CONTACT_API_URL || 'https://ivan.hubko.me/api/contact' }}
+            VITE_SITE_URL=${{ secrets.VITE_SITE_URL || 'https://ivan.hubko.me' }}
+            VITE_GA4_MEASUREMENT_ID=${{ secrets.VITE_GA4_MEASUREMENT_ID }}
+            VITE_GITHUB_URL=${{ secrets.VITE_GITHUB_URL || 'https://github.com/Bruno-116aff' }}
+            VITE_LINKEDIN_URL=${{ secrets.VITE_LINKEDIN_URL }}
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+
+  build-contact-api-image:
+    name: Build contact API image
+    runs-on: ubuntu-latest
+    needs: [changes, verify-repository, verify-contact-api]
+    if: >-
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      needs.changes.outputs.contact_api == 'true' &&
+      needs.verify-contact-api.result == 'success' &&
+      (needs.verify-repository.result == 'success' || needs.verify-repository.result == 'skipped')
+    outputs:
+      image: ${{ steps.image.outputs.image }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR for published builds
+        if: ${{ github.event_name == 'push' || inputs.publish_images == true }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve immutable image name
+        id: image
+        shell: bash
+        run: |
+          set -euo pipefail
+          owner="$(printf '%s' "$GITHUB_REPOSITORY_OWNER" | tr '[:upper:]' '[:lower:]')"
+          image="ghcr.io/${owner}/ivan-hubko-site-contact-api:sha-${GITHUB_SHA}"
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+
+      - name: Build contact API image
+        uses: docker/build-push-action@v6
+        with:
+          context: apps/contact-api
+          file: apps/contact-api/Dockerfile
+          push: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_images == true) }}
+          tags: ${{ steps.image.outputs.image }}
+          cache-from: type=gha,scope=contact-api
+          cache-to: type=gha,mode=max,scope=contact-api
+
+  release-manifest:
+    name: Publish release manifest
+    runs-on: ubuntu-latest
+    needs:
+      [
+        changes,
+        verify-repository,
+        verify-frontend,
+        verify-contact-api,
+        production-check,
+        build-frontend-image,
+        build-contact-api-image,
+      ]
+    if: >-
+      always() && !cancelled() &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    steps:
+      - name: Write immutable release manifest
+        shell: bash
+        env:
+          FRONTEND_IMAGE: ${{ needs.build-frontend-image.outputs.image }}
+          CONTACT_API_IMAGE: ${{ needs.build-contact-api-image.outputs.image }}
+          FRONTEND_CHANGED: ${{ needs.changes.outputs.frontend }}
+          CONTACT_API_CHANGED: ${{ needs.changes.outputs.contact_api }}
+          PUBLISH_IMAGES: ${{ github.event_name == 'push' || inputs.publish_images == true }}
+        run: |
+          set -euo pipefail
+          frontend_changed=false
+          contact_api_changed=false
+          if [[ "$PUBLISH_IMAGES" == "true" ]]; then
+            frontend_changed="$FRONTEND_CHANGED"
+            contact_api_changed="$CONTACT_API_CHANGED"
+          fi
+          cat > release-manifest.json <<EOF
+          {
+            "commit": "${GITHUB_SHA}",
+            "frontend_changed": ${frontend_changed},
+            "contact_api_changed": ${contact_api_changed},
+            "frontend_image": "${FRONTEND_IMAGE}",
+            "contact_api_image": "${CONTACT_API_IMAGE}"
+          }
+          EOF
+
+      - name: Upload release manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-manifest
+          path: release-manifest.json
+          retention-days: 14
