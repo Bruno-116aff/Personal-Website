@@ -207,12 +207,15 @@ directory, including `contact.sqlite`, `contact.sqlite-wal` and
 starting the API again. Validate a restore by running the production-like
 verification before accepting new submissions.
 
-The CD workflow keeps the production `.env` on the VPS, uploads only the Compose
-and deployment helper bundle, and uses `docker compose up -d --no-deps` for
-selective frontend/contact-API updates. A first launch requires both immutable
-image references, prepares the SQLite directory, waits for both container health
-checks and runs public smoke checks. If a deployment or smoke check fails, the
-previous image references recorded in `.deploy-state` are used for rollback.
+The CD workflow keeps the production Compose file and `.env` on the VPS. It
+passes only immutable image references over SSH, uses `docker compose pull` and
+`docker compose up -d --no-deps` for selective frontend/contact-API updates, and
+never replaces the server compose. A first launch requires both image
+references, prepares the SQLite directory, waits for health checks and runs
+public smoke checks. If deployment or smoke checks fail, previous image
+references recorded in `.deploy-state` are used for rollback. After deployment
+and smoke checks pass, the replaced image for each updated service is removed
+and the rollback state is cleared.
 See [`scripts/deploy/README.md`](scripts/deploy/README.md) for the GitHub secret
 contract and first-launch prerequisites.
 

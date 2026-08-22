@@ -99,11 +99,13 @@ CI/CD is split by responsibility. `.github/workflows/quality.yml` detects
 frontend, contact-API and shared-infrastructure changes, runs the relevant
 verification jobs, builds both Docker images only when their inputs changed and
 publishes immutable `sha-<commit>` images to GHCR on successful `main` builds.
-`.github/workflows/deploy.yml` consumes the CI release manifest, uploads only the
-deployment bundle, keeps `.env` server-owned, and selectively updates services
-with `--no-deps`. A manual first-launch dispatch requires both image references;
-the server release helper prepares SQLite storage, waits for health checks and
-records previous image references for rollback.
+`.github/workflows/deploy.yml` consumes the CI release manifest, leaves the
+server-owned compose and `.env` untouched, passes only image references over SSH
+and selectively updates services with `--no-deps`. A manual first-launch
+  dispatch requires both image references; the remote compose command prepares
+  SQLite storage, waits for health checks and records previous image references
+  for rollback. After health and public smoke checks pass, the replaced image for
+  each updated service is removed and the rollback state is cleared.
 
 ## Verification commands
 

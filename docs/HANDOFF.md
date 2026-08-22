@@ -55,11 +55,12 @@ routes and technical constraints.
 - SITE-081 added selective GitHub Actions CI for the frontend and contact API,
   repository-wide checks, production verification and immutable GHCR image
   publishing with a release manifest.
-- SITE-082 added the production deploy workflow and remote release helpers:
+- SITE-082 added the production deploy workflow and remote compose release:
   selective service updates, first-launch deployment from the server-owned
   `.env`, Docker health checks,
-  public smoke tests and rollback support. Production `.env` and server
-  access remain external inputs and are never committed.
+  public smoke tests, rollback support and post-smoke removal of replaced
+  images. Production `.env` and server access remain external inputs and are
+  never committed.
 - The production compose was simplified to consume the existing server Traefik
   over the external `traffic_net` network. It no longer configures a Traefik
   service, certificate resolver, security middleware or catch-all host rules:
@@ -88,9 +89,11 @@ routes and technical constraints.
   philosophy source is required.
 - Current scope is implementation and local verification only. GitHub Actions
   and VPS execution are still external inputs. The deploy workflow expects
-  `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_PRIVATE_KEY`, `DEPLOY_PATH` and,
-  for a private GHCR, `GHCR_READ_TOKEN`. The production `.env` must already
-  exist at `$DEPLOY_PATH/.env`; the workflow does not upload or overwrite it.
+  `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_PRIVATE_KEY` and `DEPLOY_PATH`.
+  `DEPLOY_PORT` is optional. If GHCR is private, `GHCR_READ_TOKEN` belongs in
+  GitHub Secrets; CD passes it to the remote pull/rollback command through
+  SSH using a temporary Docker config and does not store it in the server
+  `.env`.
   The full contract is in `scripts/deploy/README.md`.
 - Local Playwright checks passed for routes, responsive width, overflow,
   keyboard focus, form validation and configured GitHub/GA4/photo output.

@@ -26,13 +26,15 @@ wait for health, run external smoke checks and roll back to the previous images.
 
 ## Acceptance criteria
 
-- CD uploads only the deployment bundle; the production `.env` remains server-owned
-  at `$DEPLOY_PATH/.env` and is never uploaded by GitHub.
+- CD leaves the server-owned compose and production `.env` at `$DEPLOY_PATH`
+  untouched; it passes only image references over SSH.
 - First launch prepares SQLite storage, pulls both required images and starts both
   services through the external Traefik network.
 - Frontend-only and contact-API-only releases use `--no-deps` and do not recreate
   the other service.
 - Health checks, public smoke checks and a previous-image rollback path exist.
+- Replaced images are removed only after deployment and public smoke checks pass;
+  rollback state is then cleared.
 - Missing first-launch inputs fail with an actionable message.
 
 ## Focused checks
@@ -43,9 +45,9 @@ wait for health, run external smoke checks and roll back to the previous images.
 
 ## Implementation note
 
-- Changed behavior: CD consumes the CI manifest, uploads a minimal deployment
-  bundle, supports first launch, selective `--no-deps` service updates, health and
-  public smoke checks, and previous-image rollback.
+- Changed behavior: CD consumes the CI manifest, uses the prepared server compose,
+  supports first launch, selective `--no-deps` service updates, health and public
+  smoke checks, previous-image rollback and post-smoke removal of replaced images.
 - Evidence: Bash syntax checks, production Compose fixture validation, local
   Docker builds, local production persistence/restart verification and
   `npm run verify` pass.
