@@ -1,0 +1,58 @@
+# SITE-082 — Prepare selective CD, first launch and rollback
+
+- Batch: 6
+- Area: CD / production operations
+- State: IMPLEMENTED_PENDING_GATE
+- Depends on: SITE-081
+
+## Goal
+
+Prepare a production deployment workflow and server-side release helpers that can
+start the stack on a prepared deploy directory, update only the changed service,
+wait for health, run external smoke checks and roll back to the previous images.
+
+## Non-goals
+
+- Do not execute a real VPS deployment in this task.
+- Do not commit the production `.env`, SSH keys, registry tokens or live credentials.
+
+## Targeted context
+
+- docs/04-tech-spec.md
+- docs/ARCHITECTURE.md
+- infra/docker-compose.prod.yml
+- infra/prepare-prod-data.sh
+- README.md
+
+## Acceptance criteria
+
+- CD uploads only the deployment bundle; the production `.env` remains server-owned
+  at `$DEPLOY_PATH/.env` and is never uploaded by GitHub.
+- First launch prepares SQLite storage, pulls both required images and starts both
+  services through the external Traefik network.
+- Frontend-only and contact-API-only releases use `--no-deps` and do not recreate
+  the other service.
+- Health checks, public smoke checks and a previous-image rollback path exist.
+- Missing first-launch inputs fail with an actionable message.
+
+## Focused checks
+
+- Shell-script syntax and static safety review.
+- Production Compose config with a generated non-secret fixture environment.
+- First-launch/selective-release decision-path review.
+
+## Implementation note
+
+- Changed behavior: CD consumes the CI manifest, uploads a minimal deployment
+  bundle, supports first launch, selective `--no-deps` service updates, health and
+  public smoke checks, and previous-image rollback.
+- Evidence: Bash syntax checks, production Compose fixture validation, local
+  Docker builds, local production persistence/restart verification and
+  `npm run verify` pass.
+- Deferred: GitHub secrets, GHCR permissions and actual VPS/DNS/Traefik execution
+  remain external release inputs for SITE-061.
+
+## Deferred batch gate
+
+SITE-061 must perform the final production-readiness review and record external
+VPS/DNS/Traefik verification as either passed or explicitly deferred.

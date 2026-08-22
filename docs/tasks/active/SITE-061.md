@@ -3,7 +3,7 @@
 - Batch: 6
 - Area: batch gate / release gate
 - State: READY
-- Depends on: SITE-060
+- Depends on: SITE-060, SITE-081, SITE-082, SITE-083
 - Gate type: mandatory final full verification
 
 ## Goal

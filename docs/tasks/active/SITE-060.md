@@ -22,7 +22,8 @@ Perform the mandatory human content checkpoint before launch.
 - Read complete public homepage, four cases and /cv.
 - Check every number, date, title, technology and link.
 - Search banned marketing and Case 4 terms across public output.
-- Explicitly flag missing Philosophy source and GitHub URL.
+- Treat `docs/00–02` as the authoritative source for the Engineering Approach
+  themes; no separate philosophy document is required.
 - Record approval issues in a batch report; do not silently fix facts by guessing.
 
 ## Acceptance criteria

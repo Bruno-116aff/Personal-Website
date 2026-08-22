@@ -49,22 +49,25 @@ Goal: implement the NestJS endpoint and connect the accessible form with spam
 protection and safe states.
 Gate: all available API, frontend, build and end-to-end contact checks.
 
-## Batch 5 — Launch hardening
+## Batch 5 — Development hardening and audit remediation
 
-Tasks: SITE-050, SITE-051, SITE-052, SITE-053, SITE-054, SITE-055, SITE-059 (gate).
+Tasks: SITE-050, SITE-051, SITE-052, SITE-053, SITE-054, SITE-055, SITE-062,
+SITE-063, SITE-064, SITE-065, SITE-066, SITE-067, SITE-068, SITE-069, SITE-070,
+SITE-071, SITE-072, SITE-073, SITE-074, SITE-075, SITE-076, SITE-077, SITE-078,
+SITE-079, SITE-080, SITE-059 (gate).
 
-Goal: finish SEO/social assets, analytics, accessibility, performance and
-Docker/Traefik/security as separately verifiable concerns.
-Gate: all available tests, SEO/content, production-like, responsive and security
-checks.
+Goal: finish development hardening, then resolve every issue found by the full audit as
+one sequentially verifiable remediation chain.
+Gate: SITE-059 runs every available local check, performs the final content/NDA
+and architecture review, and records PASS/FAIL evidence for the whole batch.
 
 ## Batch 6 — Release
 
 Tasks: SITE-060, SITE-061 (gate).
 
-Goal: perform content/NDA, production and human launch review.
-Gate: complete project verification against docs/00 through docs/05, plus live
-walkthrough, domains, contact, analytics, security and redirects.
+Goal: perform content/NDA and human development review.
+Gate: complete project verification against docs/00 through docs/05 and local
+walkthrough evidence.
 
 ## Gate policy
 
