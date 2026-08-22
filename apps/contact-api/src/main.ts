@@ -11,7 +11,7 @@ async function bootstrap() {
   const config = createContactConfig();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  app.set('trust proxy', 1);
+  app.set('trust proxy', process.env.NODE_ENV === 'production' ? 1 : 0);
   app.enableCors({ origin: config.allowedOrigin, methods: ['POST'] });
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true, forbidNonWhitelisted: true }));
 

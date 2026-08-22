@@ -27,12 +27,14 @@ export class ContactSubmissionService {
 
     this.rateLimiter.consume(clientKey);
 
+    const submission = {
+      name: sanitizeText(request.name),
+      email: request.email.trim().toLowerCase(),
+      message: sanitizeText(request.message),
+    };
+
     try {
-      this.store.save({
-        name: sanitizeText(request.name),
-        email: request.email.trim().toLowerCase(),
-        message: sanitizeText(request.message),
-      });
+      this.store.save(submission);
     } catch {
       this.logger.error('Contact submission could not be stored.');
       throw new ServiceUnavailableException('Unable to save message. Please try again later.');

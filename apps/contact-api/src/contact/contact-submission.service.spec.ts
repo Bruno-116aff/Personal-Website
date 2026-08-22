@@ -71,4 +71,17 @@ describe('ContactSubmissionService', () => {
     await assert.rejects(() => service.submit(validRequest(), '203.0.113.12'));
     assert.equal(store.saved.length, 1);
   });
+
+  it('expires and bounds rate-limit records', () => {
+    const limiter = new ContactRateLimiter({ maxRequests: 1, maxRecords: 2, windowMs: 1_000 });
+
+    limiter.consume('first', 0);
+    assert.throws(() => limiter.consume('first', 0));
+    limiter.consume('second', 0);
+    limiter.consume('third', 0);
+
+    assert.doesNotThrow(() => limiter.consume('first', 0));
+    assert.doesNotThrow(() => limiter.consume('second', 1_000));
+  });
+
 });
