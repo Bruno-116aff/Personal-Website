@@ -5,5 +5,9 @@ if (!checkName) {
   process.exit(1);
 }
 
-console.log(`DEFERRED: ${checkName} verification is owned by a later implementation task.`);
+console.error(
+  `DEFERRED: ${checkName} verification requires deployment output, user-owned VPS/Docker/Traefik access, `
+    + 'DNS resolution for ivan.hubko.me and production HTTP response access. '
+    + `Run npm run verify:${checkName} again after those inputs are available.`,
+);
 process.exit(2);
