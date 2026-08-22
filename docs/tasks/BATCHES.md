@@ -51,7 +51,7 @@ Gate: all available API, frontend, build and end-to-end contact checks.
 
 ## Batch 5 — Launch hardening
 
-Tasks: SITE-050, SITE-051, SITE-052, SITE-053, SITE-054, SITE-059 (gate).
+Tasks: SITE-050, SITE-051, SITE-052, SITE-053, SITE-054, SITE-055, SITE-059 (gate).
 
 Goal: finish SEO/social assets, analytics, accessibility, performance and
 Docker/Traefik/security as separately verifiable concerns.

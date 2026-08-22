@@ -3,7 +3,7 @@
 - Batch: 5
 - Area: batch gate
 - State: BLOCKED
-- Depends on: SITE-050, SITE-051, SITE-052, SITE-053, SITE-054
+- Depends on: SITE-050, SITE-051, SITE-052, SITE-053, SITE-054, SITE-055
 - Gate type: mandatory full batch verification
 
 ## Goal
@@ -37,7 +37,7 @@ DNS access or analytics account cannot be silently treated as a successful check
 
 ## Gate evidence
 
-The accumulated Batch 5 gate was executed after all five implementation tasks
+The accumulated Batch 5 gate was executed after all six implementation tasks
 reached `IMPLEMENTED_PENDING_GATE`.
 
 PASS:

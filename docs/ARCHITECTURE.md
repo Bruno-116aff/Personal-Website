@@ -1,6 +1,6 @@
 # Architecture
 
-Status: target architecture; implementation pending.
+Status: implemented repository layout; application behavior remains unchanged.
 
 ## Runtime routes
 
@@ -18,20 +18,29 @@ The canonical host is ivan.hubko.me.
 cv.hubko.me remains an independent noindex, follow instance. Bare hubko.me and
 unregistered hubko.me hosts/routes redirect as specified in docs/03.
 
-## Planned source boundaries
+## Source boundaries
 
-Use a simple Vite-compatible structure and keep content separate from UI:
+Use a small two-app workspace and keep content separate from UI:
 
-- src/content — homepage, career, expertise and case-study data/copy.
-- src/components — reusable visual and semantic components.
-- src/layouts — site shell and case-study/CV layouts.
-- src/pages — route-level composition.
-- src/lib — metadata, analytics and shared helpers.
-- src/styles — Tailwind entry, tokens and global accessibility styles.
-- public — static fonts, photos, OG images, robots and sitemap inputs.
-- scripts — prerender, metadata and verification helpers when needed.
-- contact API — small NestJS endpoint using the existing infrastructure convention;
-  it persists submissions in SQLite and has no public read endpoint.
+- `apps/frontend` owns the React/Vite/TypeScript/Tailwind application, its
+  `package.json`, lockfile, build configuration, source, public files, brand
+  assets, verification scripts and Dockerfiles.
+- `apps/frontend/src/content` owns homepage, career, CV, contact and case-study
+  data/copy.
+- `apps/frontend/src/components` owns reusable visual and semantic components.
+- `apps/frontend/src/layouts` owns site shell and case-study/CV layouts.
+- `apps/frontend/src/lib` owns metadata, analytics and shared helpers.
+- `apps/frontend/src/styles` owns Tailwind entry, tokens and global accessibility
+  styles.
+- `apps/frontend/public` owns static files copied directly to the site output;
+  `apps/frontend/src/assets/brand` owns reusable brand source assets.
+- `apps/contact-api` owns the NestJS endpoint, its package manifest, lockfile,
+  source, tests and Dockerfiles. It persists submissions in SQLite and has no
+  public read endpoint.
+- Root `package.json` owns only workspace orchestration and shared checks.
+- `infra` owns development, production and production-build Compose files.
+- Root `scripts` owns checks that span both applications or inspect deployment
+  configuration; frontend-only checks live in `apps/frontend/scripts`.
 
 Do not put internal source notes or restricted Case 4 material in public content
 modules.
@@ -53,8 +62,10 @@ Browser form -> client convenience validation -> public NestJS endpoint ->
 server-side validation/sanitization -> rate limit + honeypot check -> SQLite
 database for manual processing.
 
-The SQLite path remains server-side. Error responses expose only safe
-user-facing states.
+The SQLite path remains server-side and is mounted from the Compose-adjacent
+`infra/data/prod/contact-api` volume path. Development dependencies remain in
+their owning app directories. Error responses expose only safe user-facing
+states.
 
 Analytics uses a configurable GA4 Measurement ID and named events from docs/04.
 No fake IDs are committed.
@@ -63,13 +74,14 @@ No fake IDs are committed.
 
 Frontend: static build served from Docker through Traefik.
 Contact API: existing NestJS infrastructure, routed securely through Traefik
-with a persistent volume for the SQLite database. Production verification must
+with a persistent bind-mounted SQLite path under `infra/data`. Production verification must
 test real responses, headers, direct routes, hard refresh, contact persistence
 and redirects.
 
-The repository deployment contract is `compose.yml`: frontend serves only the
-six known static routes plus SEO assets, while `/api/contact` is stripped to the
-API's `/contact` endpoint. Neither service publishes a host port; both join the
+The repository deployment contract is `infra/docker-compose.prod.yml` with
+`infra/docker-compose.build.yml`: frontend serves only the six known static
+routes plus SEO assets, while `/api/contact` is stripped to the API's `/contact`
+endpoint. Neither production service publishes a host port; both join the
 user-owned Traefik network. Required VPS-owned inputs stay in `.env`: the Traefik
 network and certificate resolver, hosts and optional analytics CSP sources.
 

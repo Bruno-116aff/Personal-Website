@@ -1,10 +1,11 @@
 import { readFile } from 'node:fs/promises';
 
 const requiredFiles = [
-  'compose.yml',
-  'Dockerfile',
+  'infra/docker-compose.prod.yml',
+  'infra/docker-compose.build.yml',
+  'apps/frontend/Dockerfile',
   'apps/contact-api/Dockerfile',
-  'infra/frontend/nginx.conf',
+  'apps/frontend/nginx.conf',
 ];
 const requiredComposeMarkers = [
   'ivan-site',
@@ -20,6 +21,11 @@ const requiredComposeMarkers = [
   'ivan-bare',
   'ivan-unregistered',
   'CONTACT_ALLOWED_ORIGIN: https://${SITE_HOST',
+];
+const requiredBuildMarkers = [
+  'context: ../apps/frontend',
+  'context: ../apps/contact-api',
+  'dockerfile: Dockerfile',
 ];
 const requiredNginxLocations = [
   'location = /',
@@ -44,19 +50,23 @@ for (const file of requiredFiles) {
   }
 }
 
-const compose = contents.get('compose.yml') ?? '';
-const nginx = contents.get('infra/frontend/nginx.conf') ?? '';
+const compose = contents.get('infra/docker-compose.prod.yml') ?? '';
+const build = contents.get('infra/docker-compose.build.yml') ?? '';
+const nginx = contents.get('apps/frontend/nginx.conf') ?? '';
 for (const marker of requiredComposeMarkers) {
-  if (!compose.includes(marker)) errors.push(`compose.yml is missing: ${marker}`);
+  if (!compose.includes(marker)) errors.push(`infra/docker-compose.prod.yml is missing: ${marker}`);
+}
+for (const marker of requiredBuildMarkers) {
+  if (!build.includes(marker)) errors.push(`infra/docker-compose.build.yml is missing: ${marker}`);
 }
 for (const location of requiredNginxLocations) {
   if (!nginx.includes(location)) errors.push(`nginx route policy is missing: ${location}`);
 }
 if (/^(?:\s*)(?:[A-Z_]*(?:PASSWORD|SECRET|TOKEN|API_KEY)[A-Z_]*):\s*(?!\$\{|$)/mi.test(compose)) {
-  errors.push('compose.yml contains a hardcoded credential-like value');
+  errors.push('infra/docker-compose.prod.yml contains a hardcoded credential-like value');
 }
 if (/ports:\s*\n\s*-\s*["']?\d+/i.test(compose)) {
-  errors.push('services must not publish host ports outside Traefik');
+  errors.push('production services must not publish host ports outside Traefik');
 }
 
 if (errors.length > 0) {

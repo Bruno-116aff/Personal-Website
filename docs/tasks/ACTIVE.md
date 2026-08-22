@@ -14,7 +14,8 @@ may close a batch, and a later batch cannot begin until the prior gate is COMPLE
 | SITE-052 | 5 | accessibility hardening | IMPLEMENTED_PENDING_GATE | SITE-044 | active/SITE-052.md |
 | SITE-053 | 5 | performance hardening | IMPLEMENTED_PENDING_GATE | SITE-044 | active/SITE-053.md |
 | SITE-054 | 5 | Docker/Traefik/security | IMPLEMENTED_PENDING_GATE | SITE-044 | active/SITE-054.md |
-| SITE-059 | 5 | BATCH GATE | BLOCKED | SITE-050, SITE-051, SITE-052, SITE-053, SITE-054 | active/SITE-059.md |
+| SITE-055 | 5 | repository structure/tooling | IMPLEMENTED_PENDING_GATE | SITE-044 | active/SITE-055.md |
+| SITE-059 | 5 | BATCH GATE | BLOCKED | SITE-050, SITE-051, SITE-052, SITE-053, SITE-054, SITE-055 | active/SITE-059.md |
 | SITE-060 | 6 | content/NDA release review | READY | SITE-059 | active/SITE-060.md |
 | SITE-061 | 6 | BATCH GATE / RELEASE | READY | SITE-060 | active/SITE-061.md |
 

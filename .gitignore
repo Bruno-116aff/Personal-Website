@@ -6,3 +6,4 @@ dist/
 *.local
 npm-debug.log*
 apps/contact-api/data/
+infra/data/

@@ -1,15 +1,8 @@
-name: ivan-hubko-site
+name: ivan-hubko-site-prod
 
 services:
   frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        VITE_CONTACT_API_URL: ${VITE_CONTACT_API_URL:?Set VITE_CONTACT_API_URL}
-        VITE_GA4_MEASUREMENT_ID: ${VITE_GA4_MEASUREMENT_ID:-}
-        VITE_GITHUB_URL: ${VITE_GITHUB_URL:-}
-        VITE_LINKEDIN_URL: ${VITE_LINKEDIN_URL:-}
+    image: ${FRONTEND_IMAGE:-ivan-hubko-site-frontend:local}
     restart: unless-stopped
     networks:
       - traefik
@@ -65,9 +58,7 @@ services:
       - traefik.http.routers.ivan-unregistered.service=noop@internal
 
   contact-api:
-    build:
-      context: .
-      dockerfile: apps/contact-api/Dockerfile
+    image: ${CONTACT_API_IMAGE:-ivan-hubko-site-contact-api:local}
     restart: unless-stopped
     environment:
       CONTACT_API_PORT: 3001
@@ -76,7 +67,7 @@ services:
       CONTACT_RATE_LIMIT_WINDOW_SECONDS: ${CONTACT_RATE_LIMIT_WINDOW_SECONDS:-60}
       CONTACT_RATE_LIMIT_MAX_REQUESTS: ${CONTACT_RATE_LIMIT_MAX_REQUESTS:-5}
     volumes:
-      - contact-api-data:/data
+      - ./data/prod/contact-api:/data
     networks:
       - traefik
     security_opt:
@@ -97,6 +88,3 @@ networks:
   traefik:
     external: true
     name: ${TRAEFIK_NETWORK:?Set TRAEFIK_NETWORK}
-
-volumes:
-  contact-api-data:

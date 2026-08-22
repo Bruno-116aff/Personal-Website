@@ -44,8 +44,9 @@ SITE-059 verifies real or production-like response headers, routes and redirects
 
 ## Implementation evidence
 
-- Added the root frontend image, contact API image, `compose.yml`, frontend
-  Nginx route configuration, `.dockerignore` and deployment verification script.
+- Added the frontend image, contact API image, frontend Nginx route
+  configuration, app-local `.dockerignore` files and deployment verification
+  script. SITE-055 moved these concerns into their app and `infra` boundaries.
 - Configured environment-owned build values and deployment inputs; no secrets or
   host ports are hardcoded. Traefik routes cover the six public site routes,
   `/api/contact`, HTTPS, canonical host redirects and unregistered subdomains.

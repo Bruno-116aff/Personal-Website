@@ -1,0 +1,15 @@
+services:
+  frontend:
+    build:
+      context: ../apps/frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_CONTACT_API_URL: ${VITE_CONTACT_API_URL:?Set VITE_CONTACT_API_URL}
+        VITE_GA4_MEASUREMENT_ID: ${VITE_GA4_MEASUREMENT_ID:-}
+        VITE_GITHUB_URL: ${VITE_GITHUB_URL:-}
+        VITE_LINKEDIN_URL: ${VITE_LINKEDIN_URL:-}
+
+  contact-api:
+    build:
+      context: ../apps/contact-api
+      dockerfile: Dockerfile
