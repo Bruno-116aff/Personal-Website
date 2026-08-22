@@ -1,0 +1,288 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      frontend_image:
+        description: Immutable frontend image, required for a selected or first launch
+        required: false
+        type: string
+      contact_api_image:
+        description: Immutable contact API image, required for a selected or first launch
+        required: false
+        type: string
+      deploy_frontend:
+        description: Deploy the frontend service
+        required: true
+        type: boolean
+        default: false
+      deploy_contact_api:
+        description: Deploy the contact API service
+        required: true
+        type: boolean
+        default: false
+      first_launch:
+        description: Bootstrap an empty server directory and start both services
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  release-inputs:
+    name: Resolve release manifest
+    runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.event == 'push')
+    outputs:
+      deploy_frontend: ${{ steps.release.outputs.deploy_frontend }}
+      deploy_contact_api: ${{ steps.release.outputs.deploy_contact_api }}
+      first_launch: ${{ steps.release.outputs.first_launch }}
+      frontend_image: ${{ steps.release.outputs.frontend_image }}
+      contact_api_image: ${{ steps.release.outputs.contact_api_image }}
+      commit: ${{ steps.release.outputs.commit }}
+    steps:
+      - name: Check out deployed revision
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/checkout@v4
+
+      - name: Download CI release manifest
+        if: ${{ github.event_name == 'workflow_run' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: release-manifest
+          path: .release-manifest
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Resolve release inputs
+        id: release
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          CI_SHA: ${{ github.event.workflow_run.head_sha }}
+          MANUAL_SHA: ${{ github.sha }}
+          MANUAL_FRONTEND_IMAGE: ${{ inputs.frontend_image }}
+          MANUAL_CONTACT_API_IMAGE: ${{ inputs.contact_api_image }}
+          MANUAL_DEPLOY_FRONTEND: ${{ inputs.deploy_frontend }}
+          MANUAL_DEPLOY_CONTACT_API: ${{ inputs.deploy_contact_api }}
+          MANUAL_FIRST_LAUNCH: ${{ inputs.first_launch }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "workflow_run" ]]; then
+            manifest='.release-manifest/release-manifest.json'
+            [[ -f "$manifest" ]] || { echo "ERROR: CI release manifest was not found" >&2; exit 1; }
+            frontend_image="$(jq -r '.frontend_image' "$manifest")"
+            contact_api_image="$(jq -r '.contact_api_image' "$manifest")"
+            deploy_frontend="$(jq -r '.frontend_changed' "$manifest")"
+            deploy_contact_api="$(jq -r '.contact_api_changed' "$manifest")"
+            first_launch=false
+            commit="$CI_SHA"
+          else
+            frontend_image="$MANUAL_FRONTEND_IMAGE"
+            contact_api_image="$MANUAL_CONTACT_API_IMAGE"
+            deploy_frontend="$MANUAL_DEPLOY_FRONTEND"
+            deploy_contact_api="$MANUAL_DEPLOY_CONTACT_API"
+            first_launch="$MANUAL_FIRST_LAUNCH"
+            commit="$MANUAL_SHA"
+            if [[ "$first_launch" == "true" ]]; then
+              deploy_frontend=true
+              deploy_contact_api=true
+            fi
+          fi
+
+          if [[ "$deploy_frontend" == "true" && -z "$frontend_image" ]]; then
+            echo "ERROR: frontend deployment requires an immutable image reference" >&2
+            exit 1
+          fi
+          if [[ "$deploy_contact_api" == "true" && -z "$contact_api_image" ]]; then
+            echo "ERROR: contact API deployment requires an immutable image reference" >&2
+            exit 1
+          fi
+          if [[ "$first_launch" == "true" && ( -z "$frontend_image" || -z "$contact_api_image" ) ]]; then
+            echo "ERROR: first launch requires both immutable image references" >&2
+            exit 1
+          fi
+
+          {
+            echo "deploy_frontend=$deploy_frontend"
+            echo "deploy_contact_api=$deploy_contact_api"
+            echo "first_launch=$first_launch"
+            echo "frontend_image=$frontend_image"
+            echo "contact_api_image=$contact_api_image"
+            echo "commit=$commit"
+          } >> "$GITHUB_OUTPUT"
+
+  deploy:
+    name: Deploy selected services
+    runs-on: ubuntu-latest
+    needs: release-inputs
+    if: >-
+      needs.release-inputs.result == 'success' &&
+      (needs.release-inputs.outputs.deploy_frontend == 'true' || needs.release-inputs.outputs.deploy_contact_api == 'true')
+    environment:
+      name: production
+      url: https://ivan.hubko.me
+    steps:
+      - name: Check out deployed revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-inputs.outputs.commit }}
+
+      - name: Configure SSH
+        id: ssh
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          [[ -n "$SSH_PRIVATE_KEY" ]] || { echo "ERROR: DEPLOY_SSH_PRIVATE_KEY is missing" >&2; exit 1; }
+          key="$RUNNER_TEMP/deploy-key"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$key"
+          chmod 600 "$key"
+          echo "key=$key" >> "$GITHUB_OUTPUT"
+
+      - name: Validate deployment target
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          [[ "$DEPLOY_PATH" =~ ^/[A-Za-z0-9._/-]+$ ]] || {
+            echo "ERROR: DEPLOY_PATH must be an absolute path without shell-special characters" >&2
+            exit 1
+          }
+
+      - name: Upload deployment bundle
+        env:
+          SSH_KEY: ${{ steps.ssh.outputs.key }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT || '22' }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          ssh_args=(-i "$SSH_KEY" -p "$DEPLOY_PORT" -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
+          remote="$DEPLOY_USER@$DEPLOY_HOST"
+          ssh "${ssh_args[@]}" "$remote" "mkdir -p '$DEPLOY_PATH/infra' '$DEPLOY_PATH/scripts/deploy'"
+          scp "${ssh_args[@]}" infra/docker-compose.prod.yml "$remote:$DEPLOY_PATH/infra/docker-compose.prod.yml"
+          scp "${ssh_args[@]}" infra/prepare-prod-data.sh "$remote:$DEPLOY_PATH/infra/prepare-prod-data.sh"
+          scp "${ssh_args[@]}" scripts/deploy/release.sh scripts/deploy/rollback.sh scripts/deploy/smoke-test.sh "$remote:$DEPLOY_PATH/scripts/deploy/"
+
+      - name: Upload release parameters
+        env:
+          SSH_KEY: ${{ steps.ssh.outputs.key }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT || '22' }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_FRONTEND: ${{ needs.release-inputs.outputs.deploy_frontend }}
+          DEPLOY_CONTACT_API: ${{ needs.release-inputs.outputs.deploy_contact_api }}
+          FIRST_LAUNCH: ${{ needs.release-inputs.outputs.first_launch }}
+          FRONTEND_IMAGE: ${{ needs.release-inputs.outputs.frontend_image }}
+          CONTACT_API_IMAGE: ${{ needs.release-inputs.outputs.contact_api_image }}
+          GHCR_USERNAME: ${{ github.repository_owner }}
+          GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+        run: |
+          set -euo pipefail
+          ssh_args=(-i "$SSH_KEY" -p "$DEPLOY_PORT" -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
+          remote="$DEPLOY_USER@$DEPLOY_HOST"
+
+          release_env="$RUNNER_TEMP/release.env"
+          {
+            printf 'DEPLOY_ENV_FILE=%q\n' "$DEPLOY_PATH/.env"
+            printf 'COMPOSE_FILE=%q\n' "$DEPLOY_PATH/infra/docker-compose.prod.yml"
+            printf 'DEPLOY_STATE_FILE=%q\n' "$DEPLOY_PATH/.deploy-state"
+            printf 'GHCR_TOKEN_FILE=%q\n' "$DEPLOY_PATH/.ghcr-token.ci"
+            printf 'DEPLOY_FRONTEND=%q\n' "$DEPLOY_FRONTEND"
+            printf 'DEPLOY_CONTACT_API=%q\n' "$DEPLOY_CONTACT_API"
+            printf 'FIRST_LAUNCH=%q\n' "$FIRST_LAUNCH"
+            printf 'FRONTEND_IMAGE=%q\n' "$FRONTEND_IMAGE"
+            printf 'CONTACT_API_IMAGE=%q\n' "$CONTACT_API_IMAGE"
+            printf 'GHCR_USERNAME=%q\n' "$GHCR_USERNAME"
+          } > "$release_env"
+
+          scp "${ssh_args[@]}" "$release_env" "$remote:$DEPLOY_PATH/.release.env.ci"
+
+          if [[ -n "$GHCR_READ_TOKEN" ]]; then
+            printf '%s\n' "$GHCR_READ_TOKEN" > "$RUNNER_TEMP/ghcr-token"
+            chmod 600 "$RUNNER_TEMP/ghcr-token"
+            scp "${ssh_args[@]}" "$RUNNER_TEMP/ghcr-token" "$remote:$DEPLOY_PATH/.ghcr-token.ci"
+          fi
+
+      - name: Execute server release
+        env:
+          SSH_KEY: ${{ steps.ssh.outputs.key }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT || '22' }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          ssh -i "$SSH_KEY" -p "$DEPLOY_PORT" -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            "$DEPLOY_USER@$DEPLOY_HOST" \
+            "cd '$DEPLOY_PATH' && set -a && . .release.env.ci && set +a && rm -f .release.env.ci && bash scripts/deploy/release.sh"
+
+  smoke:
+    name: Smoke test public release
+    runs-on: ubuntu-latest
+    needs: [release-inputs, deploy]
+    if: >-
+      needs.deploy.result == 'success' &&
+      (needs.release-inputs.outputs.deploy_frontend == 'true' || needs.release-inputs.outputs.deploy_contact_api == 'true')
+    steps:
+      - name: Check out deployed revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release-inputs.outputs.commit }}
+
+      - name: Run public smoke checks
+        env:
+          SITE_SMOKE_URL: ${{ secrets.SITE_SMOKE_URL || 'https://ivan.hubko.me' }}
+        run: bash scripts/deploy/smoke-test.sh
+
+  rollback:
+    name: Roll back failed release
+    runs-on: ubuntu-latest
+    needs: [release-inputs, deploy, smoke]
+    if: >-
+      always() &&
+      (needs.deploy.result == 'failure' || needs.smoke.result == 'failure')
+    steps:
+      - name: Configure SSH
+        id: ssh
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$RUNNER_TEMP/deploy-key"
+          chmod 600 "$RUNNER_TEMP/deploy-key"
+          echo "key=$RUNNER_TEMP/deploy-key" >> "$GITHUB_OUTPUT"
+
+      - name: Roll back changed services
+        env:
+          SSH_KEY: ${{ steps.ssh.outputs.key }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT || '22' }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          ssh -i "$SSH_KEY" -p "$DEPLOY_PORT" -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            "$DEPLOY_USER@$DEPLOY_HOST" \
+            "cd '$DEPLOY_PATH' && if [ -f scripts/deploy/rollback.sh ]; then DEPLOY_ENV_FILE='$DEPLOY_PATH/.env' COMPOSE_FILE='$DEPLOY_PATH/infra/docker-compose.prod.yml' DEPLOY_STATE_FILE='$DEPLOY_PATH/.deploy-state' bash scripts/deploy/rollback.sh; else echo 'Rollback helper is not available on the target; no previous release was changed.'; fi"
