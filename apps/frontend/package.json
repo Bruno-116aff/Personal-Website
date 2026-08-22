@@ -10,29 +10,41 @@
     "dev": "vite",
     "typecheck": "tsc --noEmit",
     "test:contact-form": "tsx --test src/lib/contact-form.spec.ts",
+    "test:site-config": "tsx --test src/lib/site-config.spec.ts",
+    "test:profile-consistency": "tsx --test src/content/profile.spec.ts",
+    "test:route-manifest": "tsx --test src/routes.spec.ts",
     "build": "tsc --noEmit && vite build",
+    "lint": "eslint --config eslint.config.mjs src scripts vite.config.ts tailwind.config.ts",
+    "format": "prettier --write package.json eslint.config.mjs ../../.prettierrc.json ../../.github ../../README.md ../../package.json ../../scripts/verify.mjs",
+    "format:check": "prettier --check package.json eslint.config.mjs ../../.prettierrc.json ../../.github ../../README.md ../../package.json ../../scripts/verify.mjs",
     "preview": "vite preview",
     "verify:frontend": "npm run typecheck && npm run build",
-    "verify:accessibility": "node scripts/verify-accessibility.mjs",
-    "verify:performance": "node scripts/verify-performance.mjs",
+    "verify:accessibility": "tsx scripts/verify-accessibility.ts",
+    "verify:performance": "tsx scripts/verify-performance.ts",
     "verify:content": "node scripts/verify-content.mjs",
-    "verify:meta": "node scripts/verify-meta.mjs",
-    "test": "npm run test:contact-form"
+    "verify:meta": "tsx scripts/verify-meta.ts",
+    "verify:deployment": "tsx ../../scripts/verify-deployment.ts",
+    "verify:production": "tsx ../../scripts/verify-production.ts",
+    "test": "npm run test:contact-form && npm run test:site-config && npm run test:profile-consistency && npm run test:route-manifest"
   },
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^26.2.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "eslint": "^10.9.0",
     "postcss": "^8.5.1",
+    "prettier": "^3.9.6",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.20.6",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.67.0",
     "vite": "^6.1.0"
   }
 }
