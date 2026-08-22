@@ -17,21 +17,23 @@ The site is designed for technical hiring conversations: clear positioning for r
 - Semantic HTML, keyboard-visible focus states, skip navigation and reduced-motion support.
 - Per-route titles, descriptions, canonical URLs, Open Graph/Twitter metadata, JSON-LD, `robots.txt` and `sitemap.xml`.
 - Optional GA4 instrumentation with named events; analytics stays disabled until a valid user-owned measurement ID is configured.
-- Contact form with client/server validation, honeypot protection, rate limiting and server-side SQLite persistence for manual processing. SMTP delivery is not part of the launch implementation.
-- Docker-based deployment through Traefik with HTTPS redirects and security headers.
+- Contact form with client/server validation, honeypot protection, rate limiting and server-side SQLite persistence for manual processing.
+- Docker-based deployment through the server-owned Traefik instance with
+  Cloudflare-origin HTTPS and minimal label-based routing.
 
 ## Routes
 
-| Route | Purpose |
-| --- | --- |
-| `/` | Homepage with positioning, selected work, career, expertise, about and contact sections |
-| `/work/infrastructure-reliability` | Proxy/modem infrastructure reliability case study |
-| `/work/operations-automation` | Server and domain provisioning pipeline case study |
-| `/work/unified-platform` | Unified operational platform case study |
-| `/work/account-automation` | Generalized account lifecycle and scheduling case study |
-| `/cv` | Primary indexable CV page |
+| Route                              | Purpose                                                                                 |
+| ---------------------------------- | --------------------------------------------------------------------------------------- |
+| `/`                                | Homepage with positioning, selected work, career, expertise, about and contact sections |
+| `/work/infrastructure-reliability` | Proxy/modem infrastructure reliability case study                                       |
+| `/work/operations-automation`      | Server and domain provisioning pipeline case study                                      |
+| `/work/unified-platform`           | Unified operational platform case study                                                 |
+| `/work/account-automation`         | Generalized account lifecycle and scheduling case study                                 |
+| `/cv`                              | Primary indexable CV page                                                               |
 
-The canonical production host is `ivan.hubko.me`. The separate `cv.hubko.me` instance remains outside this repository and must stay `noindex, follow`.
+The canonical production host is `ivan.hubko.me`. The separate `cv.hubko.me`
+host redirects to the canonical site through the server-owned Traefik catch-all.
 
 ## Architecture
 
@@ -75,9 +77,13 @@ The API is a small independent NestJS service. `POST /contact` validates and sto
 Dependencies are owned by each application rather than by the repository root:
 
 ```bash
-npm install --prefix apps/frontend
-npm install --prefix apps/contact-api
+npm ci --prefix apps/frontend
+npm ci --prefix apps/contact-api
 ```
+
+There is no root dependency install. When application dependencies change, update
+the corresponding app lockfile and use `npm install --prefix <app>` deliberately;
+CI and clean checkouts use the committed lockfiles with `npm ci`.
 
 ### Run the frontend
 
@@ -128,10 +134,32 @@ npm run verify:performance
 npm run verify:content
 npm run verify:meta
 npm run verify:deployment
+npm run verify:production
+npm run lint
+npm run format:check
 npm run verify
 ```
 
-`npm run verify:production` is intentionally deferred until the user-owned VPS, Docker/Traefik, DNS and production response checks are available. It must not be treated as a local pass.
+`npm run verify` runs static, production-like configuration and local production
+runtime checks. `npm run verify:production` builds and probes the local production
+images when Docker is available, or probes an explicitly configured local runtime.
+
+GitHub Actions CI is split by application. Frontend-only changes run frontend
+quality checks and build only the frontend image; contact-API-only changes do the
+same for the backend. Shared infrastructure changes verify and build both. Pull
+requests validate Docker builds without publishing them. Successful `main` builds
+publish immutable `sha-<commit>` images to GHCR and upload a release manifest for
+the separate CD workflow.
+
+To inspect an existing production-like runtime instead of building local images:
+
+```powershell
+$env:PRODUCTION_VERIFY_FRONTEND_URL = 'http://127.0.0.1:8080'
+$env:PRODUCTION_VERIFY_CONTACT_API_URL = 'http://127.0.0.1:3001'
+npm run verify:production
+```
+
+Without those variables, the local image path uses ports `18080` and `13001`. A non-zero result means the report contains either a failed runtime check or an explicit deferred check; deferred work must not be treated as a local pass.
 
 ## Production configuration
 
@@ -141,7 +169,10 @@ Copy the example environment file before using the production Compose files:
 Copy-Item .env.example .env
 ```
 
-The production setup requires the owner’s Traefik network and certificate resolver. Optional public values include the real GitHub URL, LinkedIn override, GA4 measurement ID and frontend contact API URL. Secrets, credentials and deployment tokens must remain outside Git.
+The production setup requires the owner’s Traefik network and certificate
+resolver. The configured public values include the GitHub URL and GA4
+Measurement ID; LinkedIn override and frontend contact API URL remain
+configurable. Secrets, credentials and deployment tokens must remain outside Git.
 
 Build and inspect the production images with:
 
@@ -160,6 +191,31 @@ npm run prod:down
 
 The production Compose files do not publish application ports directly; traffic is expected to enter through the external Traefik network. Contact submissions persist in `infra/data/prod/contact-api`.
 
+Before the first production start, prepare the bind-mounted SQLite directory on
+the VPS as the non-root container user:
+
+```bash
+sh infra/prepare-prod-data.sh
+npm run prod:up
+```
+
+The script creates the exact `infra/data/prod/contact-api` path, assigns owner
+`1000:1000` (the `node` user in `node:20-bookworm-slim`) and applies mode `770`.
+Do not run the contact API as root. Back up `infra/data/prod/contact-api` as a
+directory, including `contact.sqlite`, `contact.sqlite-wal` and
+`contact.sqlite-shm`; restore the directory with the same owner and mode before
+starting the API again. Validate a restore by running the production-like
+verification before accepting new submissions.
+
+The CD workflow keeps the production `.env` on the VPS, uploads only the Compose
+and deployment helper bundle, and uses `docker compose up -d --no-deps` for
+selective frontend/contact-API updates. A first launch requires both immutable
+image references, prepares the SQLite directory, waits for both container health
+checks and runs public smoke checks. If a deployment or smoke check fails, the
+previous image references recorded in `.deploy-state` are used for rollback.
+See [`scripts/deploy/README.md`](scripts/deploy/README.md) for the GitHub secret
+contract and first-launch prerequisites.
+
 ## Project documentation
 
 The repository documentation is the source of truth for product decisions and public claims:
@@ -175,15 +231,10 @@ The repository documentation is the source of truth for product decisions and pu
 
 ## Current status
 
-The implementation is in **launch hardening**. The application foundation, content routes, contact integration and repository structure are implemented. Production launch still depends on user-owned inputs and external verification, including:
-
-- real public GitHub URL;
-- final personal photo;
-- original Engineering Philosophy source, if it is to be published;
-- GA4 Measurement ID and Search Console verification data;
-- VPS, Docker/Traefik, DNS and live production access.
-
-These values are kept configurable or explicitly deferred; they are never guessed or committed as secrets.
+The implementation is in **development hardening**. The application foundation,
+content routes, contact integration and repository structure are implemented.
+The current acceptance scope is local development, local Docker and local browser
+verification. External operations are outside this development batch.
 
 ## Scope boundaries
 
