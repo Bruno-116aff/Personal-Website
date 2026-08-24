@@ -115,6 +115,15 @@ release after the redesign is complete.
 Gate: complete project verification, deployed visual review and external release
 input verification.
 
+## Batch 11 — Case-study presentation refinement
+
+Tasks: SITE-104, SITE-106, SITE-107, SITE-105 (gate).
+
+Status: IN_PROGRESS. SITE-105 is the deferred full verification gate.
+
+Goal: remove decorative numeric prefixes from case-study page labels while
+preserving the deliberate `01–04` order in homepage Featured Work.
+
 ## Gate policy
 
 A gate task cannot be completed with a focused check alone. It must run every
