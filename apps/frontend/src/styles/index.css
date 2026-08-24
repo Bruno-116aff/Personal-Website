@@ -119,8 +119,6 @@
   --accent-soft: rgba(91,120,246,0.12);
   --accent-control: #4A67E5;
   --accent-control-hover: #405FD5;
-  --metric: #34D399;
-
   --font-display: 'Inter Tight', 'Inter', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
@@ -727,14 +725,6 @@ a {
   border-radius: 0;
   padding: 28px;
   background: var(--bg-surface);
-}
-
-.case-study__result .metric__value {
-  color: var(--metric);
-}
-
-.case-study--quiet .case-study__result .metric__value {
-  color: var(--text-primary);
 }
 
 .case-study__navigation {

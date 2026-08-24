@@ -69,7 +69,6 @@ document disagree, except for the explicit WCAG AA refinements below.
 --accent-soft:    rgba(91,120,246,0.12);
 --accent-control: #4A67E5;   /* white text = 4.81:1 */
 --accent-control-hover: #405FD5;
---metric:         #34D399;   /* use only for standout result numbers, sparingly */
 
 --font-display: 'Inter Tight', 'Inter', system-ui, sans-serif;
 --font-body:    'Inter', system-ui, sans-serif;
@@ -95,6 +94,10 @@ Contrast contract: the approved public pairs are `--text-primary` on
 White button text uses `--accent-control` (`#4A67E5`) and its hover token
 (`#405FD5`), never the brand accent `#5B78F6`; the control pairs are 4.81:1 at
 rest and 5.50:1 on hover.
+
+Result metrics use `--text-primary` consistently. There is no green metric
+accent in the live visual system; numeric emphasis comes from hierarchy and
+layout rather than a separate result color.
 
 ## Type scale (exact px/weight — see reference file's "Type & token reference" section)
 | Role | Size | Weight | Letter-spacing | Font |
