@@ -36,4 +36,8 @@ Core rules:
   every available full test/check command for the batch and record 100% closure.
 - Several small tasks may be implemented in one session and one batch.
 - Preserve unrelated changes and never commit unless separately requested.
+- Any dev server, browser/MCP service, watcher, container or other long-lived
+  process started by the task must be tracked by PID/session and shut down before
+  the task is reported complete. Verify that owned process trees and their ports
+  are gone; never terminate pre-existing or unrelated user processes.
 - Do not invent public content or override the source-of-truth order in AGENTS.md.

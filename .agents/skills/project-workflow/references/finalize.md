@@ -26,7 +26,11 @@ or equivalent request.
 8. Only after 100% closure, mark every batch task COMPLETE, archive them without
    rewriting history, and update PROJECT_STATUS.md, HANDOFF.md and ACTIVE.md once.
 9. Run npm run verify:meta after final documentation changes when that command exists.
-10. Do not commit unless separately requested.
+10. Stop every dev server, watcher, browser/MCP service, container or other
+    long-lived process started for the gate. Verify that each owned process tree
+    and listening port is gone before the final report; preserve unrelated
+    pre-existing processes and record any exact cleanup blocker.
+11. Do not commit unless separately requested.
 
 A missing user-owned value is not a reason to invent data. Record it as an explicit
 launch input or blocker and keep implementation configurable. A blocked gate does

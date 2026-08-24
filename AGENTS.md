@@ -14,6 +14,9 @@ Read only the context relevant to the current task:
 - `docs/02-copywriting-guidelines.md` — public copy and case-study structure.
 - `docs/03-site-structure-and-domains.md` — routes, navigation and domain rules.
 - `docs/04-tech-spec.md` — stack, rendering, hosting, accessibility and security.
+- `docs/style-reference.html` — literal dark visual reference; its HTML/CSS wins
+  for visual tokens, spacing and component patterns except documented AA overrides.
+- `docs/07-visual-spec-reference.md` — dark visual implementation contract.
 - `docs/DESIGN_SYSTEM.md` — approved visual direction and reusable UI decisions.
 - `docs/ARCHITECTURE.md` — target project structure and runtime contracts.
 - `docs/PROJECT_STATUS.md` — current phase and decisions.
@@ -26,13 +29,24 @@ Do not load `docs/tasks/archive` unless the user explicitly asks for history.
 
 When documents overlap, use this precedence:
 
-1. `00-brand-brief.md` for positioning and visual constraints.
-2. `01-content-facts.md` for all public factual claims and NDA boundaries.
-3. `02-copywriting-guidelines.md` for copy structure and voice.
-4. `03-site-structure-and-domains.md` for routes and canonical behavior.
-5. `04-tech-spec.md` for implementation constraints.
-6. `05-task-breakdown-for-codex.md` for launch phases and checkpoints.
-7. Current-state files for what has actually been implemented.
+1. `style-reference.html` for exact visual tokens, spacing and component patterns.
+2. `07-visual-spec-reference.md` for the dark visual implementation contract.
+3. `00-brand-brief.md` for positioning and all non-overridden visual constraints.
+4. `01-content-facts.md` for all public factual claims and NDA boundaries.
+5. `02-copywriting-guidelines.md` for copy structure and voice.
+6. `03-site-structure-and-domains.md` for routes and canonical behavior.
+7. `04-tech-spec.md` for implementation constraints.
+8. `05-task-breakdown-for-codex.md` for launch phases and checkpoints.
+9. Current-state files for what has actually been implemented.
+
+For every redesign task, read both `docs/style-reference.html` and
+`docs/07-visual-spec-reference.md`. The visual order above governs palette,
+typography, spacing and component treatment: the HTML reference is literal, the
+visual spec defines the implementation contract and documented AA overrides, and
+`docs/00-brand-brief.md` remains authoritative for positioning and all
+non-overridden hard constraints. This visual precedence never weakens factual,
+NDA, route, metadata, API or security requirements from their authoritative
+sources.
 
 ## Product invariants
 
@@ -44,8 +58,9 @@ When documents overlap, use this precedence:
   framing in `docs/01-content-facts.md`. Treat metadata, JSON-LD, OG images,
   generated HTML and client bundles as public copy too.
 - Do not publish the unverified `$15–20K/year` proxy figure.
-- Do not add dark mode, blog/CMS, testimonials, live chat, calendar booking or a
-  Russian version during this launch.
+- Use the approved dark-only visual system. Do not add a theme switcher, alternate
+  light theme, blog/CMS, testimonials, live chat, calendar booking or a Russian
+  version during this launch.
 - Keep case-study content separate from layout and component code.
 - Never put secrets, mail credentials, analytics IDs or deployment tokens in Git.
 - Preserve unrelated working-tree changes. Never reset, checkout, stash or delete
