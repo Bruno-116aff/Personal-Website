@@ -8,3 +8,4 @@ npm-debug.log*
 apps/contact-api/data/
 infra/data/
 .playwright-mcp
+apps/frontend/artifacts/visual-review/
