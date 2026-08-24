@@ -1,9 +1,9 @@
 # SITE-083 — Add branded 404 route and fallback handling
 
-- Batch: 6
+- Batch: 10
 - Area: frontend routing / deployment
-- State: IMPLEMENTED_PENDING_GATE
-- Depends on: SITE-059
+- State: COMPLETE
+- Depends on: SITE-103
 
 ## Goal
 
@@ -18,9 +18,9 @@ it with HTTP status 404 for unknown paths.
 
 ## Targeted context
 
+- docs/style-reference.html
+- docs/07-visual-spec-reference.md
 - docs/03-site-structure-and-domains.md
-- docs/04-tech-spec.md
-- docs/DESIGN_SYSTEM.md
 - apps/frontend/src/App.tsx
 - apps/frontend/nginx.conf
 
@@ -54,6 +54,7 @@ SITE-061 must run the complete repository verification and release review.
   page with recovery links and retain HTTP status 404 through Nginx.
 - Evidence: `npm.cmd run typecheck`, `npm.cmd run test`, `npm.cmd run build`,
   `npm.cmd run verify:meta` and `npm.cmd run verify:content` pass from
-  `apps/frontend`; generated `dist/404.html` is present and absent from the
-  sitemap.
+  `apps/frontend`; generated `dist/404.html` and Nginx static inspection pass
+  with one H1, recovery links to home/work/about/contact/CV, `noindex, follow`,
+  sitemap exclusion, known-route handling and trailing-slash redirects.
 - Deferred: full repository and release gate remains SITE-061.

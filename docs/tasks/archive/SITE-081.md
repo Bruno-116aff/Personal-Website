@@ -1,9 +1,9 @@
 # SITE-081 — Build selective CI and immutable application images
 
-- Batch: 6
+- Batch: 10
 - Area: CI / Docker artifacts
-- State: IMPLEMENTED_PENDING_GATE
-- Depends on: SITE-059
+- State: COMPLETE
+- Depends on: SITE-103
 
 ## Goal
 
@@ -19,11 +19,11 @@ main-branch releases.
 
 ## Targeted context
 
+- docs/style-reference.html
+- docs/07-visual-spec-reference.md
 - docs/04-tech-spec.md
 - docs/ARCHITECTURE.md
-- package.json
 - infra/docker-compose.prod.yml
-- apps/frontend/Dockerfile
 
 ## Acceptance criteria
 
@@ -45,8 +45,11 @@ main-branch releases.
 - Changed behavior: CI now detects frontend/contact API/shared changes, runs
   selective quality jobs, validates Dockerfiles on PRs and publishes immutable
   GHCR image references plus a release manifest on successful main builds.
-- Evidence: `npm run verify`, `npm run format:check`, both local production Docker
-  image builds and `npm run verify:deployment` pass.
+- Evidence: workflow YAML inspection passed; frontend lint, typecheck/build,
+  tests, accessibility, performance, content and metadata checks passed;
+  contact API typecheck, tests and production build passed; `npm.cmd run
+  format:check` and `npm.cmd run verify:deployment` passed; both local
+  production Docker image builds passed without publishing.
 - Deferred: GitHub-hosted execution and GHCR publication remain part of SITE-061;
   no production deployment was performed.
 

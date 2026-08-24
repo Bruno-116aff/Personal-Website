@@ -1,8 +1,8 @@
 # SITE-082 — Prepare selective CD, first launch and rollback
 
-- Batch: 6
+- Batch: 10
 - Area: CD / production operations
-- State: IMPLEMENTED_PENDING_GATE
+- State: COMPLETE
 - Depends on: SITE-081
 
 ## Goal
@@ -18,11 +18,11 @@ wait for health, run external smoke checks and roll back to the previous images.
 
 ## Targeted context
 
+- docs/style-reference.html
+- docs/07-visual-spec-reference.md
 - docs/04-tech-spec.md
 - docs/ARCHITECTURE.md
 - infra/docker-compose.prod.yml
-- infra/prepare-prod-data.sh
-- README.md
 
 ## Acceptance criteria
 
@@ -48,9 +48,12 @@ wait for health, run external smoke checks and roll back to the previous images.
 - Changed behavior: CD consumes the CI manifest, uses the prepared server compose,
   supports first launch, selective `--no-deps` service updates, health and public
   smoke checks, previous-image rollback and post-smoke removal of replaced images.
-- Evidence: Bash syntax checks, production Compose fixture validation, local
-  Docker builds, local production persistence/restart verification and
-  `npm run verify` pass.
+- Evidence: POSIX shell syntax check passed in a container; production Compose
+  config accepted a generated non-secret fixture environment; CD first-launch,
+  selective-release, health, smoke, rollback and cleanup decision paths passed
+  static safety review; `npm.cmd run verify:production` passed with 23 checks,
+  including local image builds, direct routes, public assets, CORS and SQLite
+  persistence after API restart. No production deployment was performed.
 - Deferred: GitHub secrets, GHCR permissions and actual VPS/DNS/Traefik execution
   remain external release inputs for SITE-061.
 
