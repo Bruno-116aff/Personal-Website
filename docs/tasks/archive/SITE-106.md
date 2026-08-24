@@ -2,7 +2,7 @@
 
 - Batch: 11
 - Area: case-study presentation
-- State: IMPLEMENTED_PENDING_GATE
+- State: COMPLETE
 - Depends on: SITE-104
 
 ## Goal

@@ -2,7 +2,7 @@
 
 - Batch: 11
 - Area: homepage contact
-- State: IMPLEMENTED_PENDING_GATE
+- State: COMPLETE
 - Depends on: none
 
 ## Goal

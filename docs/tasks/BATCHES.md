@@ -1,6 +1,6 @@
 # Batch Plan
 
-The project has eleven sequential batches. A batch contains small,
+The project has twelve sequential batches. A batch contains small,
 independently reviewable implementation tasks and ends with one mandatory
 batch-gate task. The gate task is always the final task listed for that batch.
 
@@ -117,12 +117,24 @@ input verification.
 
 ## Batch 11 — Case-study presentation refinement
 
-Tasks: SITE-104, SITE-106, SITE-107, SITE-105 (gate).
+Tasks: SITE-104, SITE-106, SITE-107, SITE-108, SITE-109, SITE-105 (gate).
 
-Status: IN_PROGRESS. SITE-105 is the deferred full verification gate.
+Status: COMPLETE. SITE-105 closed the batch at 100% on 2026-08-24.
 
-Goal: remove decorative numeric prefixes from case-study page labels while
+Goal: refine case-study presentation and add restrained progressive motion while
 preserving the deliberate `01–04` order in homepage Featured Work.
+
+## Batch 12 — Shell/layout polish
+
+Tasks: SITE-110, SITE-111 (gate).
+
+Status: IN_PROGRESS.
+
+Goal: align the desktop shell header with the shared content container without
+changing navigation behavior or public content.
+
+Gate: full project suite plus desktop/tablet/mobile header-boundary and overflow
+evidence.
 
 ## Gate policy
 

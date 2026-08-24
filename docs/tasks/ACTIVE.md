@@ -10,13 +10,9 @@ IMPLEMENTED_PENDING_GATE; only a gate may archive and mark its batch COMPLETE.
 
 | ID | Batch | Area | State | Depends on | Task file |
 | --- | --- | --- | --- | --- | --- |
-| SITE-104 | 11 | case-study presentation | IMPLEMENTED_PENDING_GATE | — | [SITE-104](active/SITE-104.md) |
-| SITE-106 | 11 | case-study presentation | IMPLEMENTED_PENDING_GATE | SITE-104 | [SITE-106](active/SITE-106.md) |
-| SITE-107 | 11 | case-study presentation | IMPLEMENTED_PENDING_GATE | SITE-104, SITE-106 | [SITE-107](active/SITE-107.md) |
-| SITE-108 | 11 | homepage contact | IMPLEMENTED_PENDING_GATE | — | [SITE-108](active/SITE-108.md) |
-| SITE-105 | 11 | batch gate / presentation refinement | READY | SITE-104, SITE-106, SITE-107, SITE-108 | [SITE-105](active/SITE-105.md) |
+| SITE-110 | 12 | shell/layout polish | IMPLEMENTED_PENDING_GATE | Batch 11 gate COMPLETE | [SITE-110.md](active/SITE-110.md) |
+| SITE-111 | 12 | batch gate / shell layout | READY | SITE-110 | [SITE-111.md](active/SITE-111.md) |
 
-Batch 0 through Batch 10 are COMPLETE and archived. Batch 11 contains the active
-case-study presentation refinement and its deferred full gate. External deployment
+Batch 0 through Batch 11 are COMPLETE and archived. External deployment
 and account-owned launch verification remain listed in the SITE-061 final evidence
 as deferred inputs.

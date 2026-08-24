@@ -521,6 +521,9 @@ html[data-motion='reduced'] .scroll-progress {
 }
 
 .site-header {
+  width: 100%;
+  max-width: var(--container-width);
+  margin-inline: auto;
   border-block-end: 1px solid var(--color-border);
   background: var(--bg-base);
   padding: 0;
