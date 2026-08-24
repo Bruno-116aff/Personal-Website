@@ -86,7 +86,7 @@ function RouteIntro({ route }: { route: ReturnType<typeof getSiteRoute> }) {
 }
 
 function Homepage({ githubUrl }: { githubUrl?: string }) {
-  const configuredGithubUrl = getConfiguredExternalUrl(githubUrl);
+  const configuredGithubUrl = getConfiguredExternalUrl(githubUrl) ?? contactDetails.githubUrl;
 
   return (
     <div className="home-page">
@@ -319,11 +319,6 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
                   </Button>
                 )}
               </div>
-              {!githubUrl && (
-                <p id="github-config-note" className="contact-config-note">
-                  GitHub will be enabled when the public profile URL is confirmed.
-                </p>
-              )}
             </div>
             <ContactForm />
           </div>

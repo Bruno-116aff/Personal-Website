@@ -1,4 +1,5 @@
 import { notFoundRoute, siteRoutes, type SiteRoute, type SiteRouteTitleKey } from '../routes';
+import { contactDetails } from '../content/contact';
 import { resolveSiteOrigin } from './site-config';
 
 const approvedLinkedInUrl = 'https://www.linkedin.com/in/ivan-hubko-5a635b245';
@@ -83,7 +84,7 @@ function configuredValue(value: string | undefined) {
 function configuredSameAs(config: MetadataConfig) {
   return [
     configuredValue(config.linkedInUrl) ?? approvedLinkedInUrl,
-    configuredValue(config.githubUrl),
+    configuredValue(config.githubUrl) ?? contactDetails.githubUrl,
   ].filter((value): value is string => Boolean(value));
 }
 

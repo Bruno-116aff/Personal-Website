@@ -3,4 +3,5 @@ export const contactDetails = {
   linkedInUrl: 'https://www.linkedin.com/in/ivan-hubko-5a635b245',
   telegramHandle: '@Ivan_devs',
   telegramUrl: 'https://t.me/Ivan_devs',
+  githubUrl: 'https://github.com/Bruno-116aff',
 } as const;
