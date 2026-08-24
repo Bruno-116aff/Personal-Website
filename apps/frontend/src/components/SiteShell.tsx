@@ -29,7 +29,9 @@ export default function SiteShell({ pathname, children }: SiteShellProps) {
             aria-label="Ivan Hubko home"
             aria-current={isHome ? 'page' : undefined}
           >
-            <span aria-hidden="true" className="site-wordmark-mark">IH</span>
+            <span aria-hidden="true" className="site-wordmark-mark">
+              <span className="site-wordmark-logo" />
+            </span>
             <span>Ivan Hubko</span>
           </a>
 

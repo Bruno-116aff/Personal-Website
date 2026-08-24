@@ -451,6 +451,13 @@ a {
   letter-spacing: normal;
 }
 
+.site-wordmark-logo {
+  display: block;
+  width: 18px;
+  height: 18px;
+  background: url('../assets/brand/logo-inverse.svg') center / contain no-repeat;
+}
+
 .site-nav-links {
   gap: 32px;
   flex-wrap: wrap;
