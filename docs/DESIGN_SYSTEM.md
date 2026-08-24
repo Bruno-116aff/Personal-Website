@@ -26,7 +26,7 @@ borders and light-to-medium type weights. No theme switcher or light alternative
 | Fonts | Inter Tight display; Inter body; JetBrains Mono labels/data; self-hosted WOFF2 only |
 | Type | H1 `56/600/-0.02em`; H2 `34/600/-0.015em`; H3 `21/600`; body `17/400` |
 | Layout | `1180px` container; `12px` radius; 96px section rhythm on desktop |
-| Motion | 150ms calm color/background shifts; no transform lift; reduced motion removes non-essential motion |
+| Motion | 150ms calm color/background shifts; one-time 220ms progressive reveal; no transform lift; reduced motion removes non-essential motion |
 
 Accessibility is not optional: normal public text and button text must meet WCAG
 2.2 AA. The primary-control and tertiary-text values above are intentional minimal
@@ -49,6 +49,10 @@ refinements to the initial reference values.
 - About remains text-only until a user-supplied photo enables a separate duotone task.
 - No terminal/matrix treatment, green-on-black decoration, skill bars, logo walls,
   parallax, WebGL, custom cursor, scroll hijacking or heavy animation library.
+- Reveal motion is progressive enhancement: primary HTML remains visible without
+  JavaScript, reveal targets animate once on viewport entry, and the thin scroll
+  progress indicator appears only on long Case Study and CV routes. The hero
+  node motif remains static.
 - Visual changes never alter public copy, IA, routes, metadata claims or Case 4 rules.
 
 ## Visual review contract

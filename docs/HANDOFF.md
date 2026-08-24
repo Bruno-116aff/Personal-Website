@@ -4,7 +4,7 @@
 
 Date: 2026-08-24
 
-Final release decision: Batch 10 is COMPLETE for the implemented local release
+Final release decision: Batch 11 is COMPLETE for the implemented local release
 scope. External production deployment and account-owned verification remain pending
 with exact status recorded below.
 
@@ -19,8 +19,8 @@ with exact status recorded below.
 - `#788191` is the accessible tertiary text token. Solid primary controls use
   `#4A67E5` with white text; these are the approved WCAG AA refinements.
 - Batch 6 is complete after SITE-088, Batch 7 is complete after SITE-093, Batch 8
-  is complete after SITE-097, Batch 9 is complete after SITE-103 and Batch 10 is
-  complete after SITE-061. Every implementation task consulted both visual source
+  is complete after SITE-097, Batch 9 is complete after SITE-103, Batch 10 is
+  complete after SITE-061 and Batch 11 is complete after SITE-105. Every implementation task consulted both visual source
   files and preserved public copy, routes and API behavior.
 - Each gate must run the complete project suite, capture desktop/tablet/mobile
   screenshots, update current-state docs and archive only after 100% closure.
@@ -122,6 +122,11 @@ routes and technical constraints.
   and 0 FAIL, production-like verification at 23 PASS, quality-gate scans passing,
   and responsive visual evidence for the reference, six public routes and branded
   404. SITE-060, SITE-081, SITE-082, SITE-083 and SITE-061 are archived COMPLETE.
+- SITE-105 closed Batch 11 with progressive reveal motion, reduced-motion support
+  and route-scoped scroll progress. The complete root gate passed with 12 PASS,
+  0 DEFERRED and 0 FAIL; production verification passed 23 assertions; responsive
+  visual evidence covered all required routes and widths; SITE-104, SITE-106,
+  SITE-107, SITE-108, SITE-109 and SITE-105 are archived COMPLETE.
 
 ## Resume recipe
 

@@ -160,6 +160,8 @@
   --radius: 12px;
   --max-w: 1180px;
   --motion-duration: 150ms;
+  --motion-reveal-duration: 220ms;
+  --motion-reveal-distance: 10px;
 }
 
 html {
@@ -193,6 +195,128 @@ a {
 :focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 3px;
+}
+
+html[data-motion='ready'] :where(
+  .hero__eyebrow,
+  .hero h1,
+  .hero__summary,
+  .hero__tags,
+  .hero__actions,
+  .home-section > .section-intro,
+  .contact-section > .section-intro,
+  .impact-strip__item,
+  .capability-card,
+  .work-card,
+  .career-card,
+  .approach-card,
+  .expertise-card,
+  .about-copy,
+  .contact-section,
+  .case-study__hero,
+  .case-study__section,
+  .case-study__results,
+  .case-study__navigation,
+  .cv-page__hero,
+  .cv-page__section,
+  .not-found-page__visual,
+  .not-found-page__content
+) {
+  opacity: 0;
+  transform: translateY(var(--motion-reveal-distance));
+  transition: opacity var(--motion-reveal-duration) ease,
+    transform var(--motion-reveal-duration) ease;
+}
+
+html[data-motion='ready'] :where(
+  .hero__eyebrow,
+  .hero h1,
+  .hero__summary,
+  .hero__tags,
+  .hero__actions,
+  .home-section > .section-intro,
+  .contact-section > .section-intro,
+  .impact-strip__item,
+  .capability-card,
+  .work-card,
+  .career-card,
+  .approach-card,
+  .expertise-card,
+  .about-copy,
+  .contact-section,
+  .case-study__hero,
+  .case-study__section,
+  .case-study__results,
+  .case-study__navigation,
+  .cv-page__hero,
+  .cv-page__section,
+  .not-found-page__visual,
+  .not-found-page__content
+)[data-reveal-state='visible'] {
+  opacity: 1;
+  transform: none;
+}
+
+html[data-motion='ready'] .hero__eyebrow {
+  transition-delay: 20ms;
+}
+
+html[data-motion='ready'] .hero h1 {
+  transition-delay: 60ms;
+}
+
+html[data-motion='ready'] .hero__summary {
+  transition-delay: 100ms;
+}
+
+html[data-motion='ready'] .hero__tags {
+  transition-delay: 140ms;
+}
+
+html[data-motion='ready'] .hero__actions {
+  transition-delay: 180ms;
+}
+
+html[data-motion='ready'] .work-card,
+html[data-motion='ready'] .capability-card,
+html[data-motion='ready'] .approach-card {
+  transition-property: opacity, transform, background-color;
+}
+
+html[data-motion='ready'] .work-grid > :nth-child(2),
+html[data-motion='ready'] .capability-grid > :nth-child(2),
+html[data-motion='ready'] .approach-grid > :nth-child(2) {
+  transition-delay: 40ms;
+}
+
+html[data-motion='ready'] .work-grid > :nth-child(3),
+html[data-motion='ready'] .capability-grid > :nth-child(3),
+html[data-motion='ready'] .approach-grid > :nth-child(3) {
+  transition-delay: 80ms;
+}
+
+html[data-motion='ready'] .work-grid > :nth-child(4) {
+  transition-delay: 120ms;
+}
+
+.scroll-progress {
+  position: fixed;
+  z-index: 20;
+  inset: 0 0 auto;
+  height: 2px;
+  pointer-events: none;
+  background: var(--accent);
+  opacity: 0.85;
+  transform: scaleX(var(--scroll-progress, 0));
+  transform-origin: left center;
+}
+
+html[data-motion='ready'] .scroll-progress {
+  transition: transform 120ms linear;
+}
+
+html[data-motion='reduced'] .scroll-progress {
+  display: none;
 }
 
 @layer base {

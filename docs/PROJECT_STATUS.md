@@ -2,7 +2,7 @@
 
 ## Current phase
 
-Local release gate complete — Batch 10 is COMPLETE; external production launch
+Local presentation gate complete — Batch 11 is COMPLETE; external production launch
 inputs remain explicitly pending.
 
 Batch 5 development hardening is complete. Batch 9 replaced the approved light
@@ -27,9 +27,10 @@ Build a polished English-only personal site for Ivan Hubko with:
 
 ## Current batch
 
-Batch 10 — release gate COMPLETE for the implemented local release scope.
+Batch 11 — presentation refinement and motion gate COMPLETE for the implemented
+local release scope.
 
-Batch 0 through Batch 10 are COMPLETE after their full local batch gates. External
+Batch 0 through Batch 11 are COMPLETE after their full local batch gates. External
 deployment and account-owned verification are not represented as completed local
 work.
 
@@ -96,6 +97,13 @@ work.
   quality-gate scans passed; and visual evidence covered the reference, six public
   routes and branded 404 at 1440px, 768px and 390px. SITE-060, SITE-081, SITE-082,
   SITE-083 and SITE-061 are archived COMPLETE.
+- Closed Batch 11 with SITE-105: added progressive reveal motion, a reduced-motion
+  safe fallback and a thin scroll-progress indicator for long Case Study/CV routes;
+  the complete command suite passed with 12 PASS, 0 DEFERRED and 0 FAIL,
+  production-like verification passed 23 assertions, and responsive visual review
+  covered the reference, six public routes and branded 404 at 1440px, 768px and
+  390px. SITE-104, SITE-106, SITE-107, SITE-108, SITE-109 and SITE-105 are archived
+  COMPLETE.
 
 ## Current scope boundary
 

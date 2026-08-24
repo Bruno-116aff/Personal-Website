@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { trackAnalyticsEvent } from '../lib/analytics';
+import { useMotionReveal, useScrollProgress } from './motion';
 
 type SiteShellProps = {
   pathname: string;
@@ -14,12 +15,17 @@ function homepageAnchor(pathname: string, id: string) {
 export default function SiteShell({ pathname, children }: SiteShellProps) {
   const isHome = pathname === '/';
   const isCv = pathname === '/cv';
+  const showScrollProgress = isCv || pathname.startsWith('/work/');
+
+  useMotionReveal();
+  useScrollProgress(showScrollProgress);
 
   return (
     <div className="site-shell">
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
+      {showScrollProgress && <div className="scroll-progress" aria-hidden="true" />}
 
       <header className="site-header">
         <nav className="site-nav" aria-label="Primary navigation">
