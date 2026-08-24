@@ -8,13 +8,7 @@ type CaseStudyLayoutProps = {
   nextCase?: CaseStudyRoute;
 };
 
-function CaseSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function CaseSection({ title, children }: { title: string; children: React.ReactNode }) {
   const titleId = `${title.toLowerCase().replaceAll(' ', '-')}-heading`;
 
   return (
@@ -43,13 +37,17 @@ export default function CaseStudyLayout({
 
       <CaseSection title="Context">
         <div className="case-study__prose">
-          {caseStudy.context.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          {caseStudy.context.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
         </div>
       </CaseSection>
 
       <CaseSection title="Problem">
         <div className="case-study__prose">
-          {caseStudy.problem.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          {caseStudy.problem.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
         </div>
       </CaseSection>
 
@@ -59,7 +57,9 @@ export default function CaseStudyLayout({
 
       <CaseSection title="Approach">
         <div className="case-study__prose">
-          {caseStudy.approach.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          {caseStudy.approach.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
         </div>
       </CaseSection>
 
@@ -88,9 +88,17 @@ export default function CaseStudyLayout({
         </div>
       </CaseSection>
 
+      {caseStudy.supportingImpact && (
+        <CaseSection title="Supporting impact">
+          <p className="case-study__constraint">{caseStudy.supportingImpact}</p>
+        </CaseSection>
+      )}
+
       <CaseSection title="Engineering Lessons">
         <ul className="case-study__lessons">
-          {caseStudy.engineeringLessons.map((lesson) => <li key={lesson}>{lesson}</li>)}
+          {caseStudy.engineeringLessons.map((lesson) => (
+            <li key={lesson}>{lesson}</li>
+          ))}
         </ul>
       </CaseSection>
 

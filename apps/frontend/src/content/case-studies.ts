@@ -31,6 +31,7 @@ type CaseStudyContent = {
   architecture: readonly CaseStudyArchitectureStep[];
   technologies: readonly string[];
   results: readonly CaseStudyResult[];
+  supportingImpact?: string;
   engineeringLessons: readonly string[];
 };
 
@@ -48,256 +49,296 @@ export type CaseStudyRoute = {
 
 const infrastructureReliabilityCase: CaseStudyContent = {
   summary:
-    'A hardware-aware worker service that made a 20-modem proxy station more reliable and reduced direct proxy line-item costs by roughly $3.5K per year.',
+    'Built an internally managed mobile proxy infrastructure around 20 physical modems, removing dependence on unstable third-party providers and introducing automatic failover, centralized control and remote recovery.',
   context: [
-    'PS Simple Traffic relied on mobile proxies for internal use, partner access and limited resale. Third-party proxy lines were expensive and frequently unstable.',
+    'PS Simple Traffic relied on mobile proxies for internal operations, partner access and limited client use. Third-party proxy lines were expensive and frequently unstable.',
   ],
   problem: [
-    'Connection drops created recurring operational work. A failed modem or proxy could interrupt traffic, while adding a new modem required manual configuration and the underlying network state was difficult to see from the central CRM.',
+    'Connection failures repeatedly interrupted operational work. A failed modem or proxy could leave users without service, while replacing or configuring hardware required manual intervention.',
+    'The underlying network state also was not visible from the central CRM, which made diagnosis and recovery slower than necessary.',
   ],
   constraints: caseStudyConfidentialityNote,
   approach: [
-    'The system treated physical components as expected points of failure. A dedicated worker on Ubuntu owned modem and network state, remotely reset IPs when needed, configured newly inserted modems and reported live status to the CRM.',
-    'External endpoints stayed abstracted behind a tunnel and static IP. When a modem failed, the worker rerouted traffic to another available modem instead of leaving users on a failed connection.',
-    'The rollout also introduced private network access controls to reduce internal exposure without changing the external endpoint experience.',
+    'The system was designed around one assumption: every physical component would eventually fail.',
+    'A dedicated Ubuntu worker managed modem ports and network state, automatically configured newly connected modems and reported live status to the central CRM.',
+    'External endpoints were abstracted behind domain-based access. If one modem became unavailable, traffic could be rerouted to another available modem without exposing the underlying network details to users.',
+    'Private network access controls were also introduced to reduce unnecessary exposure of internal systems.',
   ],
   architecture: [
     {
-      label: 'CRM configuration',
-      description: 'Supplies management configuration and receives live worker status.',
+      label: 'Central CRM',
+      description: 'Stores configuration and receives live worker and modem state.',
     },
     {
-      label: 'Ubuntu worker',
-      description: 'Controls ports and network state, configures new modems and performs remote IP resets.',
+      label: 'Ubuntu Worker',
+      description:
+        'Controls modem ports and network state, configures newly connected hardware and performs remote IP resets.',
     },
     {
-      label: 'Modem station',
-      description: 'A hub of USB modems connected through SIM cards and rooftop antennas.',
+      label: 'Modem Station',
+      description: '20 physical USB modems connected through SIM cards and external antennas.',
     },
     {
-      label: 'Tunnel and static IP',
-      description: 'Expose domain-based endpoints while keeping the underlying routing abstracted.',
+      label: 'Routing Layer',
+      description:
+        'Exposes stable domain-based endpoints while keeping the physical network topology hidden from users.',
     },
     {
       label: 'Failover',
-      description: 'Reroutes traffic to another modem when a connection fails and reports the new state to the CRM.',
+      description:
+        'Detects unavailable connections and reroutes traffic to another available modem.',
     },
   ],
-  technologies: ['Ubuntu', 'Worker service', 'USB modems', 'Tunnels', 'Static IP', 'CRM integration'],
+  technologies: ['Ubuntu', 'Networking', 'USB modems', 'Tunnels', 'Static IP', 'CRM integration'],
   results: [
-    {
-      value: '~$3.5K/year',
-      label: 'Direct proxy line-item savings',
-      detail: 'Verified cost reduction',
-    },
     {
       value: '20',
       label: 'Physical modems',
-      detail: 'Up to 3 concurrent users per proxy',
+      detail: 'Centrally controlled through one worker station.',
+    },
+    {
+      value: 'Automatic',
+      label: 'Failover',
+      detail: 'Failed connections could be moved to another available modem.',
     },
     {
       value: 'Zero',
       label: 'Proxy-related outages since deployment',
-      detail: 'Recurring third-party-provider failures removed',
+      detail: 'Recurring failures from unstable external providers were removed.',
+    },
+    {
+      value: '~$3.5K/year',
+      label: 'Direct proxy line-item savings',
+      detail: 'Verified reduction in recurring proxy costs.',
     },
   ],
   engineeringLessons: [
-    'Most of the difficulty was accepting that physical hardware fails in ways no cloud abstraction prepares you for. Failover only became reliable once every component was treated as something that would eventually go down.',
-    'Today, I would introduce structured health-check telemetry from day one instead of adding it after the first unexplained outage.',
+    'The hardest part was accepting that physical hardware fails in ways cloud infrastructure often hides. The design became much simpler once every modem, connection and network component was treated as something that would eventually go down.',
+    'If I were starting again, I would introduce structured health telemetry from the first version rather than adding deeper monitoring after the first unexplained failures.',
   ],
 };
 
 const operationsAutomationCase: CaseStudyContent = {
   summary:
-    'A queued provisioning pipeline that reduced a server-and-domain request from 1–3 hours to around 15 minutes and removed a manual operational bottleneck.',
+    'Turned a manual server-and-domain provisioning workflow into an asynchronous pipeline that reduced request completion time from 1–3 hours to approximately 15 minutes.',
   context: [
-    'Operators regularly needed a test deployment in a specific location, with a server, domain and traffic flow configured for the request. Each request previously moved through a manual checklist.',
+    'Operators regularly needed short-lived deployments in specific locations, including a server, domain, configuration and a verified destination.',
+    'Each request previously moved through a manual checklist.',
   ],
   problem: [
-    'Provisioning required someone to create a server, connect a domain, configure the flow and verify access by hand. The work took time, was prone to manual errors and depended on a dedicated operational role.',
+    'A dedicated person had to provision the server, configure access, connect a domain, set up the required internal flow and verify that the final destination was reachable.',
+    'The process was slow, depended on one person and created repeated opportunities for manual error.',
   ],
   constraints: caseStudyConfidentialityNote,
   approach: [
-    'The manual checklist became an asynchronous pipeline. Each request was validated first, then split into independent steps so a failed sub-task could be retried without restarting completed work.',
-    'Provisioning and domain work could run in parallel, while a separate service verified the configured destination before the request was marked complete. This made the workflow recoverable instead of treating it as one long operation.',
+    'The manual checklist was decomposed into independently executable steps.',
+    'Every request was validated before provisioning started. Tasks that did not depend on each other could run in parallel, while failed sub-tasks could be retried without restarting the complete workflow.',
+    'A separate verification step checked that the configured destination was reachable before the request was considered complete.',
+    'This changed the workflow from one long manual operation into a recoverable asynchronous pipeline.',
   ],
   architecture: [
     {
-      label: 'CRM request',
-      description: 'An operator selects the product and location, then submits a provisioning request.',
+      label: 'Request',
+      description: 'An operator selects the required product and location in the CRM.',
     },
     {
       label: 'Validation',
-      description: 'A worker checks required access and prerequisites through APIs before provisioning begins.',
+      description:
+        'Required access and prerequisites are checked through APIs before any infrastructure is created.',
     },
     {
-      label: 'RabbitMQ queue',
-      description: 'Carries the validated job and separates the workflow into independently retryable tasks.',
+      label: 'RabbitMQ',
+      description:
+        'The validated request is placed into a queue and separated into independently retryable tasks.',
     },
     {
-      label: 'Parallel provisioning',
-      description: 'Workers create the server through cloud-provider APIs, deploy configuration and content, and select, attach and secure an available domain.',
+      label: 'Parallel Provisioning',
+      description:
+        'Workers provision infrastructure through cloud APIs while another branch selects, attaches and secures an available domain.',
     },
     {
       label: 'Verification',
-      description: 'A separate service configures the required flow in an internal tracking system and checks that the destination endpoint is reachable.',
+      description:
+        'A separate service configures the required internal flow and verifies that the final destination is reachable.',
     },
     {
-      label: 'Completion notification',
-      description: 'After verification succeeds, a notification service confirms the completed request in Telegram.',
+      label: 'Completion',
+      description: 'A notification service confirms the successful request through Telegram.',
     },
   ],
   technologies: ['RabbitMQ', 'AWS', 'DigitalOcean', 'Cloudflare', 'TLS', 'SSH', 'Telegram'],
   results: [
     {
       value: '1–3h → ~15m',
-      label: 'Provisioning request time',
-      detail: 'From manual checklist to automated pipeline',
+      label: 'Request completion time',
+      detail: 'Manual checklist replaced with automated provisioning.',
     },
     {
       value: '~$7K/year',
       label: 'Direct operational savings',
-      detail: 'Dedicated manual operational role removed',
+      detail: 'The dedicated manual operational role was no longer required.',
     },
     {
       value: 'Near-zero',
       label: 'Manual processing errors',
-      detail: 'After automation',
+      detail: 'Validation and automated execution removed most human error from the workflow.',
     },
   ],
   engineeringLessons: [
-    'The hard part was decomposing one manual checklist into independently retryable steps. Early versions treated the flow as one unit, so one failed sub-task could force the whole request to be redone.',
-    'Today, I would design idempotent, independently resumable steps from the start rather than arriving at that model after painful reruns.',
+    'The difficult part was not queueing work. It was breaking one manual checklist into steps that could fail and recover independently.',
+    'Early versions treated the workflow too much like a single operation. Today I would design every step to be idempotent and independently resumable from the beginning.',
   ],
 };
 
 const unifiedPlatformCase: CaseStudyContent = {
   summary:
-    'A single operational platform that consolidated fragmented systems, reconciled delivery, traffic and spend, and evolved from a modular monolith as the scope grew.',
+    'Consolidated fragmented operational systems into one internal platform and evolved the architecture from a modular monolith to clearer service boundaries as the scope grew.',
   context: [
-    'Company tooling was fragmented across account management, traffic configuration, payments and domains. Orders arrived through Telegram without a central record, and teams had to cross-reference separate systems to understand operations.',
+    'Operational tooling was spread across separate systems for account management, traffic configuration, payments and domains. Requests also arrived through Telegram without one central operational record.',
   ],
   problem: [
-    'There was no shared operational view of what an ad platform reported, what reached the destination and what was spent in the payment system. Access changes and risk responses also required work across multiple tools.',
+    'Teams had no shared operational view.',
+    'Understanding what an advertising platform reported, what actually reached the destination and what was spent in the payment system required manual comparison across separate tools.',
+    'Access management and incident response were fragmented for the same reason.',
   ],
   constraints: caseStudyConfidentialityNote,
   approach: [
-    'The first priority was a single operational source of truth. The platform brought the existing workflows together and made cross-system reconciliation a first-class capability instead of a manual comparison.',
-    'The original Node.js and Express modular monolith was appropriate while the scope was small. As responsibilities and integration boundaries grew, the system was rewritten with NestJS microservices so services could evolve around clearer operational responsibilities.',
-    'Supporting capabilities stayed inside the platform: API-based domain management, task automation triggers, financial report export and a short-link and domain redirect service.',
+    'The first objective was not microservices. It was creating one reliable operational source of truth.',
+    'Existing workflows were brought into one platform and cross-system reconciliation became a first-class capability instead of a manual comparison process.',
+    'The initial Node.js and Express modular monolith was deliberately kept simple while the product scope was limited.',
+    'As integrations and responsibilities grew, the system was moved toward NestJS services with clearer boundaries and more explicit ownership.',
   ],
   architecture: [
     {
-      label: 'Operational platform',
-      description: 'Centralizes previously separate account, traffic, payment and domain workflows.',
+      label: 'Operational Platform',
+      description:
+        'Centralizes previously separate account, traffic, payment and domain workflows.',
     },
     {
       label: 'Reconciliation',
-      description: 'Compares reported delivery, actual traffic reaching the destination and payment-system spend in one operational view.',
+      description:
+        'Compares platform-reported delivery, actual traffic reaching the destination and payment-system spend in one operational view.',
     },
     {
-      label: 'Initial architecture',
-      description: 'A Node.js and Express modular monolith kept the early system simple while the scope was still contained.',
+      label: 'Initial Architecture',
+      description:
+        'A Node.js and Express modular monolith kept the early system simple while scope was still contained.',
     },
     {
-      label: 'Service evolution',
-      description: 'A NestJS microservices architecture introduced clearer boundaries as the platform and its integrations grew.',
+      label: 'Service Evolution',
+      description:
+        'NestJS services introduced clearer boundaries as the platform and number of integrations grew.',
     },
     {
-      label: 'Operational controls',
-      description: 'Centralized team onboarding and offboarding, plus a single control to halt traffic and accounts in a risk scenario.',
+      label: 'Operational Controls',
+      description:
+        'Centralized onboarding and offboarding, along with one-action controls for incident and risk scenarios.',
     },
     {
-      label: 'Supporting systems',
-      description: 'Adds domain management by API, automated task triggers, financial report export, and short-link and redirect capabilities.',
+      label: 'Supporting Systems',
+      description:
+        'Domain management, automated task triggers, financial report export and short-link/domain redirect capabilities were incorporated into the same operational environment.',
     },
   ],
-  technologies: ['Node.js', 'Express', 'NestJS', 'Microservices', 'REST APIs', 'Domain APIs'],
+  technologies: ['Node.js', 'Express.js', 'NestJS', 'Microservices', 'REST APIs', 'Domain APIs'],
   results: [
     {
       value: 'One platform',
-      label: 'Operational view',
-      detail: 'Replaces fragmented workflows and manual cross-checks',
+      label: 'Operational source of truth',
+      detail: 'Previously fragmented workflows became accessible through one internal system.',
     },
     {
-      value: 'Faster',
-      label: 'Incident response',
-      detail: 'Centralized operational control',
+      value: 'Cross-system',
+      label: 'Reconciliation',
+      detail:
+        'Delivery, destination traffic and spend could be compared in one view instead of manually across separate tools.',
     },
     {
       value: 'One action',
-      label: 'Access and risk controls',
-      detail: 'Team access changes and company-wide traffic halt',
+      label: 'Operational control',
+      detail: 'Team access changes and company-wide risk actions became centrally controlled.',
     },
   ],
+  supportingImpact:
+    'A company-controlled short-link and domain redirect capability also replaced a paid external service, generating approximately $6K/year in combined direct savings and partner revenue.',
   engineeringLessons: [
-    'The original monolith was the right choice while the scope was small. The harder decision was recognizing when growing internal coupling made the next stage of the system more expensive to change.',
-    'Today, I would introduce clearer service boundaries earlier, before the monolith’s internal coupling made the eventual split more expensive than it needed to be.',
+    'The original monolith was not a mistake. It was the right architecture while the product was small.',
+    'The difficult decision was recognizing when growing scope and internal coupling justified stronger service boundaries. Today I would define those boundaries earlier while still avoiding microservices before they provide a concrete benefit.',
   ],
 };
 
 const accountAutomationCase: CaseStudyContent = {
   summary:
-    'A lifecycle-management system for a large pool of operational accounts, combining scheduling under fixed execution capacity, health monitoring and synchronized state.',
+    'Built lifecycle and scheduling infrastructure for a large pool of operational accounts, combining fixed execution capacity, synchronized state, health monitoring and automated controls.',
   context: [
-    'A large pool of operational accounts needed consistent lifecycle management. Processing capacity was fixed, while every entity needed a minimum amount of processing within a rolling window.',
+    'A large pool of operational accounts required continuous lifecycle management while available execution capacity remained fixed.',
+    'Every entity needed a minimum amount of processing within a rolling window.',
   ],
   problem: [
-    'Manual and automated processes had to maintain a shared view of account state. Without a scheduling model, finite execution capacity could leave entities outside their required processing window, while risk signals could go unaddressed.',
+    'Manual and automated processes needed to share the same account state.',
+    'Without coordinated scheduling, limited execution capacity could leave entities outside the required processing window.',
+    'Operational risk also needed to be detected and acted on quickly.',
   ],
   constraints: caseStudyConfidentialityNote,
   approach: [
-    'The scheduling problem came first: a fixed number of concurrent execution slots had to serve a much larger pool fairly over time. Persisted state made it possible to choose the next eligible entity and preserve progress across interruptions.',
-    'Health monitoring and state synchronization kept manual and automated work aligned. An anomaly-detection circuit breaker added a fail-safe that halts spend within minutes when a controlled process starts trending into loss.',
-    'The same platform also automated budget request, approval and funding workflows, plus templated bulk operations with automatic eligibility selection.',
+    'The core engineering problem was resource scheduling rather than automation itself.',
+    'A fixed number of concurrent execution slots had to serve a much larger pool fairly over time.',
+    'Persisted state made it possible to identify the next eligible entity while preserving progress across interruptions.',
+    'Manual and automated activity shared the same lifecycle state, preventing duplicated work.',
+    'Health monitoring and a fail-safe could automatically stop a controlled process within minutes when risk conditions were detected.',
+    'The same platform also automated approval and funding workflows and supported templated bulk operations with automatic eligibility selection.',
   ],
   architecture: [
     {
-      label: 'Lifecycle state',
+      label: 'Lifecycle State',
       description: 'Stores the current processing state for every operational account.',
     },
     {
       label: 'Scheduler',
-      description: 'Selects eligible entities so a large pool can be served within the required rolling window.',
+      description:
+        'Selects eligible entities so the larger pool can be served fairly within the required rolling window.',
     },
     {
-      label: 'Execution capacity',
-      description: 'Uses a fixed number of concurrent slots as the resource constraint for scheduling decisions.',
+      label: 'Execution Capacity',
+      description: 'Uses a fixed number of concurrent slots as the scheduling constraint.',
     },
     {
-      label: 'State synchronization',
-      description: 'Keeps manual and automated work represented in one shared lifecycle state.',
+      label: 'State Synchronization',
+      description: 'Keeps manual and automated activity represented in one shared lifecycle state.',
     },
     {
-      label: 'Health monitoring',
-      description: 'Detects anomalies and triggers a fail-safe that halts spend when a controlled process trends into loss.',
+      label: 'Health Monitoring',
+      description:
+        'Detects anomalies and triggers a fail-safe when a controlled process moves outside expected conditions.',
     },
     {
-      label: 'Operational workflows',
-      description: 'Automates budget request, approval and funding steps, plus templated bulk operations with automatic eligibility selection.',
+      label: 'Operational Workflows',
+      description:
+        'Automates approval, funding and eligible bulk operations around the same account state.',
     },
   ],
-  technologies: ['RabbitMQ', 'MySQL', 'Redis', 'Scheduling', 'Health monitoring', 'State synchronization'],
+  technologies: ['RabbitMQ', 'MySQL', 'Redis', 'Scheduling', 'State Synchronization'],
   results: [
     {
-      value: 'Shared state',
-      label: 'Lifecycle management',
-      detail: 'Manual and automated work stay synchronized',
+      value: 'Shared',
+      label: 'Lifecycle state',
+      detail: 'Manual and automated processes use the same source of account state.',
     },
     {
       value: 'Within minutes',
       label: 'Fail-safe response',
-      detail: 'Spend halts when a controlled process trends into loss',
+      detail: 'Controlled processes can be halted automatically when risk conditions are detected.',
     },
     {
-      value: 'Automated',
-      label: 'Budget and bulk workflows',
-      detail: 'Approval, funding and eligibility selection',
+      value: '~5×',
+      label: 'Lower operational account attrition',
+      detail:
+        'Relative improvement after lifecycle automation and state management were introduced.',
     },
   ],
   engineeringLessons: [
-    'The hardest constraint was resource scarcity: a fixed number of concurrent execution slots had to serve a much larger pool reliably. The scheduling algorithm, rather than the automation itself, became the central engineering problem.',
-    'Today, I would model the scheduling constraint mathematically before writing automation code instead of discovering the capacity ceiling empirically.',
+    'The hardest constraint was not the automation logic but resource scarcity. A fixed number of execution slots had to serve a much larger pool reliably.',
+    'If I were designing it again, I would model the scheduling constraints formally before implementing the automation instead of discovering capacity limits empirically.',
   ],
 };
 
@@ -348,5 +389,7 @@ export const caseStudyFixture: CaseStudy = {
   ],
   technologies: ['React', 'TypeScript'],
   results: [{ value: '1', label: 'Reusable layout', detail: 'Shared across case routes' }],
-  engineeringLessons: ['Keep factual content independent from presentation so it can be reviewed safely.'],
+  engineeringLessons: [
+    'Keep factual content independent from presentation so it can be reviewed safely.',
+  ],
 };

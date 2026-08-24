@@ -8,8 +8,6 @@ export type CvSkillGroup = {
   supporting?: boolean;
 };
 
-const combineSkills = (...groups: readonly (readonly string[])[]) => groups.flat();
-
 export const cvProfile = {
   title: 'Senior Backend Engineer & Tech Lead',
   location: 'Limassol, Cyprus',
@@ -32,24 +30,29 @@ export const cvSkillGroups: readonly CvSkillGroup[] = [
     items: skillFacts.backend,
   },
   {
-    title: 'Architecture & async processing',
+    title: 'Architecture & Async Processing',
     items: skillFacts.architecture,
   },
   {
-    title: 'Data & reliability',
+    title: 'Data & Reliability',
     items: skillFacts.dataReliability,
   },
   {
-    title: 'Integrations & security',
-    items: combineSkills(skillFacts.integrations, skillFacts.security),
+    title: 'Integrations & Security',
+    items: skillFacts.integrationsSecurity,
   },
   {
-    title: 'Cloud & delivery',
+    title: 'Cloud & Delivery',
     items: skillFacts.cloudDelivery,
   },
   {
-    title: 'Supporting breadth',
-    items: combineSkills(skillFacts.frontend, skillFacts.aiAssisted),
+    title: 'Supporting Frontend',
+    items: skillFacts.frontend,
+    supporting: true,
+  },
+  {
+    title: 'AI-assisted Engineering',
+    items: skillFacts.aiAssisted,
     supporting: true,
   },
 ];

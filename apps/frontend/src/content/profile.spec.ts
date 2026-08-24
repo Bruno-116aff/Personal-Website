@@ -21,6 +21,13 @@ test('homepage and CV career views use the canonical career facts', () => {
 });
 
 test('homepage and CV skill adapters cover the canonical skill facts', () => {
-  assert.deepEqual(skillsFrom(expertiseGroups), canonicalSkills);
   assert.deepEqual(skillsFrom(cvSkillGroups), canonicalSkills);
+  assert.deepEqual(
+    skillsFrom(expertiseGroups),
+    new Set(
+      Object.entries(skillFacts)
+        .filter(([key]) => key !== 'languages')
+        .flatMap(([, items]) => items),
+    ),
+  );
 });
