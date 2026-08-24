@@ -23,38 +23,41 @@ export type MetadataConfig = {
   linkedInUrl?: string;
 };
 
-const routeMetadata: Record<SiteRouteTitleKey, Omit<RouteMetadata, 'path' | 'canonicalUrl' | 'title'>> = {
+const routeMetadata: Record<
+  SiteRouteTitleKey,
+  Omit<RouteMetadata, 'path' | 'canonicalUrl' | 'title'>
+> = {
   home: {
     description:
-      'Ivan Hubko is a Senior Backend Engineer & Tech Lead building Node.js and TypeScript systems, integrations and automation for business-critical workflows.',
+      'Ivan Hubko is a Senior Backend Engineer & Tech Lead building Node.js and TypeScript systems for automation, integrations and production workflows.',
     ogType: 'website',
     shareImagePath: '/images/share/ivan-hubko.png',
     shareImageAlt: 'Ivan Hubko — Senior Backend Engineer and Tech Lead',
   },
   infrastructureReliability: {
     description:
-      'How Ivan Hubko built a hardware-aware worker service for a 20-modem proxy station, adding failover and reducing direct proxy costs by roughly $3.5K per year.',
+      'How Ivan Hubko built mobile proxy infrastructure around 20 physical modems with automatic failover, centralized control and remote recovery.',
     ogType: 'article',
     shareImagePath: '/images/share/infrastructure-reliability.png',
     shareImageAlt: 'Infrastructure Reliability case study — Ivan Hubko',
   },
   operationsAutomation: {
     description:
-      'How Ivan Hubko turned a manual server-and-domain checklist into a queued provisioning pipeline that reduced requests from 1–3 hours to around 15 minutes.',
+      'How Ivan Hubko turned manual server-and-domain provisioning into an asynchronous pipeline that reduced requests from 1–3 hours to approximately 15 minutes.',
     ogType: 'article',
     shareImagePath: '/images/share/operations-automation.png',
     shareImageAlt: 'Operations Automation case study — Ivan Hubko',
   },
   unifiedPlatform: {
     description:
-      'How Ivan Hubko unified fragmented operational systems through cross-system reconciliation and a migration from a modular monolith to NestJS microservices.',
+      'How Ivan Hubko consolidated fragmented operational systems into one platform and evolved a modular monolith toward clearer service boundaries.',
     ogType: 'article',
     shareImagePath: '/images/share/unified-platform.png',
     shareImageAlt: 'Unified Platform case study — Ivan Hubko',
   },
   accountAutomation: {
     description:
-      'How Ivan Hubko designed lifecycle management for a large pool of operational accounts with fixed-capacity scheduling, health monitoring and synchronized state.',
+      'How Ivan Hubko built lifecycle and scheduling infrastructure for operational accounts with fixed execution capacity, synchronized state and health monitoring.',
     ogType: 'article',
     shareImagePath: '/images/share/account-automation.png',
     shareImageAlt: 'Account Automation case study — Ivan Hubko',
@@ -68,7 +71,7 @@ const routeMetadata: Record<SiteRouteTitleKey, Omit<RouteMetadata, 'path' | 'can
   },
   notFound: {
     description:
-      "The page you requested is not part of Ivan Hubko's site map. Return to the homepage, explore selected work or start a conversation.",
+      "The address does not match a published page. Return home or continue with Ivan Hubko's selected work.",
     ogType: 'website',
     shareImagePath: '/images/share/ivan-hubko.png',
     shareImageAlt: 'Ivan Hubko — Senior Backend Engineer and Tech Lead',
@@ -108,9 +111,10 @@ export function getRouteMetadata(pathname: string, config: MetadataConfig = {}):
   return {
     path: route.path,
     ...metadata,
-    title: route.titleKey === 'home'
-      ? 'Ivan Hubko - Senior Backend Engineer & Tech Lead'
-      : `${route.heading} - Ivan Hubko`,
+    title:
+      route.titleKey === 'home'
+        ? 'Ivan Hubko — Senior Backend Engineer & Tech Lead'
+        : `${route.heading} — Ivan Hubko`,
     canonicalUrl: `${siteOrigin}${route.path === '/' ? '/' : route.path}`,
   };
 }
@@ -134,7 +138,7 @@ export function getStructuredData(
       {
         '@context': 'https://schema.org',
         '@type': 'Article',
-        headline: metadata.title.replace(' - Ivan Hubko', ''),
+        headline: metadata.title.replace(' — Ivan Hubko', ''),
         url: metadata.canonicalUrl,
         author: person,
         image: `${siteOrigin}${metadata.shareImagePath}`,
@@ -179,10 +183,7 @@ export function getStructuredData(
   ];
 }
 
-export function renderMetadataHead(
-  metadata: RouteMetadata,
-  config: MetadataConfig = {},
-) {
+export function renderMetadataHead(metadata: RouteMetadata, config: MetadataConfig = {}) {
   const siteOrigin = new URL(metadata.canonicalUrl).origin;
   const ogImage = `${siteOrigin}${metadata.shareImagePath}`;
   const structuredData = jsonForHtml(getStructuredData(metadata, config));
@@ -219,9 +220,10 @@ export function getMetadataForRoute(route: SiteRoute, config: MetadataConfig = {
   return {
     path: route.path,
     ...metadata,
-    title: route.titleKey === 'home'
-      ? 'Ivan Hubko - Senior Backend Engineer & Tech Lead'
-      : `${route.heading} - Ivan Hubko`,
+    title:
+      route.titleKey === 'home'
+        ? 'Ivan Hubko — Senior Backend Engineer & Tech Lead'
+        : `${route.heading} — Ivan Hubko`,
     canonicalUrl: `${siteOrigin}${route.path === '/' ? '/' : route.path}`,
   };
 }

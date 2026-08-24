@@ -1,11 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-import {
-  publicSiteRoutes,
-  routeHtmlPath,
-  routePathFromHtmlPath,
-} from '../src/routes';
+import { publicSiteRoutes, routeHtmlPath, routePathFromHtmlPath } from '../src/routes';
 import { getMetadataForRoute, getStructuredData } from '../src/lib/metadata';
 import { resolveSiteOrigin } from '../src/lib/site-config';
 
@@ -51,7 +47,7 @@ async function collectIndexFiles(directory: string, prefix = ''): Promise<string
     const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
     const absolutePath = resolve(directory, entry.name);
     if (entry.isDirectory()) {
-      files.push(...await collectIndexFiles(absolutePath, relativePath));
+      files.push(...(await collectIndexFiles(absolutePath, relativePath)));
     } else if (entry.name === 'index.html') {
       files.push(relativePath);
     }
@@ -77,7 +73,9 @@ for (const route of routes) {
   const title = head.match(/<title>([\s\S]*?)<\/title>/i)?.[1];
   const description = head.match(/<meta name="description" content="([^"]*)"/i)?.[1];
   const canonical = head.match(/<link rel="canonical" href="([^"]*)"/i)?.[1];
-  const jsonLdBlocks = [...head.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi)];
+  const jsonLdBlocks = [
+    ...head.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/gi),
+  ];
   const structuredData: JsonObject[] = jsonLdBlocks.flatMap((block) => {
     try {
       const parsed = JSON.parse(block[1]);
@@ -113,21 +111,21 @@ for (const route of routes) {
     const article = structuredData.find((item) => item['@type'] === 'Article');
     const author = article?.author as JsonObject | undefined;
     const mainEntityOfPage = article?.mainEntityOfPage as JsonObject | undefined;
-    const expectedHeadline = route.metadata.title.replace(' - Ivan Hubko', '');
+    const expectedHeadline = route.metadata.title.replace(' — Ivan Hubko', '');
     if (!article) errors.push(`${route.file}: Article structured data is missing`);
     else if (
-      article.headline !== expectedHeadline
-      || article.url !== route.metadata.canonicalUrl
-      || article.image !== `${siteOrigin}${route.metadata.shareImagePath}`
-      || author?.['@type'] !== 'Person'
-      || author?.['@id'] !== approvedPersonId
-      || author?.name !== 'Ivan Hubko'
-      || author?.jobTitle !== 'Senior Backend Engineer & Tech Lead'
-      || mainEntityOfPage?.['@type'] !== 'WebPage'
-      || mainEntityOfPage?.['@id'] !== route.metadata.canonicalUrl
-      || mainEntityOfPage?.url !== route.metadata.canonicalUrl
-      || 'datePublished' in article
-      || 'dateModified' in article
+      article.headline !== expectedHeadline ||
+      article.url !== route.metadata.canonicalUrl ||
+      article.image !== `${siteOrigin}${route.metadata.shareImagePath}` ||
+      author?.['@type'] !== 'Person' ||
+      author?.['@id'] !== approvedPersonId ||
+      author?.name !== 'Ivan Hubko' ||
+      author?.jobTitle !== 'Senior Backend Engineer & Tech Lead' ||
+      mainEntityOfPage?.['@type'] !== 'WebPage' ||
+      mainEntityOfPage?.['@id'] !== route.metadata.canonicalUrl ||
+      mainEntityOfPage?.url !== route.metadata.canonicalUrl ||
+      'datePublished' in article ||
+      'dateModified' in article
     ) {
       errors.push(`${route.file}: Article structured data is incomplete`);
     }
@@ -143,9 +141,9 @@ for (const route of routes) {
     errors.push(`${route.file}: share image metadata is incorrect`);
   }
   if (
-    ogSiteName !== 'Ivan Hubko'
-    || ogImageAlt !== route.metadata.shareImageAlt
-    || twitterImageAlt !== route.metadata.shareImageAlt
+    ogSiteName !== 'Ivan Hubko' ||
+    ogImageAlt !== route.metadata.shareImageAlt ||
+    twitterImageAlt !== route.metadata.shareImageAlt
   ) {
     errors.push(`${route.file}: social image/site metadata is incorrect`);
   }
@@ -157,12 +155,13 @@ for (const route of routes) {
   if (route.kind === 'home') {
     const website = structuredData.find((item) => item['@type'] === 'WebSite');
     const person = structuredData.find((item) => item['@type'] === 'Person');
-    if (!website || !person) errors.push(`${route.file}: WebSite or Person structured data is missing`);
+    if (!website || !person)
+      errors.push(`${route.file}: WebSite or Person structured data is missing`);
     else if (
-      person.jobTitle !== 'Senior Backend Engineer & Tech Lead'
-      || person['@id'] !== approvedPersonId
-      || !Array.isArray(person.sameAs)
-      || !person.sameAs.includes(approvedLinkedInUrl)
+      person.jobTitle !== 'Senior Backend Engineer & Tech Lead' ||
+      person['@id'] !== approvedPersonId ||
+      !Array.isArray(person.sameAs) ||
+      !person.sameAs.includes(approvedLinkedInUrl)
     ) {
       errors.push(`${route.file}: Person structured data is incomplete`);
     }
@@ -180,7 +179,7 @@ try {
   if (!notFoundHead.includes('<meta name="robots" content="noindex, follow" />')) {
     errors.push('404.html: must use noindex, follow metadata');
   }
-  if (!notFoundHead.includes('<title>Page not found - Ivan Hubko</title>')) {
+  if (!notFoundHead.includes('<title>Page not found — Ivan Hubko</title>')) {
     errors.push('404.html: not-found title is missing');
   }
   if (!notFoundHtml.includes('not-found-page')) {
@@ -195,7 +194,10 @@ try {
   const generatedFiles = await collectIndexFiles(resolve('dist'));
   for (const file of generatedFiles) {
     if (!expectedFiles.has(file)) errors.push(`${file}: unexpected generated public route`);
-    if (routePathFromHtmlPath(file) && !publicSiteRoutes.some((route) => route.path === routePathFromHtmlPath(file))) {
+    if (
+      routePathFromHtmlPath(file) &&
+      !publicSiteRoutes.some((route) => route.path === routePathFromHtmlPath(file))
+    ) {
       errors.push(`${file}: generated route is absent from the public route manifest`);
     }
   }
