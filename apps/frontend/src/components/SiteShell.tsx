@@ -40,6 +40,7 @@ export default function SiteShell({ pathname, children }: SiteShellProps) {
             <a href={homepageAnchor(pathname, 'about')}>About</a>
             <a href={homepageAnchor(pathname, 'contact')}>Contact</a>
             <a
+              className="site-nav-link site-nav-link--cv"
               href="/cv"
               aria-current={isCv ? 'page' : undefined}
               onClick={() => trackAnalyticsEvent('cv_click')}

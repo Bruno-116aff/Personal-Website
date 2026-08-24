@@ -16,6 +16,19 @@ export function Tag({ className, ...props }: HTMLAttributes<HTMLSpanElement> & C
   return <span className={joinClassNames('tag', className)} {...props} />;
 }
 
+type TechnologyListProps = ClassNameProps & {
+  items: readonly ReactNode[];
+  label: string;
+};
+
+export function TechnologyList({ items, label, className }: TechnologyListProps) {
+  return (
+    <ul className={joinClassNames('technology-list', className)} aria-label={label}>
+      {items.map((item, index) => <li key={index}>{item}</li>)}
+    </ul>
+  );
+}
+
 type SectionIntroProps = ClassNameProps & {
   eyebrow?: ReactNode;
   title: ReactNode;

@@ -1,4 +1,4 @@
-import { Tag } from '../components/primitives';
+import { Tag, TechnologyList } from '../components/primitives';
 import { cvEducation, cvExperience, cvProfile, cvSkillGroups } from '../content/cv';
 
 export default function CvLayout() {
@@ -49,9 +49,7 @@ export default function CvLayout() {
           {cvSkillGroups.map((group) => (
             <section key={group.title} className={`cv-skills__group${group.supporting ? ' cv-skills__group--supporting' : ''}`}>
               <h3>{group.title}</h3>
-              <div className="card-tags" aria-label={`${group.title} skills`}>
-                {group.items.map((item) => <Tag key={item}>{item}</Tag>)}
-              </div>
+              <TechnologyList items={group.items} label={`${group.title} skills`} />
             </section>
           ))}
         </div>

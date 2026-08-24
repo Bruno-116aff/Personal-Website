@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 import { getSiteRoute } from './routes';
 import SiteShell from './components/SiteShell';
-import { Button, Card, Metric, SectionIntro, Tag } from './components/primitives';
+import { Button, Card, Metric, SectionIntro, Tag, TechnologyList } from './components/primitives';
 import {
   featuredWork,
   engineeringApproach,
@@ -91,6 +91,21 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
   return (
     <div className="home-page">
       <section className="hero" aria-labelledby="hero-title">
+        <svg className="hero__motif" viewBox="0 0 640 640" fill="none" aria-hidden="true">
+          <circle cx="520" cy="120" r="4" fill="#5B78F6" />
+          <circle cx="440" cy="220" r="3" fill="#8B92A3" />
+          <circle cx="580" cy="260" r="3" fill="#8B92A3" />
+          <circle cx="500" cy="340" r="4" fill="#5B78F6" />
+          <circle cx="400" cy="380" r="3" fill="#8B92A3" />
+          <circle cx="560" cy="440" r="3" fill="#8B92A3" />
+          <circle cx="460" cy="480" r="4" fill="#5B78F6" />
+          <path
+            d="M520 120 L440 220 M520 120 L580 260 M440 220 L500 340 M580 260 L500 340 M500 340 L400 380 M500 340 L560 440 M400 380 L460 480 M560 440 L460 480"
+            stroke="#FFFFFF"
+            strokeOpacity="0.12"
+            strokeWidth="1"
+          />
+        </svg>
         <div className="hero__content">
           <p className="hero__eyebrow">{homeHero.eyebrow}</p>
           <h1 id="hero-title">{homeHero.title}</h1>
@@ -114,9 +129,9 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
         />
         <div className="impact-strip">
           {homeMetrics.map((metric) => (
-            <Card as="div" key={metric.label} className="impact-strip__item">
+            <article key={metric.label} className="impact-strip__item" aria-label={metric.label}>
               <Metric {...metric} />
-            </Card>
+            </article>
           ))}
         </div>
       </section>
@@ -133,9 +148,7 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
             <Card as="article" key={capability.title} className="capability-card">
               <h3>{capability.title}</h3>
               <p>{capability.summary}</p>
-              <div className="card-tags" aria-label={`${capability.title} technologies`}>
-                {capability.tags.map((tag) => <Tag key={tag}>{tag}</Tag>)}
-              </div>
+              <TechnologyList items={capability.tags} label={`${capability.title} technologies`} />
             </Card>
           ))}
         </div>
@@ -153,7 +166,7 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
             <Card
               as="article"
               key={work.title}
-              interactive={!work.quiet}
+              interactive
               className={`work-card${work.quiet ? ' work-card--quiet' : ''}`}
             >
               <div className="work-card__header">
@@ -161,9 +174,7 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
                 <h3>{work.title}</h3>
               </div>
               <p className="work-card__summary">{work.summary}</p>
-              <div className="card-tags" aria-label={`${work.title} technologies`}>
-                {work.tags.map((tag) => <Tag key={tag}>{tag}</Tag>)}
-              </div>
+              <TechnologyList items={work.tags} label={`${work.title} technologies`} />
               <a className="interactive-link work-card__link" href={work.href}>
                 {work.linkLabel}<span aria-hidden="true"> →</span>
               </a>
@@ -225,9 +236,7 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
               className={`expertise-card${group.supporting ? ' expertise-card--supporting' : ''}`}
             >
               <h3>{group.title}</h3>
-              <div className="card-tags" aria-label={`${group.title} technologies`}>
-                {group.items.map((item) => <Tag key={item}>{item}</Tag>)}
-              </div>
+              <TechnologyList items={group.items} label={`${group.title} technologies`} />
             </Card>
           ))}
         </div>
@@ -244,16 +253,6 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
           <div className="about-copy">
             {aboutCopy.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
           </div>
-          <figure className="about-photo">
-            <img
-              className="about-photo__image"
-              src="/images/about/ivan-hubko.jpg"
-              alt="Ivan Hubko"
-              width="3687"
-              height="3687"
-            />
-            <figcaption>Ivan Hubko</figcaption>
-          </figure>
         </div>
       </section>
 
