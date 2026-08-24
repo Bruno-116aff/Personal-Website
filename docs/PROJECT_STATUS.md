@@ -2,8 +2,9 @@
 
 ## Current phase
 
-Local shell/layout gate complete — Batch 12 is COMPLETE; external production launch
-inputs remain explicitly pending.
+The final public copy implementation is complete; Batch 13 is COMPLETE by
+explicit user confirmation after the copy, metadata, production and visual
+checks. External production launch inputs remain explicitly pending.
 
 Batch 5 development hardening is complete. Batch 9 replaced the approved light
 visual foundation with the dark reference implementation in `style-reference.html`
@@ -27,7 +28,8 @@ Build a polished English-only personal site for Ivan Hubko with:
 
 ## Current batch
 
-Batch 12 — shell/layout polish COMPLETE for the implemented local release scope.
+Batch 13 — final copy specification COMPLETE. SITE-112 through SITE-114 are
+archived after explicit user confirmation.
 
 Batch 0 through Batch 11 are COMPLETE after their full local batch gates. Batch 12
 is COMPLETE by explicit user confirmation. External
@@ -128,5 +130,6 @@ closed after its local gate.
 
 ## Next action
 
-No local implementation task remains. The next operational step is to supply the
-listed external release inputs and run the controlled deployment/release verification.
+The next operational step is to supply the listed external release inputs and
+run the controlled deployment/release verification. The unrelated repository-wide
+Impeccable formatting baseline remains recorded for future maintenance.

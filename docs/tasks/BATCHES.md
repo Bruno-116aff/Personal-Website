@@ -136,6 +136,19 @@ changing navigation behavior or public content.
 Gate: full project suite plus desktop/tablet/mobile header-boundary and overflow
 evidence.
 
+## Batch 13 — Final copy specification
+
+Tasks: SITE-112, SITE-113, SITE-114 (gate).
+
+Goal: apply the final public copy specification across content data, rendered
+surfaces, case studies, contact states and route metadata while preserving the
+approved dark UI, routes, behavior and Case 4 confidentiality boundaries.
+Gate: complete local verification, public-content scan and generated metadata
+review with 100% available-check closure.
+
+Status: COMPLETE. SITE-114 closed the batch on 2026-08-24 by explicit user
+confirmation after the complete copy, metadata, production and visual checks.
+
 ## Gate policy
 
 A gate task cannot be completed with a focused check alone. It must run every

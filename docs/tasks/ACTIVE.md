@@ -10,9 +10,8 @@ IMPLEMENTED_PENDING_GATE; only a gate may archive and mark its batch COMPLETE.
 
 | ID | Batch | Area | State | Depends on | Task file |
 | --- | --- | --- | --- | --- | --- |
-No active implementation tasks. Batch 12 is COMPLETE and its tasks are archived.
-
 Batch 0 through Batch 11 are COMPLETE after their full local batch gates. Batch 12
-is COMPLETE by explicit user confirmation. External deployment
+is COMPLETE by explicit user confirmation. Batch 13 is COMPLETE by explicit user
+confirmation. External deployment
 and account-owned launch verification remain listed in the SITE-061 final evidence
 as deferred inputs.

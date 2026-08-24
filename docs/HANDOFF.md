@@ -4,9 +4,10 @@
 
 Date: 2026-08-24
 
-Final release decision: Batch 12 is COMPLETE for the implemented local release
-scope. External production deployment and account-owned verification remain pending
-with exact status recorded below.
+Final release decision: Batch 12 and Batch 13 are COMPLETE. Batch 13 final copy
+was closed by explicit user confirmation after the complete copy, metadata,
+production and visual checks. External production deployment and account-owned
+verification remain pending with exact status recorded below.
 
 ## Redesign replan
 
@@ -172,5 +173,6 @@ routes and technical constraints.
 
 ## Next action
 
-No local implementation task remains. Supply the listed external release inputs and
-run the controlled deployment/release verification when production launch is ready.
+Supply the listed external release inputs and run the controlled deployment/release
+verification when production launch is ready. The unrelated Impeccable formatting
+baseline remains recorded for future maintenance.
