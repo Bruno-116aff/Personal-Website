@@ -47,9 +47,9 @@ Practical requirements to hit these:
 - Lazy-load below-the-fold images.
 - No video backgrounds, no heavy animation dependencies.
 - Font loading optimized (subset/preload, avoid layout shift from web fonts).
-- The launch build uses only system-resident font fallbacks; it must not request a
-  remote font. If a local web font is added later, provide WOFF2 assets, metric
-  overrides and `font-display: optional` before enabling it.
+- The dark redesign uses self-hosted WOFF2 font assets only. It must not request a
+  remote font; provide metric overrides and `font-display: optional` before enabling
+  each local face.
 
 ## Accessibility
 Target: **WCAG 2.2 AA**.
@@ -89,7 +89,7 @@ Permissions-Policy. Configure at the Traefik layer where possible rather than
 in application code.
 
 ## What's explicitly out of scope for launch
-- Dark mode / theme switcher
+- Theme switcher or alternate light theme
 - `/notes` or any blog/CMS functionality
 - Testimonials component
 - Live chat, calendar booking

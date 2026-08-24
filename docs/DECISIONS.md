@@ -14,3 +14,5 @@ Short, durable decisions only. Detailed requirements stay in docs/00–05.
 | D-008 | Missing user-owned values stay configurable | Guessing URLs, IDs, credentials or source material would create factual or security defects. |
 | D-009 | No commit is implied by implementation | Commits require an explicit user request and use the dedicated commit skill. |
 | D-010 | Unknown primary-host paths use a branded static 404 fallback | Helpful recovery navigation must coexist with real HTTP 404 semantics and `noindex, follow`; the fallback is not a public sitemap route. |
+| D-011 | The launch visual system is dark-only | `style-reference.html` and `07-visual-spec-reference.md` replace the former light visual foundation; no theme switcher or alternate light theme is in scope. |
+| D-012 | WCAG AA overrides exact reference values where they conflict | Tertiary text is `#788191`; solid primary controls use `#4A67E5` with white text rather than white text on `#5B78F6`. |

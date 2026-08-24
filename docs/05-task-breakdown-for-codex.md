@@ -62,8 +62,9 @@ required production integration must be verified before launch is called complet
 ## Phase 0 — Scaffolding and deployment skeleton
 
 - Set up the project with **React + Vite + TypeScript** and Tailwind.
-- Implement the light-theme palette and typography direction from
-  `00-brand-brief.md`; no theme switcher or dark-mode infrastructure.
+- Implement the approved dark-only palette and typography direction from
+  `style-reference.html` and `07-visual-spec-reference.md`; no theme switcher or
+  alternate light theme.
 - Set up a React/Vite-compatible build-time prerender/static-generation approach for
   all 6 known routes:
   - `/`
@@ -128,8 +129,9 @@ Write the full homepage content in the structure defined by `03`:
 - Technical Expertise — grouped text/categories, not skill percentages and not a logo
   wall. Frontend is supporting breadth, not the headline identity. AI-assisted
   engineering is a brief working-style note, not a headline skill.
-- About — concise, career-relevant context with the supplied final photo in the
-  properly sized image treatment.
+- About — concise, career-relevant context rendered as text-only until Ivan
+  supplies a final photo; remove the current public photo and defer any duotone
+  photo treatment to a separate task.
 - Contact — Email, LinkedIn, Telegram and GitHub treatment per `01/03`, plus the
   contact form. GitHub must remain non-prominent and must not imply an active public
   contribution history.
@@ -217,18 +219,19 @@ checkpoint.
 
 ## Phase 2 — Visual build and interaction
 
-- Build the visual system from `00-brand-brief.md`:
-  - light theme only
-  - single restrained blue accent
+- Build the visual system from `style-reference.html` and
+  `07-visual-spec-reference.md`:
+  - dark graphite theme only, with no switcher
+  - single restrained indigo accent
   - generous whitespace
   - Inter or Geist Sans for body/headings
   - JetBrains Mono or Geist Mono only for technologies, metrics, labels and code-like
     fragments, never full body paragraphs
   - minimal `IH` wordmark/monogram only
   - subtle motion in the specified 150–250ms range
-- Use `leerob.com` as the primary structural/typographic reference, `brianlovin.com`
-  for clean career presentation and `paulstamatiou.com` for long-form article rhythm.
-  Do not copy them literally and do not use `rauno.me` as a styling reference.
+- Treat `style-reference.html` as the literal component/token reference. leerob.com,
+  brianlovin.com and paulstamatiou.com remain background references only; do not copy
+  them literally and do not use rauno.me as a styling reference.
 - Build reusable components for:
   - site navigation
   - Impact Strip
@@ -417,8 +420,7 @@ the deployed production build.
 - All 6 known routes return the intended page and contain meaningful prerendered HTML.
 - Direct navigation and hard refresh work on every registered route.
 - No visible `TODO`, `Lorem ipsum`, fake testimonial, dead button or development-only
-  placeholder remains, except the explicitly allowed neutral photo placeholder if Ivan
-  has not supplied the final photo.
+  placeholder remains.
 
 ### Content/NDA
 
@@ -523,7 +525,7 @@ with the exact missing input and the already-completed implementation waiting fo
 
 Do not scope, implement or repeatedly ask about these during this launch round:
 
-- dark mode / theme switcher
+- theme switcher or alternate light theme
 - `/notes`, blog or CMS
 - testimonials component unless real testimonials are actually received before launch
 - multi-language / Russian version

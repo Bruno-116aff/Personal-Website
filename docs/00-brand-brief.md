@@ -51,12 +51,15 @@ technical reader should get real signal from the architecture/queue/integration
 vocabulary used in case studies.
 
 ## Visual identity
-- **Light theme only.** No dark mode for launch — don't build a theme switcher.
+- **Dark theme only.** Do not build a theme switcher or an alternate light theme.
+- `style-reference.html` and `07-visual-spec-reference.md` are the approved
+  implementation reference for palette, typography, spacing and component treatment.
 - Direction: **technical minimalism, premium product aesthetic** — closer to a
   well-made SaaS/product site or engineering documentation than a typical
   "developer portfolio template."
-- Palette: single accent color (blue), generous whitespace, restrained motion.
-- Typography: Inter or Geist Sans for body/headings, JetBrains Mono / Geist Mono
+- Palette: graphite surfaces with one restrained indigo accent, generous whitespace
+  and restrained motion.
+- Typography: Inter Tight for headings, Inter for body and JetBrains Mono
   only for technologies, metrics, small labels, code snippets — never full
   paragraphs in mono.
 - Visual motif (optional, don't overbuild): thin-line "nodes/connections" motif
@@ -68,15 +71,13 @@ vocabulary used in case studies.
   No scroll-hijacking, no parallax, no WebGL, no typewriter effects, no custom
   cursor. Respect `prefers-reduced-motion`.
 
-## Visual references (approved by Ivan — study these before styling anything)
-- **https://leerob.com/** — PRIMARY reference. Extremely clean typography, near-zero
-  visual noise, content carries all the weight. This is the target register.
-- **https://brianlovin.com/** — good reference for how to present career/experience
-  as clean cards rather than a raw list.
-- **https://paulstamatiou.com** — reference for long-form case-study/article layout
-  and typography rhythm.
-- Explicitly rejected: **rauno.me** (too dense/busy for this brand). Do not use it
-  as a styling reference.
+## Visual references (approved by Ivan)
+- **`docs/style-reference.html`** — primary literal reference for the dark visual
+  register. Use it before touching visual code.
+- **`docs/07-visual-spec-reference.md`** — implementation contract and rationale.
+- leerob.com, brianlovin.com and paulstamatiou.com remain background references for
+  restraint, career presentation and long-form rhythm; do not copy them literally.
+- Explicitly rejected: rauno.me and generic dark portfolio templates.
 
 ## What NOT to do (hard no's)
 - No skill bars ("Node.js 95%")

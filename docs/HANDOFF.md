@@ -2,12 +2,36 @@
 
 ## Snapshot
 
-Date: 2026-08-22
+Date: 2026-08-24
+
+Final release decision: Batch 10 is COMPLETE for the implemented local release
+scope. External production deployment and account-owned verification remain pending
+with exact status recorded below.
+
+## Redesign replan
+
+- `style-reference.html` and `07-visual-spec-reference.md` are now the mandatory
+  visual sources of truth. The site changes from light-only to dark-only; no theme
+  switcher is permitted.
+- Batch 6 was replaced with four redesign batches (6–9). The former release tasks
+  remain in Batch 10, so SITE-061 cannot close before the release work is explicitly
+  verified.
+- `#788191` is the accessible tertiary text token. Solid primary controls use
+  `#4A67E5` with white text; these are the approved WCAG AA refinements.
+- Batch 6 is complete after SITE-088, Batch 7 is complete after SITE-093, Batch 8
+  is complete after SITE-097, Batch 9 is complete after SITE-103 and Batch 10 is
+  complete after SITE-061. Every implementation task consulted both visual source
+  files and preserved public copy, routes and API behavior.
+- Each gate must run the complete project suite, capture desktop/tablet/mobile
+  screenshots, update current-state docs and archive only after 100% closure.
+
+## Prior implementation snapshot
 
 Batch 4 is complete after the SITE-044 accumulated gate. Batch 5 development
 hardening is complete through the sequential remediation chain; SITE-050 through
 SITE-055, SITE-062 through SITE-080 and SITE-059 are COMPLETE after the
-accumulated local gate. SITE-083 is implemented pending the Batch 6 gate. The
+accumulated local gate. Batch 6 is complete after SITE-088; SITE-084 through
+SITE-088 are archived COMPLETE. The
 repository has the application foundation, shared visual system, complete
 homepage, four approved case-study routes, a CV route and a branded 404
 fallback. The approved
@@ -70,6 +94,34 @@ routes and technical constraints.
 - The final local verification completed with `12 PASS`, `0 DEFERRED` and
   `0 FAIL`, including both Docker image builds and the local production
   compose/runtime check.
+- Batch 6 visual review captured the dark reference, six public routes and 404
+  at 1440x960, 768x1024 and 390x844. All 24 generated PNG artifacts are ignored
+  by Git; live-route overflow checks passed. Live dark styling remains the
+  explicit Batch 7–9 implementation scope, not an unreported Batch 6 deferral.
+- SITE-084 through SITE-088 were marked COMPLETE and archived after the full
+  gate. Batch 7 then closed after SITE-093 with 12 PASS, 0 DEFERRED and 0 FAIL,
+  production verification at 23 PASS, and responsive visual evidence at all three
+-  required viewports. SITE-089 through SITE-093 are archived COMPLETE.
+- SITE-094 through SITE-096 completed the homepage rollout. SITE-097 then closed
+  Batch 8 with 14 PASS, 0 DEFERRED and 0 FAIL, production verification at 23 PASS,
+  and responsive visual evidence for the reference, homepage, all four case studies,
+  CV and branded 404 at 1440x960, 768x1024 and 390x844. Manual DOM review confirmed
+  section order, focus treatment, text-only About and no overflow. The side-by-side
+  artifact is `apps/frontend/artifacts/visual-review/batch-8-side-by-side--desktop-1440x960.png`.
+  SITE-094 through SITE-097 are archived COMPLETE.
+- SITE-098 through SITE-102 rolled the dark system across the secondary routes,
+  static brand surfaces and responsive layouts. SITE-103 then closed Batch 9 with
+  12 PASS, 0 DEFERRED and 0 FAIL, production verification at 23 PASS, quality-gate
+  scans passing, and complete visual evidence at 1440px, 768px and 390px. SITE-098
+  through SITE-103 are archived COMPLETE. Batch 10 is closed by the final evidence
+  below.
+
+## Batch 10 final evidence
+
+- SITE-061 closed Batch 10 with the complete command suite at 12 PASS, 0 DEFERRED
+  and 0 FAIL, production-like verification at 23 PASS, quality-gate scans passing,
+  and responsive visual evidence for the reference, six public routes and branded
+  404. SITE-060, SITE-081, SITE-082, SITE-083 and SITE-061 are archived COMPLETE.
 
 ## Resume recipe
 
@@ -84,21 +136,25 @@ routes and technical constraints.
 
 ## Current open inputs
 
-- GitHub URL, final photo and GA4 Measurement ID are configured locally.
+- The final photo remains intentionally deferred; the approved text-only About
+  section is the current implementation.
 - Engineering Approach uses the approved themes from `docs/00–02`; no separate
   philosophy source is required.
-- Current scope is implementation and local verification only. GitHub Actions
-  and VPS execution are still external inputs. The deploy workflow expects
+- Current scope was implementation and local verification only. GitHub Actions/GHCR
+  publication and VPS execution remain external inputs. The deploy workflow expects
   `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_PRIVATE_KEY` and `DEPLOY_PATH`.
   `DEPLOY_PORT` is optional. If GHCR is private, `GHCR_READ_TOKEN` belongs in
   GitHub Secrets; CD passes it to the remote pull/rollback command through
   SSH using a temporary Docker config and does not store it in the server
   `.env`.
   The full contract is in `scripts/deploy/README.md`.
-- Local Playwright checks passed for routes, responsive width, overflow,
-  keyboard focus, form validation and configured GitHub/GA4/photo output.
-- Local Docker and Playwright verification are the applicable runtime checks for
-  this batch.
+- GA4 Measurement ID and Search Console verification are not present in this
+  workspace; analytics remains configurable and local event verification is deferred
+  until the user-owned ID is supplied.
+- Production mail credentials, live DNS/HTTPS/Traefik behavior and external
+  security-header/redirect responses are not available from this workspace.
+- Local Docker and Playwright verification passed for routes, responsive width,
+  overflow, keyboard focus, form validation, metadata and contact persistence.
 
 ## Important safety notes
 
@@ -109,8 +165,5 @@ routes and technical constraints.
 
 ## Next action
 
-Finish the remaining content review, then run SITE-061. The final gate should
-review the committed workflows, configure the GitHub/VPS secrets and perform
-the first controlled deployment when those external inputs are available.
-SITE-081, SITE-082 and SITE-083 remain IMPLEMENTED_PENDING_GATE until that
-full gate closes the batch.
+No local implementation task remains. Supply the listed external release inputs and
+run the controlled deployment/release verification when production launch is ready.

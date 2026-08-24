@@ -241,4 +241,7 @@ verification. External operations are outside this development batch.
 
 ## Scope boundaries
 
-Launch deliberately excludes dark mode, a blog/CMS, testimonials, live chat, calendar booking and a Russian version. The public site remains focused on helping a recruiter or technical hiring manager understand Ivan’s backend profile and start a conversation.
+Launch uses the approved dark-only visual system and deliberately excludes a theme
+switcher, blog/CMS, testimonials, live chat, calendar booking and a Russian version.
+The public site remains focused on helping a recruiter or technical hiring manager
+understand Ivan’s backend profile and start a conversation.

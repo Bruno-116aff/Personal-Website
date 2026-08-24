@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ivan Hubko — Visual Reference (Dark)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ===== TOKENS — copy these exact values into Tailwind config / CSS vars ===== */
+    --bg-base:        #0A0B0F;
+    --bg-surface:     #14161C;
+    --bg-surface-hi:  #191B22;
+    --border-subtle:  rgba(255,255,255,0.08);
+    --border-visible: rgba(255,255,255,0.16);
+    --text-primary:   #EDEEF1;
+    --text-secondary: #8B92A3;
+    --text-tertiary:  #788191;
+    --accent:         #5B78F6;
+    --accent-text:    #8AA0FF;
+    --accent-soft:    rgba(91,120,246,0.12);
+    --accent-control: #4A67E5;
+    --accent-control-hover: #405FD5;
+    --metric:         #34D399;
+
+    --font-display: 'Inter Tight', 'Inter', system-ui, sans-serif;
+    --font-body:    'Inter', system-ui, sans-serif;
+    --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+    --radius: 12px;
+    --max-w: 1180px;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg-base);
+    color:var(--text-primary);
+    font-family:var(--font-body);
+    font-size:17px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--max-w); margin:0 auto; padding:0 32px;}
+
+  /* ===== NAV ===== */
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:24px 32px; border-bottom:1px solid var(--border-subtle);
+  }
+  .logo{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:600; font-size:15px;}
+  .logo .mark{
+    width:28px; height:28px; border-radius:8px;
+    background:var(--accent-soft); color:var(--accent-text);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:12px; font-weight:500;
+    border:1px solid var(--border-subtle);
+  }
+  .navlinks{display:flex; gap:32px; font-size:14px; color:var(--text-secondary);}
+  .navlinks a{color:inherit; text-decoration:none;}
+  .navlinks a:hover{color:var(--text-primary);}
+  .navlinks .cv{color:var(--text-primary); display:flex; align-items:center; gap:4px;}
+
+  /* ===== HERO ===== */
+  .hero{position:relative; padding:120px 32px 96px; overflow:hidden;}
+  .hero-motif{
+    position:absolute; top:0; right:0; width:640px; height:640px;
+    opacity:0.5; pointer-events:none;
+  }
+  .hero-inner{max-width:var(--max-w); margin:0 auto; position:relative; z-index:1;}
+  .eyebrow{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.08em;
+    color:var(--accent-text); text-transform:uppercase; margin-bottom:20px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::before{content:''; width:6px; height:6px; border-radius:50%; background:var(--accent);}
+  h1{
+    font-family:var(--font-display); font-weight:600;
+    font-size:56px; line-height:1.08; letter-spacing:-0.02em;
+    max-width:760px; margin-bottom:24px; color:var(--text-primary);
+  }
+  .hero-sub{
+    font-size:19px; color:var(--text-secondary); max-width:560px; margin-bottom:36px; font-weight:400;
+  }
+  .tagrow{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:40px;}
+  .tag{
+    font-family:var(--font-mono); font-size:12px; color:var(--text-secondary);
+    background:var(--bg-surface); padding:6px 10px; border-radius:6px;
+  }
+  .cta-row{display:flex; gap:12px;}
+  .btn{
+    font-family:var(--font-body); font-weight:500; font-size:15px;
+    padding:12px 22px; border-radius:var(--radius);
+    cursor:pointer; transition:all 150ms ease; border:1px solid transparent;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn-primary{background:var(--accent-control); color:#fff;}
+  .btn-primary:hover{background:var(--accent-control-hover);}
+  .btn-secondary{background:transparent; border-color:var(--border-subtle); color:var(--text-primary);}
+  .btn-secondary:hover{border-color:var(--border-visible); background:var(--bg-surface);}
+
+  /* ===== IMPACT STRIP — hairline dividers, not boxed cards ===== */
+  .impact{border-top:1px solid var(--border-subtle); border-bottom:1px solid var(--border-subtle);}
+  .impact-inner{
+    max-width:var(--max-w); margin:0 auto; padding:0 32px;
+    display:grid; grid-template-columns:repeat(4,1fr);
+  }
+  .impact-item{
+    padding:32px 28px; border-left:1px solid var(--border-subtle);
+  }
+  .impact-item:first-child{border-left:none;}
+  .impact-label{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:0.06em;
+    color:var(--text-tertiary); text-transform:uppercase; margin-bottom:10px;
+  }
+  .impact-value{
+    font-family:var(--font-display); font-weight:600; font-size:30px;
+    color:var(--text-primary); margin-bottom:6px; letter-spacing:-0.01em;
+  }
+  .impact-context{font-size:13px; color:var(--text-secondary);}
+
+  /* ===== SECTION HEADER ===== */
+  section{padding:96px 32px;}
+  .section-inner{max-width:var(--max-w); margin:0 auto;}
+  .section-eyebrow{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.08em;
+    color:var(--accent-text); text-transform:uppercase; margin-bottom:14px;
+  }
+  h2{
+    font-family:var(--font-display); font-weight:600; font-size:34px;
+    letter-spacing:-0.015em; margin-bottom:16px; max-width:600px;
+  }
+  .section-sub{color:var(--text-secondary); font-size:16px; max-width:520px; margin-bottom:56px;}
+
+  /* ===== WORK CARDS ===== */
+  .work-grid{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border-subtle); border:1px solid var(--border-subtle); border-radius:var(--radius); overflow:hidden;}
+  .work-card{
+    background:var(--bg-surface); padding:36px;
+    transition:background 150ms ease;
+    cursor:pointer;
+  }
+  .work-card:hover{background:var(--bg-surface-hi);}
+  .work-num{font-family:var(--font-mono); font-size:12px; color:var(--text-tertiary); margin-bottom:20px;}
+  .work-title{font-family:var(--font-display); font-weight:600; font-size:21px; margin-bottom:10px; letter-spacing:-0.01em;}
+  .work-desc{font-size:14.5px; color:var(--text-secondary); margin-bottom:22px; line-height:1.55;}
+  .work-tags{display:flex; flex-wrap:wrap; gap:16px; margin-bottom:22px;}
+  .work-tag{font-family:var(--font-mono); font-size:11.5px; color:var(--text-tertiary);}
+  .work-link{
+    font-size:14px; color:var(--accent-text); text-decoration:none;
+    display:inline-flex; align-items:center; gap:6px; font-weight:500;
+  }
+  .work-card:hover .work-link{gap:9px;}
+  .work-link span{transition:transform 150ms ease;}
+
+  /* ===== TECHNICAL EXPERTISE — no pill walls ===== */
+  .expertise-grid{display:grid; grid-template-columns:1fr 1fr; gap:40px 64px;}
+  .expertise-group h3{
+    font-family:var(--font-display); font-weight:600; font-size:15px;
+    margin-bottom:12px; color:var(--text-primary);
+  }
+  .expertise-list{font-size:14.5px; color:var(--text-secondary); line-height:1.9;}
+  .expertise-list .dot{color:var(--text-tertiary); margin:0 8px;}
+
+  /* ===== TYPE SCALE REFERENCE (for Codex, not for the live site) ===== */
+  .scale-row{display:flex; align-items:baseline; gap:24px; padding:16px 0; border-bottom:1px solid var(--border-subtle);}
+  .scale-label{font-family:var(--font-mono); font-size:11px; color:var(--text-tertiary); width:110px; flex-shrink:0;}
+  .scale-sample{font-family:var(--font-display); color:var(--text-primary);}
+
+  footer{border-top:1px solid var(--border-subtle); padding:32px; text-align:center; color:var(--text-tertiary); font-size:13px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span class="mark">IH</span> Ivan Hubko</div>
+  <div class="navlinks">
+    <a href="#">Work</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+    <a href="#" class="cv">CV ↗</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <svg class="hero-motif" viewBox="0 0 640 640" fill="none">
+    <circle cx="520" cy="120" r="4" fill="#5B78F6"/>
+    <circle cx="440" cy="220" r="3" fill="#8B92A3"/>
+    <circle cx="580" cy="260" r="3" fill="#8B92A3"/>
+    <circle cx="500" cy="340" r="4" fill="#5B78F6"/>
+    <circle cx="400" cy="380" r="3" fill="#8B92A3"/>
+    <circle cx="560" cy="440" r="3" fill="#8B92A3"/>
+    <circle cx="460" cy="480" r="4" fill="#5B78F6"/>
+    <path d="M520 120 L440 220 M520 120 L580 260 M440 220 L500 340 M580 260 L500 340 M500 340 L400 380 M500 340 L560 440 M400 380 L460 480 M560 440 L460 480" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="1"/>
+  </svg>
+  <div class="hero-inner">
+    <div class="eyebrow">Senior Backend Engineer &amp; Tech Lead</div>
+    <h1>I build backend systems that replace manual work with reliable automation.</h1>
+    <p class="hero-sub">I design and build Node.js and TypeScript systems, integrations and automation for business-critical workflows.</p>
+    <div class="tagrow">
+      <span class="tag">Node.js</span>
+      <span class="tag">TypeScript</span>
+      <span class="tag">Limassol, Cyprus</span>
+      <span class="tag">Open to remote / hybrid / relocation</span>
+    </div>
+    <div class="cta-row">
+      <button class="btn btn-primary">View selected work</button>
+      <button class="btn btn-secondary">Start a conversation</button>
+    </div>
+  </div>
+</div>
+
+<div class="impact">
+  <div class="impact-inner">
+    <div class="impact-item">
+      <div class="impact-label">Commercial experience</div>
+      <div class="impact-value">5 yrs</div>
+      <div class="impact-context">3+ years backend-focused</div>
+    </div>
+    <div class="impact-item">
+      <div class="impact-label">Peak team led</div>
+      <div class="impact-value">8</div>
+      <div class="impact-context">Developers</div>
+    </div>
+    <div class="impact-item">
+      <div class="impact-label">Provisioning request</div>
+      <div class="impact-value">1–3h → ~15m</div>
+      <div class="impact-context">Operations automation</div>
+    </div>
+    <div class="impact-item">
+      <div class="impact-label">Direct cost reduction</div>
+      <div class="impact-value">~$3.5K/yr</div>
+      <div class="impact-context">Proxy line item</div>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="section-inner">
+    <div class="section-eyebrow">Selected work</div>
+    <h2>Systems built to remove friction.</h2>
+    <p class="section-sub">Four case studies, ordered from infrastructure reliability to the more specialized systems work.</p>
+
+    <div class="work-grid">
+      <div class="work-card">
+        <div class="work-num">01</div>
+        <div class="work-title">Infrastructure Reliability</div>
+        <div class="work-desc">A worker service for a 20-modem proxy station that rerouted failed connections and reduced direct proxy line-item cost by roughly $3.5K per year.</div>
+        <div class="work-tags"><span class="work-tag">Ubuntu</span><span class="work-tag">Failover</span><span class="work-tag">CRM integration</span></div>
+        <a class="work-link" href="#">Read the case study <span>→</span></a>
+      </div>
+      <div class="work-card">
+        <div class="work-num">02</div>
+        <div class="work-title">Operations Automation</div>
+        <div class="work-desc">A queued provisioning pipeline that reduced a server-and-domain request from 1–3 hours to around 15 minutes.</div>
+        <div class="work-tags"><span class="work-tag">RabbitMQ</span><span class="work-tag">Cloud APIs</span><span class="work-tag">TLS</span></div>
+        <a class="work-link" href="#">Read the case study <span>→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0;">
+  <div class="section-inner">
+    <div class="section-eyebrow">Technical expertise</div>
+    <h2>The backend is the identity. The rest is working range.</h2>
+    <p class="section-sub">Grouped by the problems these tools help solve — no badge wall, no percentages.</p>
+
+    <div class="expertise-grid">
+      <div class="expertise-group">
+        <h3>Backend &amp; APIs</h3>
+        <div class="expertise-list">Node.js<span class="dot">·</span>Express.js<span class="dot">·</span>NestJS<span class="dot">·</span>REST APIs<span class="dot">·</span>WebSocket<span class="dot">·</span>Schedulers</div>
+      </div>
+      <div class="expertise-group">
+        <h3>Architecture &amp; async processing</h3>
+        <div class="expertise-list">System design<span class="dot">·</span>Modular monoliths<span class="dot">·</span>Microservices<span class="dot">·</span>BullMQ<span class="dot">·</span>Kafka<span class="dot">·</span>RabbitMQ</div>
+      </div>
+      <div class="expertise-group">
+        <h3>Data &amp; reliability</h3>
+        <div class="expertise-list">MySQL<span class="dot">·</span>PostgreSQL<span class="dot">·</span>Redis<span class="dot">·</span>Structured logging<span class="dot">·</span>Health checks</div>
+      </div>
+      <div class="expertise-group">
+        <h3>Cloud &amp; delivery</h3>
+        <div class="expertise-list">AWS<span class="dot">·</span>Docker<span class="dot">·</span>Traefik<span class="dot">·</span>GitHub Actions<span class="dot">·</span>Cloudflare</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0;">
+  <div class="section-inner">
+    <div class="section-eyebrow">Type &amp; token reference</div>
+    <h2 style="font-size:22px; margin-bottom:32px;">For Codex — exact scale, not interpretation</h2>
+
+    <div class="scale-row"><div class="scale-label">H1 / 56·600</div><div class="scale-sample" style="font-size:36px; font-weight:600; letter-spacing:-0.02em;">Aa Backend Systems</div></div>
+    <div class="scale-row"><div class="scale-label">H2 / 34·600</div><div class="scale-sample" style="font-size:28px; font-weight:600; letter-spacing:-0.015em;">Aa Backend Systems</div></div>
+    <div class="scale-row"><div class="scale-label">H3 / 21·600</div><div class="scale-sample" style="font-size:21px; font-weight:600;">Aa Backend Systems</div></div>
+    <div class="scale-row"><div class="scale-label">Body / 17·400</div><div class="scale-sample" style="font-size:17px; font-weight:400; font-family:var(--font-body);">Aa Backend systems and automation for business-critical workflows.</div></div>
+    <div class="scale-row"><div class="scale-label">Small / 14·400</div><div class="scale-sample" style="font-size:14px; font-weight:400; font-family:var(--font-body); color:var(--text-secondary);">Aa Backend systems and automation for business-critical workflows.</div></div>
+    <div class="scale-row"><div class="scale-label">Mono / 12·500</div><div class="scale-sample" style="font-size:12px; font-weight:500; font-family:var(--font-mono); letter-spacing:0.06em; color:var(--text-tertiary); text-transform:uppercase;">Case Study — Eyebrow Label</div></div>
+  </div>
+</section>
+
+<footer>Visual reference build — not the live site. Extract tokens above into Tailwind config / CSS variables exactly as written.</footer>
+
+</body>
+</html>
