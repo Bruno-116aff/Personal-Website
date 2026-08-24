@@ -83,10 +83,12 @@ if (!contactForm.includes('aria-live=') || !contactForm.includes('aria-invalid='
 }
 
 const contrastPairs = [
-  ['172033', 'ffffff', 'ink on surface'],
-  ['475569', 'ffffff', 'muted text on surface'],
-  ['475569', 'f1f5f9', 'placeholder text on muted surface'],
-  ['1d4ed8', 'ffffff', 'focus/accent on surface'],
+  ['EDEEF1', '0A0B0F', 'primary text on graphite base'],
+  ['8B92A3', '0A0B0F', 'secondary text on graphite base'],
+  ['788191', '14161C', 'tertiary text on graphite surface'],
+  ['8AA0FF', '0A0B0F', 'accent text on graphite base'],
+  ['FFFFFF', '4A67E5', 'white text on primary control'],
+  ['FFFFFF', '405FD5', 'white text on primary control hover'],
 ] as const;
 for (const [foreground, background, name] of contrastPairs) {
   if (contrastRatio(foreground, background) < 4.5) errors.push(`${name}: contrast is below 4.5:1`);

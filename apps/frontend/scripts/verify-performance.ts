@@ -34,8 +34,29 @@ const [styles, manifest] = await Promise.all([
   readFile('src/styles/index.css', 'utf8'),
   readFile('package.json', 'utf8'),
 ]);
-if (/@(?:import|font-face)\b/i.test(styles)) errors.push('CSS introduces a downloadable font');
+if (/@import\s+url\(|fonts\.(?:googleapis|gstatic)\.com|https?:\/\/[^\s"')]+\.(?:woff2?|woff|ttf|otf)(?:\?|['")])/i.test(styles)) {
+  errors.push('CSS requests a remote font');
+}
 if (!styles.includes('font-synthesis: none')) errors.push('CSS does not prevent synthetic font shifts');
+
+const fontFaceBlocks = [...styles.matchAll(/@font-face\s*{([\s\S]*?)}/gi)].map((match) => match[1]);
+const expectedFontFamilies = /font-family\s*:\s*["']?(?:Inter Tight|Inter|JetBrains Mono)/i;
+for (const block of fontFaceBlocks) {
+  if (!expectedFontFamilies.test(block)) errors.push('CSS enables an unapproved local font face');
+  if (!/font-display\s*:\s*optional\s*;/i.test(block)) errors.push('local font face must use font-display: optional');
+  const sources = [...block.matchAll(/url\(\s*["']?([^)"']+)["']?\s*\)/gi)].map((match) => match[1]);
+  if (sources.length === 0 || sources.some((source) => !/\.woff2(?:\?|$)/i.test(source) || /^(?:https?:)?\/\//i.test(source))) {
+    errors.push('local font faces must use local WOFF2 assets only');
+  }
+}
+
+const darkContractActive = /--bg-base\s*:\s*#0A0B0F/i.test(styles);
+if (darkContractActive) {
+  const obsoleteLightTokens = ['#f8fafc', '#ffffff', '#f1f5f9', '#172033', '#475569', '#64748b', '#cbd5e1', '#1d4ed8', '#1e40af', '#dbeafe'];
+  for (const token of obsoleteLightTokens) {
+    if (styles.includes(token)) errors.push(`obsolete light token remains in dark CSS: ${token}`);
+  }
+}
 
 const dependencies = Object.keys(JSON.parse(manifest).dependencies ?? {});
 const allowedDependencies = new Set(['react', 'react-dom']);
