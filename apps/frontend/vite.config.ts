@@ -7,11 +7,7 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
 import App from './src/App';
-import {
-  getRouteMetadata,
-  renderMetadataHead,
-  type MetadataConfig,
-} from './src/lib/metadata';
+import { getRouteMetadata, renderMetadataHead, type MetadataConfig } from './src/lib/metadata';
 import { resolveSiteOrigin } from './src/lib/site-config';
 import { notFoundRoute, publicSiteRoutes, routeHtmlPath } from './src/routes';
 
@@ -28,7 +24,10 @@ function sitemapXml(siteOrigin: string) {
 
 async function writeDiscoveryFiles(distDirectory: string, siteOrigin: string) {
   await Promise.all([
-    fs.writeFile(resolve(distDirectory, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${siteOrigin}/sitemap.xml\n`),
+    fs.writeFile(
+      resolve(distDirectory, 'robots.txt'),
+      `User-agent: *\nAllow: /\n\nSitemap: ${siteOrigin}/sitemap.xml\n`,
+    ),
     fs.writeFile(resolve(distDirectory, 'sitemap.xml'), sitemapXml(siteOrigin)),
   ]);
 }
@@ -70,10 +69,7 @@ async function writePrerenderedRoutes(metadataConfig: MetadataConfig) {
     metadataConfig,
   );
   const notFoundHtml = template
-    .replace(
-      /<!-- site-metadata:start -->[\s\S]*?<!-- site-metadata:end -->/,
-      notFoundHead,
-    )
+    .replace(/<!-- site-metadata:start -->[\s\S]*?<!-- site-metadata:end -->/, notFoundHead)
     .replace('<div id="root"></div>', `<div id="root">${notFoundRouteHtml}</div>`);
   await fs.writeFile(resolve(distDirectory, '404.html'), notFoundHtml);
 

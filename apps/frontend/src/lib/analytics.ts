@@ -68,10 +68,7 @@ export function initializeAnalytics() {
   return true;
 }
 
-export function trackAnalyticsEvent(
-  eventName: AnalyticsEventName,
-  params?: AnalyticsEventParams,
-) {
+export function trackAnalyticsEvent(eventName: AnalyticsEventName, params?: AnalyticsEventParams) {
   if (!initializeAnalytics()) return false;
 
   window.gtag?.('event', eventName, params);

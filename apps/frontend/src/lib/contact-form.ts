@@ -11,7 +11,9 @@ export type ContactRequestErrorCode = 'failed' | 'rate-limited';
 
 export class ContactRequestError extends Error {
   constructor(public readonly code: ContactRequestErrorCode) {
-    super(code === 'rate-limited' ? 'Contact submission rate limited.' : 'Contact submission failed.');
+    super(
+      code === 'rate-limited' ? 'Contact submission rate limited.' : 'Contact submission failed.',
+    );
     this.name = 'ContactRequestError';
   }
 }
@@ -24,10 +26,9 @@ type ContactRequestOptions = {
 };
 
 function isAcceptedResponse(value: unknown): value is { status: 'accepted' } {
-  return typeof value === 'object'
-    && value !== null
-    && 'status' in value
-    && value.status === 'accepted';
+  return (
+    typeof value === 'object' && value !== null && 'status' in value && value.status === 'accepted'
+  );
 }
 
 function normalize(value: string) {
@@ -40,8 +41,8 @@ export function getContactApiUrl(configuredValue: string | undefined) {
 
   try {
     const url = new URL(value);
-    const isLocalHttp = url.protocol === 'http:'
-      && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+    const isLocalHttp =
+      url.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
 
     if ((url.protocol !== 'https:' && !isLocalHttp) || url.username || url.password) return null;
     return url.href;

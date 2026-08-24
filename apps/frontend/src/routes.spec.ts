@@ -16,9 +16,15 @@ const approvedPublicPaths = [
 ];
 
 test('public route manifest contains exactly the approved public routes', () => {
-  assert.deepEqual(publicSiteRoutes.map((route) => route.path), approvedPublicPaths);
+  assert.deepEqual(
+    publicSiteRoutes.map((route) => route.path),
+    approvedPublicPaths,
+  );
   assert.equal(new Set(siteRoutes.map((route) => route.path)).size, siteRoutes.length);
-  assert.equal(new Set(publicSiteRoutes.map((route) => route.titleKey)).size, publicSiteRoutes.length);
+  assert.equal(
+    new Set(publicSiteRoutes.map((route) => route.titleKey)).size,
+    publicSiteRoutes.length,
+  );
 });
 
 test('public route manifest has metadata and generated file paths for every route', () => {

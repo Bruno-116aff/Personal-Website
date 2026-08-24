@@ -1,8 +1,4 @@
-import type {
-  ButtonHTMLAttributes,
-  HTMLAttributes,
-  ReactNode,
-} from 'react';
+import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from 'react';
 
 type ClassNameProps = {
   className?: string;
@@ -24,7 +20,9 @@ type TechnologyListProps = ClassNameProps & {
 export function TechnologyList({ items, label, className }: TechnologyListProps) {
   return (
     <ul className={joinClassNames('technology-list', className)} aria-label={label}>
-      {items.map((item, index) => <li key={index}>{item}</li>)}
+      {items.map((item, index) => (
+        <li key={index}>{item}</li>
+      ))}
     </ul>
   );
 }
@@ -52,10 +50,11 @@ export function SectionIntro({
   );
 }
 
-type CardProps = ClassNameProps & HTMLAttributes<HTMLElement> & {
-  as?: 'article' | 'div' | 'section';
-  interactive?: boolean;
-};
+type CardProps = ClassNameProps &
+  HTMLAttributes<HTMLElement> & {
+    as?: 'article' | 'div' | 'section';
+    interactive?: boolean;
+  };
 
 export function Card({
   as: Component = 'article',
@@ -71,16 +70,15 @@ export function Card({
   );
 }
 
-type ButtonProps = ClassNameProps & ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary';
-};
+type ButtonProps = ClassNameProps &
+  ButtonHTMLAttributes<HTMLButtonElement> & {
+    variant?: 'primary' | 'secondary';
+  };
 
-export function Button({
-  className,
-  variant = 'primary',
-  ...props
-}: ButtonProps) {
-  return <button className={joinClassNames('button', `button--${variant}`, className)} {...props} />;
+export function Button({ className, variant = 'primary', ...props }: ButtonProps) {
+  return (
+    <button className={joinClassNames('button', `button--${variant}`, className)} {...props} />
+  );
 }
 
 export function Prose({ className, ...props }: HTMLAttributes<HTMLDivElement> & ClassNameProps) {

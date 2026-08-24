@@ -106,19 +106,19 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 
-  --bg-base: #0A0B0F;
-  --bg-surface: #14161C;
-  --bg-surface-hi: #191B22;
-  --border-subtle: rgba(255,255,255,0.08);
-  --border-visible: rgba(255,255,255,0.16);
-  --text-primary: #EDEEF1;
-  --text-secondary: #8B92A3;
+  --bg-base: #0a0b0f;
+  --bg-surface: #14161c;
+  --bg-surface-hi: #191b22;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-visible: rgba(255, 255, 255, 0.16);
+  --text-primary: #edeef1;
+  --text-secondary: #8b92a3;
   --text-tertiary: #788191;
-  --accent: #5B78F6;
-  --accent-text: #8AA0FF;
-  --accent-soft: rgba(91,120,246,0.12);
-  --accent-control: #4A67E5;
-  --accent-control-hover: #405FD5;
+  --accent: #5b78f6;
+  --accent-text: #8aa0ff;
+  --accent-soft: rgba(91, 120, 246, 0.12);
+  --accent-control: #4a67e5;
+  --accent-control-hover: #405fd5;
   --font-display: 'Inter Tight', 'Inter', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
@@ -211,8 +211,11 @@ a {
 
 button,
 a {
-  transition: color var(--motion-duration) ease, background-color var(--motion-duration) ease,
-    border-color var(--motion-duration) ease, box-shadow var(--motion-duration) ease,
+  transition:
+    color var(--motion-duration) ease,
+    background-color var(--motion-duration) ease,
+    border-color var(--motion-duration) ease,
+    box-shadow var(--motion-duration) ease,
     transform var(--motion-duration) ease;
 }
 
@@ -221,62 +224,65 @@ a {
   outline-offset: 3px;
 }
 
-html[data-motion='ready'] :where(
-  .hero__eyebrow,
-  .hero h1,
-  .hero__summary,
-  .hero__tags,
-  .hero__actions,
-  .home-section > .section-intro,
-  .contact-section > .section-intro,
-  .impact-strip__item,
-  .capability-card,
-  .work-card,
-  .career-card,
-  .approach-card,
-  .expertise-card,
-  .about-copy,
-  .contact-section,
-  .case-study__hero,
-  .case-study__section,
-  .case-study__results,
-  .case-study__navigation,
-  .cv-page__hero,
-  .cv-page__section,
-  .not-found-page__visual,
-  .not-found-page__content
-) {
+html[data-motion='ready']
+  :where(
+    .hero__eyebrow,
+    .hero h1,
+    .hero__summary,
+    .hero__tags,
+    .hero__actions,
+    .home-section > .section-intro,
+    .contact-section > .section-intro,
+    .impact-strip__item,
+    .capability-card,
+    .work-card,
+    .career-card,
+    .approach-card,
+    .expertise-card,
+    .about-copy,
+    .contact-section,
+    .case-study__hero,
+    .case-study__section,
+    .case-study__results,
+    .case-study__navigation,
+    .cv-page__hero,
+    .cv-page__section,
+    .not-found-page__visual,
+    .not-found-page__content
+  ) {
   opacity: 0;
   transform: translateY(var(--motion-reveal-distance));
-  transition: opacity var(--motion-reveal-duration) ease,
+  transition:
+    opacity var(--motion-reveal-duration) ease,
     transform var(--motion-reveal-duration) ease;
 }
 
-html[data-motion='ready'] :where(
-  .hero__eyebrow,
-  .hero h1,
-  .hero__summary,
-  .hero__tags,
-  .hero__actions,
-  .home-section > .section-intro,
-  .contact-section > .section-intro,
-  .impact-strip__item,
-  .capability-card,
-  .work-card,
-  .career-card,
-  .approach-card,
-  .expertise-card,
-  .about-copy,
-  .contact-section,
-  .case-study__hero,
-  .case-study__section,
-  .case-study__results,
-  .case-study__navigation,
-  .cv-page__hero,
-  .cv-page__section,
-  .not-found-page__visual,
-  .not-found-page__content
-)[data-reveal-state='visible'] {
+html[data-motion='ready']
+  :where(
+    .hero__eyebrow,
+    .hero h1,
+    .hero__summary,
+    .hero__tags,
+    .hero__actions,
+    .home-section > .section-intro,
+    .contact-section > .section-intro,
+    .impact-strip__item,
+    .capability-card,
+    .work-card,
+    .career-card,
+    .approach-card,
+    .expertise-card,
+    .about-copy,
+    .contact-section,
+    .case-study__hero,
+    .case-study__section,
+    .case-study__results,
+    .case-study__navigation,
+    .cv-page__hero,
+    .cv-page__section,
+    .not-found-page__visual,
+    .not-found-page__content
+  )[data-reveal-state='visible'] {
   opacity: 1;
   transform: none;
 }
@@ -1904,7 +1910,8 @@ a.contact-link:focus-visible {
 
 .site-footer {
   border-block-start: 1px solid var(--color-border);
-  padding: 32px max(32px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(32px, env(safe-area-inset-left));
+  padding: 32px max(32px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom))
+    max(32px, env(safe-area-inset-left));
   color: var(--text-tertiary);
   font-size: 13px;
   text-align: center;

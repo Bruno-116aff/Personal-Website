@@ -12,10 +12,7 @@ initializeAnalytics();
 const rootElement = document.getElementById('root')!;
 const application = (
   <StrictMode>
-    <App
-      pathname={window.location.pathname}
-      githubUrl={import.meta.env.VITE_GITHUB_URL}
-    />
+    <App pathname={window.location.pathname} githubUrl={import.meta.env.VITE_GITHUB_URL} />
   </StrictMode>
 );
 

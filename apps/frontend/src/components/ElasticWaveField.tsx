@@ -42,7 +42,9 @@ const NODE_DEFINITIONS: GraphNodeDefinition[] = [
 ];
 
 const EDGE_PAIRS = NODE_DEFINITIONS.flatMap((_, fromIndex) =>
-  NODE_DEFINITIONS.slice(fromIndex + 1).map((_, offset) => [fromIndex, fromIndex + offset + 1] as const),
+  NODE_DEFINITIONS.slice(fromIndex + 1).map(
+    (_, offset) => [fromIndex, fromIndex + offset + 1] as const,
+  ),
 );
 
 function clamp(value: number, min: number, max: number) {
@@ -163,7 +165,8 @@ export function ElasticWaveField() {
     };
 
     const start = () => {
-      if (visible && animationFrame === undefined) animationFrame = window.requestAnimationFrame(animate);
+      if (visible && animationFrame === undefined)
+        animationFrame = window.requestAnimationFrame(animate);
     };
 
     const handlePointerMove = (event: Event) => {

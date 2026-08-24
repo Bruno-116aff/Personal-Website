@@ -24,7 +24,7 @@ async function filesUnder(root) {
     const files = [];
     for (const item of entry) {
       const path = join(root, item.name);
-      if (item.isDirectory()) files.push(...await filesUnder(path));
+      if (item.isDirectory()) files.push(...(await filesUnder(path)));
       else if (textExtensions.has(extname(item.name).toLowerCase())) files.push(path);
     }
     return files;

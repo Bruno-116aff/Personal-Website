@@ -13,11 +13,17 @@ export default function CvLayout() {
           <Tag>{cvProfile.availability}</Tag>
         </div>
         <div className="cv-page__summary">
-          {cvProfile.summary.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          {cvProfile.summary.map((paragraph) => (
+            <p key={paragraph}>{paragraph}</p>
+          ))}
         </div>
         <nav className="cv-page__nav" aria-label="CV navigation">
-          <a className="button button--primary" href="/#work">View selected work</a>
-          <a className="button button--secondary" href="/#contact">Contact Ivan</a>
+          <a className="button button--primary" href="/#work">
+            View selected work
+          </a>
+          <a className="button button--secondary" href="/#contact">
+            Contact Ivan
+          </a>
         </nav>
       </header>
 
@@ -47,7 +53,10 @@ export default function CvLayout() {
         </header>
         <div className="cv-skills">
           {cvSkillGroups.map((group) => (
-            <section key={group.title} className={`cv-skills__group${group.supporting ? ' cv-skills__group--supporting' : ''}`}>
+            <section
+              key={group.title}
+              className={`cv-skills__group${group.supporting ? ' cv-skills__group--supporting' : ''}`}
+            >
               <h3>{group.title}</h3>
               <TechnologyList items={group.items} label={`${group.title} skills`} />
             </section>
@@ -55,7 +64,10 @@ export default function CvLayout() {
         </div>
       </section>
 
-      <section className="cv-page__section cv-page__section--education" aria-labelledby="cv-education-heading">
+      <section
+        className="cv-page__section cv-page__section--education"
+        aria-labelledby="cv-education-heading"
+      >
         <header className="cv-page__section-header">
           <p>Education</p>
           <h2 id="cv-education-heading">{cvEducation.institution}</h2>

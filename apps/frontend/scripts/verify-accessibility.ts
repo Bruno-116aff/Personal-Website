@@ -13,13 +13,15 @@ function headingLevels(html: string) {
 function contrastRatio(first: string, second: string) {
   const relativeLuminance = (hex: string) => {
     const channels = hex.match(/\w\w/g)!.map((channel) => Number.parseInt(channel, 16) / 255);
-    const linear = channels.map((channel) => (
-      channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
-    ));
+    const linear = channels.map((channel) =>
+      channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4,
+    );
     return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
   };
 
-  const [lighter, darker] = [relativeLuminance(first), relativeLuminance(second)].sort((a, b) => b - a);
+  const [lighter, darker] = [relativeLuminance(first), relativeLuminance(second)].sort(
+    (a, b) => b - a,
+  );
   return (lighter + 0.05) / (darker + 0.05);
 }
 
@@ -38,15 +40,20 @@ for (const route of routes) {
   const honeypot = honeypotMarkup(html);
   const hasContactForm = /<form\b[^>]*class="contact-form"/i.test(html);
 
-  if (headings.filter((level) => level === 1).length !== 1) errors.push(`${route}: expected exactly one H1`);
+  if (headings.filter((level) => level === 1).length !== 1)
+    errors.push(`${route}: expected exactly one H1`);
   for (let index = 1; index < headings.length; index += 1) {
     if (headings[index] > headings[index - 1] + 1) {
-      errors.push(`${route}: heading level skips from H${headings[index - 1]} to H${headings[index]}`);
+      errors.push(
+        `${route}: heading level skips from H${headings[index - 1]} to H${headings[index]}`,
+      );
     }
   }
-  if (!html.includes('class="skip-link" href="#main-content"')) errors.push(`${route}: skip link is missing`);
+  if (!html.includes('class="skip-link" href="#main-content"'))
+    errors.push(`${route}: skip link is missing`);
   if (!html.includes('<main id="main-content"')) errors.push(`${route}: main landmark is missing`);
-  if (!/<nav[^>]*aria-label=/i.test(html)) errors.push(`${route}: named navigation landmark is missing`);
+  if (!/<nav[^>]*aria-label=/i.test(html))
+    errors.push(`${route}: named navigation landmark is missing`);
   if (/<img(?![^>]*\balt=)[^>]*>/i.test(html)) errors.push(`${route}: image without alt text`);
 
   if (route === '/' && !currentLinks.some((link) => /href="\/"/.test(link))) {
@@ -75,10 +82,19 @@ const [css, contactForm] = await Promise.all([
   readFile('src/styles/index.css', 'utf8'),
   readFile('src/components/ContactForm.tsx', 'utf8'),
 ]);
-for (const expectedStyle of [':focus-visible', 'outline: 3px solid var(--color-focus)', '@media (prefers-reduced-motion: reduce)']) {
-  if (!css.includes(expectedStyle)) errors.push(`global accessibility style is missing: ${expectedStyle}`);
+for (const expectedStyle of [
+  ':focus-visible',
+  'outline: 3px solid var(--color-focus)',
+  '@media (prefers-reduced-motion: reduce)',
+]) {
+  if (!css.includes(expectedStyle))
+    errors.push(`global accessibility style is missing: ${expectedStyle}`);
 }
-if (!contactForm.includes('aria-live=') || !contactForm.includes('aria-invalid=') || !contactForm.includes('aria-hidden="true"')) {
+if (
+  !contactForm.includes('aria-live=') ||
+  !contactForm.includes('aria-invalid=') ||
+  !contactForm.includes('aria-hidden="true"')
+) {
   errors.push('contact form accessibility wiring is incomplete');
 }
 
