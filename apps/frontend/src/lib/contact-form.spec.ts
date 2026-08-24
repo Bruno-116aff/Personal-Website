@@ -11,7 +11,10 @@ import {
 describe('contact form configuration', () => {
   it('uses a configured endpoint and treats a blank value as unavailable', () => {
     assert.equal(getContactApiUrl(' https://api.example.test/contact '), 'https://api.example.test/contact');
+    assert.equal(getContactApiUrl('http://localhost:3001/contact'), 'http://localhost:3001/contact');
     assert.equal(getContactApiUrl('   '), null);
+    assert.equal(getContactApiUrl('http://api.example.test/contact'), null);
+    assert.equal(getContactApiUrl('javascript:alert(1)'), null);
   });
 });
 
@@ -67,6 +70,15 @@ describe('contact request behavior', () => {
     await assert.rejects(
       submitContactRequest('https://api.example.test/contact', payload, { fetchImpl }),
       { message: 'Contact submission failed.' },
+    );
+  });
+
+  it('exposes rate limiting as a safe recovery state', async () => {
+    const fetchImpl: typeof fetch = async () => new Response(null, { status: 429 });
+
+    await assert.rejects(
+      submitContactRequest('https://api.example.test/contact', payload, { fetchImpl }),
+      { name: 'ContactRequestError', code: 'rate-limited' },
     );
   });
 

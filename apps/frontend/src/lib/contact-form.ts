@@ -7,6 +7,15 @@ export type ContactSubmission = {
 
 export type ContactValidationErrors = Partial<Record<keyof ContactSubmission, string>>;
 
+export type ContactRequestErrorCode = 'failed' | 'rate-limited';
+
+export class ContactRequestError extends Error {
+  constructor(public readonly code: ContactRequestErrorCode) {
+    super(code === 'rate-limited' ? 'Contact submission rate limited.' : 'Contact submission failed.');
+    this.name = 'ContactRequestError';
+  }
+}
+
 export const CONTACT_REQUEST_TIMEOUT_MS = 10_000;
 
 type ContactRequestOptions = {
@@ -27,7 +36,18 @@ function normalize(value: string) {
 
 export function getContactApiUrl(configuredValue: string | undefined) {
   const value = configuredValue?.trim();
-  return value || null;
+  if (!value) return null;
+
+  try {
+    const url = new URL(value);
+    const isLocalHttp = url.protocol === 'http:'
+      && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+
+    if ((url.protocol !== 'https:' && !isLocalHttp) || url.username || url.password) return null;
+    return url.href;
+  } catch {
+    return null;
+  }
 }
 
 export function toContactSubmission(formData: FormData): ContactSubmission {
@@ -92,13 +112,17 @@ export async function submitContactRequest(
       signal: controller.signal,
     });
 
+    if (response.status === 429) {
+      throw new ContactRequestError('rate-limited');
+    }
+
     if (response.status !== 201) {
-      throw new Error('Contact submission failed.');
+      throw new ContactRequestError('failed');
     }
 
     const responseBody: unknown = await response.json().catch(() => null);
     if (!isAcceptedResponse(responseBody)) {
-      throw new Error('Contact submission failed.');
+      throw new ContactRequestError('failed');
     }
   } finally {
     clearTimeout(timeoutId);

@@ -1,7 +1,8 @@
-import { useRef, useState, type FormEventHandler } from 'react';
+import { useEffect, useRef, useState, type FormEventHandler } from 'react';
 
 import {
   createContactSubmissionLock,
+  ContactRequestError,
   getContactApiUrl,
   submitContactRequest,
   toContactSubmission,
@@ -10,22 +11,42 @@ import {
 } from '../lib/contact-form';
 import { Button } from './primitives';
 
-export type ContactFormStatus = 'idle' | 'invalid' | 'submitting' | 'success' | 'error';
+export type ContactFormStatus =
+  'idle' | 'invalid' | 'submitting' | 'success' | 'error' | 'rate-limited';
 
 const statusMessages: Record<ContactFormStatus, string> = {
   idle: 'Send a short note about the role, system or problem you want to discuss.',
   invalid: 'Please correct the highlighted fields and try again.',
   submitting: 'Sending your message…',
-  success: 'Your message was accepted. Ivan will reply if a response is needed.',
-  error: 'Your message could not be sent. Please try again or email Ivan directly.',
+  success: 'Message sent. I’ll get back to you as soon as I can.',
+  error: 'The message could not be sent. Please try again or contact me by email.',
+  'rate-limited': 'Too many attempts. Please wait a moment, then try again or email Ivan directly.',
 };
 
 export default function ContactForm() {
   const [status, setStatus] = useState<ContactFormStatus>('idle');
   const [errors, setErrors] = useState<ContactValidationErrors>({});
   const submissionLock = useRef(createContactSubmissionLock());
+  const focusInvalidField = useRef(false);
   const apiUrl = getContactApiUrl(import.meta.env?.VITE_CONTACT_API_URL);
   const isSubmitting = status === 'submitting';
+  const isFormUnavailable = !apiUrl;
+  const statusMessage =
+    status === 'idle' && isFormUnavailable
+      ? 'The contact form is unavailable in this environment. Please email Ivan directly.'
+      : statusMessages[status];
+
+  useEffect(() => {
+    if (status !== 'invalid' || !focusInvalidField.current) return;
+
+    const firstInvalidField = (['name', 'email', 'message'] as const).find(
+      (field) => errors[field],
+    );
+    if (firstInvalidField) {
+      document.getElementById(`contact-${firstInvalidField}`)?.focus();
+    }
+    focusInvalidField.current = false;
+  }, [errors, status]);
 
   const clearFieldError: FormEventHandler<HTMLInputElement | HTMLTextAreaElement> = (event) => {
     const fieldName = event.currentTarget.name as keyof ContactValidationErrors;
@@ -37,13 +58,14 @@ export default function ContactForm() {
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
-    if (isSubmitting) return;
+    if (isSubmitting || isFormUnavailable) return;
 
     const form = event.currentTarget;
     const payload = toContactSubmission(new FormData(form));
     const validationErrors = validateContactSubmission(payload);
 
     if (Object.keys(validationErrors).length > 0) {
+      focusInvalidField.current = true;
       setErrors(validationErrors);
       setStatus('invalid');
       return;
@@ -63,23 +85,29 @@ export default function ContactForm() {
       await submitContactRequest(apiUrl, payload);
       form.reset();
       setStatus('success');
-    } catch {
-      setStatus('error');
+    } catch (error) {
+      setStatus(
+        error instanceof ContactRequestError && error.code === 'rate-limited'
+          ? 'rate-limited'
+          : 'error',
+      );
     } finally {
       submissionLock.current.release();
     }
   };
 
-  const describedBy = (field: keyof ContactValidationErrors) => (
-    errors[field] ? `contact-${field}-error` : undefined
-  );
+  const describedBy = (field: keyof ContactValidationErrors) =>
+    errors[field] ? `contact-${field}-error` : undefined;
 
   return (
     <form
       className="contact-form"
       data-status={status}
       onSubmit={handleSubmit}
-      aria-describedby="contact-form-status"
+      aria-describedby={
+        isFormUnavailable ? 'contact-form-status contact-form-config-note' : 'contact-form-status'
+      }
+      aria-busy={isSubmitting}
       noValidate
     >
       <div className="form-fields">
@@ -96,7 +124,11 @@ export default function ContactForm() {
             aria-describedby={describedBy('name')}
             onInput={clearFieldError}
           />
-          {errors.name && <p id="contact-name-error" className="form-field__error">{errors.name}</p>}
+          {errors.name && (
+            <p id="contact-name-error" className="form-field__error">
+              {errors.name}
+            </p>
+          )}
         </div>
 
         <div className={`form-field${errors.email ? ' form-field--invalid' : ''}`}>
@@ -106,13 +138,19 @@ export default function ContactForm() {
             name="email"
             type="email"
             autoComplete="email"
+            inputMode="email"
+            spellCheck={false}
             maxLength={254}
             required
             aria-invalid={Boolean(errors.email)}
             aria-describedby={describedBy('email')}
             onInput={clearFieldError}
           />
-          {errors.email && <p id="contact-email-error" className="form-field__error">{errors.email}</p>}
+          {errors.email && (
+            <p id="contact-email-error" className="form-field__error">
+              {errors.email}
+            </p>
+          )}
         </div>
 
         <div className={`form-field${errors.message ? ' form-field--invalid' : ''}`}>
@@ -127,31 +165,44 @@ export default function ContactForm() {
             aria-describedby={describedBy('message')}
             onInput={clearFieldError}
           />
-          {errors.message && <p id="contact-message-error" className="form-field__error">{errors.message}</p>}
+          {errors.message && (
+            <p id="contact-message-error" className="form-field__error">
+              {errors.message}
+            </p>
+          )}
         </div>
 
         <div className="contact-form__honeypot" aria-hidden="true" inert="">
           <label htmlFor="contact-website">Website</label>
-          <input
-            id="contact-website"
-            name="website"
-            type="text"
-            tabIndex={-1}
-            autoComplete="off"
-          />
+          <input id="contact-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
         </div>
       </div>
+
+      {isFormUnavailable && (
+        <p id="contact-form-config-note" className="contact-config-note">
+          Use the email link beside this form while direct form delivery is unavailable.
+        </p>
+      )}
 
       <div
         id="contact-form-status"
         className={`contact-form__status contact-form__status--${status}`}
-        role={status === 'error' || status === 'invalid' ? 'alert' : 'status'}
-        aria-live={status === 'error' || status === 'invalid' ? 'assertive' : 'polite'}
+        role={
+          status === 'error' || status === 'invalid' || status === 'rate-limited'
+            ? 'alert'
+            : 'status'
+        }
+        aria-live={
+          status === 'error' || status === 'invalid' || status === 'rate-limited'
+            ? 'assertive'
+            : 'polite'
+        }
+        aria-atomic="true"
       >
-        {statusMessages[status]}
+        {statusMessage}
       </div>
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" disabled={isSubmitting || isFormUnavailable}>
         {isSubmitting ? 'Sending…' : 'Send message'}
       </Button>
     </form>
