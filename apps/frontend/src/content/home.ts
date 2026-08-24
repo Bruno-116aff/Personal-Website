@@ -9,6 +9,7 @@ export type HomeMetric = {
 export type WorkTeaser = {
   title: string;
   summary: string;
+  outcome: string;
   href: string;
   linkLabel: string;
   tags: readonly string[];
@@ -19,48 +20,51 @@ export const homeHero = {
   eyebrow: 'Senior Backend Engineer & Tech Lead',
   title: 'I build backend systems that replace manual work with reliable automation.',
   summary:
-    'I design and build Node.js and TypeScript systems, integrations and automation for business-critical workflows.',
-  tags: ['Node.js', 'TypeScript', 'Limassol, Cyprus', 'Open to remote / hybrid / relocation'],
+    'I design and build Node.js and TypeScript systems for automation, integrations and business-critical workflows — from architecture and implementation to production operation.',
+  tags: ['Node.js', 'TypeScript', 'Limassol, Cyprus'],
 };
 
 export const homeMetrics: readonly HomeMetric[] = [
   {
     value: '5 yrs',
-    label: 'Commercial experience',
+    label: 'Commercial engineering',
     detail: '3+ years backend-focused',
   },
   {
     value: '8',
-    label: 'Peak team led',
-    detail: 'Developers',
+    label: 'Developers',
+    detail: 'Peak engineering team',
   },
   {
     value: '1–3h → ~15m',
-    label: 'Provisioning request',
-    detail: 'Operations Automation',
+    label: 'Provisioning time',
+    detail: 'Manual workflow automated',
   },
   {
-    value: '~$3.5K/yr',
-    label: 'Direct cost reduction',
-    detail: 'Proxy line item',
+    value: '500+',
+    label: 'Operational accounts',
+    detail: 'Managed through internal systems',
   },
 ];
 
 export const homeCapabilities = [
   {
-    title: 'Backend systems',
-    summary: 'Node.js and TypeScript services, APIs, workers and integrations for business-critical workflows.',
-    tags: ['Node.js', 'TypeScript', 'APIs'],
+    title: 'Backend Systems',
+    summary:
+      'Design and build Node.js and TypeScript services, APIs, real-time communication, data flows and third-party integrations.',
+    tags: ['Node.js', 'TypeScript', 'REST APIs', 'WebSocket'],
   },
   {
-    title: 'Automation',
-    summary: 'Queues, schedulers and worker processes that turn manual operations into recoverable pipelines.',
-    tags: ['Queues', 'Workers', 'Integrations'],
+    title: 'Automation & Async Processing',
+    summary:
+      'Turn repetitive workflows into asynchronous systems with queues, workers, scheduling, retries and recoverable failure handling.',
+    tags: ['BullMQ', 'RabbitMQ', 'Redis', 'Kafka'],
   },
   {
-    title: 'Production ownership',
-    summary: 'Architecture, deployment and failure handling from the first system decision through production.',
-    tags: ['Architecture', 'Reliability', 'Deployment'],
+    title: 'Production Ownership',
+    summary:
+      'Take responsibility beyond implementation — architecture, deployment, observability, incident investigation and production reliability.',
+    tags: ['Docker', 'Linux', 'CI/CD', 'Monitoring'],
   },
 ] as const;
 
@@ -70,23 +74,28 @@ export type EngineeringApproachPoint = {
 };
 
 export const engineeringApproach = {
-  description: 'A practical way to move from a manual workflow to a system that can be trusted in production.',
+  description:
+    'The architecture should fit the problem, remain understandable and keep working when external services, infrastructure or individual tasks fail.',
   points: [
     {
       title: 'Start with the manual failure',
-      summary: 'Identify the slow, unreliable or repetitive part of the workflow before choosing the architecture around it.',
+      summary:
+        'Before choosing technology, identify where the existing process loses time, requires repeated human work or fails unpredictably.',
     },
     {
       title: 'Make failure recoverable',
-      summary: 'Use independent steps, persisted state and retries so a failed process can resume instead of starting over.',
+      summary:
+        'Design background work as independently retryable and resumable steps instead of one long operation that must restart from the beginning.',
     },
     {
       title: 'Keep trade-offs explicit',
-      summary: 'Choose the smallest architecture that fits the current scope, then make the cost of change visible as the system grows.',
+      summary:
+        'Choose the simplest architecture that fits the current scope. Add complexity only when the system has a concrete reason to need it.',
     },
     {
       title: 'Own the production path',
-      summary: 'Treat deployment, health checks, monitoring and failure handling as part of the system rather than a handoff after coding.',
+      summary:
+        'Treat deployment, observability, incident investigation and failure handling as part of the system rather than work that begins after coding ends.',
     },
   ] as const satisfies readonly EngineeringApproachPoint[],
 };
@@ -94,27 +103,31 @@ export const engineeringApproach = {
 const workPresentation: Record<CaseStudyTitleKey, Omit<WorkTeaser, 'title' | 'href'>> = {
   infrastructureReliability: {
     summary:
-      'A worker service for a 20-modem proxy station that rerouted failed connections and reduced direct proxy line-item cost by roughly $3.5K per year.',
+      'Built an internally managed proxy infrastructure around 20 physical modems, with centralized control, automatic configuration and failover when a connection became unavailable.',
+    outcome: '20 physical modems · automatic failover',
     linkLabel: 'Read the infrastructure reliability case study',
-    tags: ['Workers', 'Ubuntu', 'Failover'],
+    tags: ['Ubuntu', 'Networking', 'Failover', 'CRM integration'],
   },
   operationsAutomation: {
     summary:
-      'A queued provisioning pipeline that reduced a server-and-domain request from 1–3 hours to around 15 minutes.',
+      'Turned a manual server-and-domain provisioning checklist into an asynchronous workflow with validation, parallel execution and recoverable steps.',
+    outcome: '1–3h → ~15m per request',
     linkLabel: 'Read the operations automation case study',
-    tags: ['RabbitMQ', 'Cloud APIs', 'TLS'],
+    tags: ['RabbitMQ', 'AWS', 'DigitalOcean', 'Cloudflare'],
   },
   unifiedPlatform: {
     summary:
-      'A single operational platform that reconciled reported delivery, actual traffic and spend across previously fragmented systems.',
+      'Consolidated fragmented operational systems into one platform with cross-system reconciliation, centralized access control and a clearer service architecture as the product grew.',
+    outcome: 'Fragmented workflows → one operational platform',
     linkLabel: 'Read the unified platform case study',
-    tags: ['NestJS', 'Microservices', 'Reconciliation'],
+    tags: ['Node.js', 'NestJS', 'Microservices', 'REST APIs'],
   },
   accountAutomation: {
     summary:
-      'Lifecycle management for a large pool of operational accounts, with scheduling under fixed hardware limits, health monitoring and synchronized state.',
+      'Built lifecycle and scheduling infrastructure for a large pool of operational accounts under fixed execution capacity, with synchronized state, health monitoring and automated controls.',
+    outcome: '~5× lower operational account attrition',
     linkLabel: 'Read the account automation case study',
-    tags: ['Scheduling', 'Health monitoring', 'State sync'],
+    tags: ['RabbitMQ', 'MySQL', 'Redis', 'Scheduling'],
     quiet: true,
   },
 };

@@ -3,7 +3,7 @@ import { mkdir, rm } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { chromium } from 'playwright';
+import { chromium, type Page } from 'playwright';
 
 const frontendRoot = resolve(process.cwd());
 const workspaceRoot = resolve(frontendRoot, '..', '..');
@@ -80,6 +80,21 @@ const server = startedServer
 
 const errors: string[] = [];
 
+async function revealPage(page: Page) {
+  const scrollStep = await page.evaluate(() => Math.max(window.innerHeight * 0.75, 320));
+  const scrollHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+
+  for (let scrollY = 0; scrollY < scrollHeight; scrollY += scrollStep) {
+    await page.evaluate((position) => window.scrollTo(0, position), scrollY);
+    await page.waitForTimeout(120);
+  }
+
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await page.waitForTimeout(180);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(450);
+}
+
 try {
   await mkdir(artifactDirectory, { recursive: true });
   await rm(artifactDirectory, { recursive: true, force: true });
@@ -109,6 +124,7 @@ try {
         if (Math.max(overflow.body, overflow.document) > overflow.viewport + 1) {
           errors.push(`${route} at ${viewport.width}px: horizontal overflow (${Math.max(overflow.body, overflow.document)}px > ${overflow.viewport}px)`);
         }
+        await revealPage(page);
         await page.screenshot({
           path: resolve(artifactDirectory, `${routeFileName(route)}--${viewport.name}-${viewport.width}x${viewport.height}.png`),
           fullPage: true,

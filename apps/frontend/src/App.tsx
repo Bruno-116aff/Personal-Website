@@ -13,6 +13,7 @@ import {
 import { aboutCopy, careerTimeline, expertiseGroups } from './content/career';
 import { contactDetails } from './content/contact';
 import ContactForm from './components/ContactForm';
+import { ElasticWaveField } from './components/ElasticWaveField';
 import { caseStudyRoutes, getCaseStudy } from './content/case-studies';
 import CaseStudyLayout from './layouts/CaseStudyLayout';
 import CvLayout from './layouts/CvLayout';
@@ -30,23 +31,29 @@ export default function App({ pathname = '/', githubUrl }: AppProps) {
 
   useEffect(() => {
     if (caseStudy) {
-      trackAnalyticsEventOnce(
-        `case-study-open:${route.path}`,
-        'case_study_open',
-        { case_study: route.path },
-      );
+      trackAnalyticsEventOnce(`case-study-open:${route.path}`, 'case_study_open', {
+        case_study: route.path,
+      });
     }
   }, [caseStudy, route.path]);
 
   return (
     <SiteShell pathname={pathname}>
-      {route.path === '/' ? <Homepage githubUrl={githubUrl} /> : route.path === '/cv' ? <CvLayout /> : caseStudy ? (
+      {route.path === '/' ? (
+        <Homepage githubUrl={githubUrl} />
+      ) : route.path === '/cv' ? (
+        <CvLayout />
+      ) : caseStudy ? (
         <CaseStudyLayout
           caseStudy={caseStudy}
           previousCase={caseStudyRoutes[caseStudyIndex - 1]}
           nextCase={caseStudyRoutes[caseStudyIndex + 1]}
         />
-      ) : route.kind === 'not-found' ? <NotFoundPage /> : <RouteIntro route={route} />}
+      ) : route.kind === 'not-found' ? (
+        <NotFoundPage />
+      ) : (
+        <RouteIntro route={route} />
+      )}
     </SiteShell>
   );
 }
@@ -60,16 +67,25 @@ function NotFoundPage() {
         <span className="not-found-page__marker">●</span>
       </div>
       <div className="not-found-page__content">
-        <p className="not-found-page__eyebrow">Lost in the request</p>
+        <p className="not-found-page__eyebrow">Route not found</p>
         <h1 id="not-found-title">This page took a wrong turn.</h1>
         <p className="not-found-page__summary">
-          The URL does not lead to a published page. Let&apos;s get you back to useful ground.
+          The address does not match a published page. You can return home or continue with the
+          selected work.
         </p>
         <nav className="not-found-page__navigation" aria-label="404 page navigation">
-          <a className="button button--primary" href="/">Back to homepage <span aria-hidden="true">→</span></a>
-          <a className="button button--secondary" href="/#work">Explore selected work</a>
-          <a className="button button--secondary" href="/#contact">Start a conversation</a>
-          <a className="button button--secondary" href="/cv">View CV <span aria-hidden="true">↗</span></a>
+          <a className="button button--primary" href="/">
+            Back to homepage <span aria-hidden="true">→</span>
+          </a>
+          <a className="button button--secondary" href="/#work">
+            Explore selected work
+          </a>
+          <a className="button button--secondary" href="/#contact">
+            Contact
+          </a>
+          <a className="button button--secondary" href="/cv">
+            View CV <span aria-hidden="true">↗</span>
+          </a>
         </nav>
       </div>
     </section>
@@ -91,42 +107,63 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
   return (
     <div className="home-page">
       <section className="hero" aria-labelledby="hero-title">
-        <svg className="hero__motif" viewBox="0 0 640 640" fill="none" aria-hidden="true">
-          <circle cx="520" cy="120" r="4" fill="#5B78F6" />
-          <circle cx="440" cy="220" r="3" fill="#8B92A3" />
-          <circle cx="580" cy="260" r="3" fill="#8B92A3" />
-          <circle cx="500" cy="340" r="4" fill="#5B78F6" />
-          <circle cx="400" cy="380" r="3" fill="#8B92A3" />
-          <circle cx="560" cy="440" r="3" fill="#8B92A3" />
-          <circle cx="460" cy="480" r="4" fill="#5B78F6" />
-          <path
-            d="M520 120 L440 220 M520 120 L580 260 M440 220 L500 340 M580 260 L500 340 M500 340 L400 380 M500 340 L560 440 M400 380 L460 480 M560 440 L460 480"
-            stroke="#FFFFFF"
-            strokeOpacity="0.12"
-            strokeWidth="1"
-          />
-        </svg>
-        <div className="hero__content">
-          <p className="hero__eyebrow">{homeHero.eyebrow}</p>
-          <h1 id="hero-title">{homeHero.title}</h1>
-          <p className="hero__summary">{homeHero.summary}</p>
-          <div className="hero__tags" aria-label="Role, location and working preferences">
-            {homeHero.tags.map((tag) => <Tag key={tag}>{tag}</Tag>)}
+        <ElasticWaveField />
+        <div className="hero__layout">
+          <div className="hero__content">
+            <p className="hero__eyebrow">{homeHero.eyebrow}</p>
+            <h1 id="hero-title">{homeHero.title}</h1>
+            <p className="hero__summary">{homeHero.summary}</p>
+            <div className="hero__tags" role="group" aria-label="Role, location and technologies">
+              {homeHero.tags.map((tag) => (
+                <Tag key={tag}>{tag}</Tag>
+              ))}
+            </div>
+            <div className="hero__actions">
+              <a className="button button--primary" href="#work">
+                View selected work
+              </a>
+              <a className="button button--secondary" href="#contact">
+                Start a conversation
+              </a>
+            </div>
           </div>
-          <div className="hero__actions">
-            <a className="button button--primary" href="#work">View selected work</a>
-            <a className="button button--secondary" href="#contact">Start a conversation</a>
-          </div>
+          <aside
+            className="hero__story"
+            aria-label="From manual friction to measurable backend outcomes"
+          >
+            <div className="hero__story-header">
+              <span>Operating model</span>
+              <span>backend / production</span>
+            </div>
+            <ol className="hero__story-flow">
+              <li className="hero__story-step">
+                <span className="hero__story-index" aria-hidden="true">
+                  01
+                </span>
+                <strong>Manual friction</strong>
+                <span>slow · fragile · repetitive</span>
+              </li>
+              <li className="hero__story-step">
+                <span className="hero__story-index" aria-hidden="true">
+                  02
+                </span>
+                <strong>System design</strong>
+                <span>queues · workers · recovery</span>
+              </li>
+              <li className="hero__story-step hero__story-step--outcome">
+                <span className="hero__story-index" aria-hidden="true">
+                  03
+                </span>
+                <strong>Measured outcome</strong>
+                <span>1–3h → ~15m</span>
+              </li>
+            </ol>
+          </aside>
         </div>
       </section>
 
       <section className="home-section" aria-labelledby="impact-heading">
-        <SectionIntro
-          eyebrow="Selected signal"
-          title="Measured in systems and outcomes."
-          titleId="impact-heading"
-          description="A few numbers that give the work its scale and context."
-        />
+        <SectionIntro eyebrow="Impact" title="Measured by what changed." titleId="impact-heading" />
         <div className="impact-strip">
           {homeMetrics.map((metric) => (
             <article key={metric.label} className="impact-strip__item" aria-label={metric.label}>
@@ -139,9 +176,9 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
       <section className="home-section" aria-labelledby="what-i-do-heading">
         <SectionIntro
           eyebrow="What I do"
-          title="Backend work with production context."
+          title="Backend engineering with production ownership."
           titleId="what-i-do-heading"
-          description="I work across the system boundary when the backend needs to connect product decisions with reliable operations."
+          description="I work across the parts of a backend system that determine whether it is useful, reliable and maintainable in production."
         />
         <div className="capability-grid">
           {homeCapabilities.map((capability) => (
@@ -156,10 +193,10 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
 
       <section id="work" className="home-section" aria-labelledby="work-heading">
         <SectionIntro
-          eyebrow="Featured work"
+          eyebrow="Selected work"
           title="Systems built to remove friction."
           titleId="work-heading"
-          description="Selected case studies, ordered from infrastructure reliability to the more specialized systems work."
+          description="Four production systems that reduced manual work, improved operational control or made unreliable processes predictable."
         />
         <div className="work-grid">
           {featuredWork.map((work, index) => (
@@ -167,16 +204,18 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
               as="article"
               key={work.title}
               interactive
-              className={`work-card${work.quiet ? ' work-card--quiet' : ''}`}
+              className={`work-card${work.quiet ? ' work-card--quiet' : ''}${index === 0 ? ' work-card--featured' : ''}`}
             >
               <div className="work-card__header">
                 <p className="work-card__index">{String(index + 1).padStart(2, '0')}</p>
                 <h3>{work.title}</h3>
               </div>
               <p className="work-card__summary">{work.summary}</p>
+              <p className="work-card__outcome">{work.outcome}</p>
               <TechnologyList items={work.tags} label={`${work.title} technologies`} />
               <a className="interactive-link work-card__link" href={work.href}>
-                {work.linkLabel}<span aria-hidden="true"> →</span>
+                {work.linkLabel}
+                <span aria-hidden="true"> →</span>
               </a>
             </Card>
           ))}
@@ -185,10 +224,9 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
 
       <section className="home-section" aria-labelledby="career-heading">
         <SectionIntro
-          eyebrow="Career story"
-          title="A backend-first path, shaped by the work."
+          eyebrow="Career"
+          title="From web development to backend ownership."
           titleId="career-heading"
-          description="The role changed as the systems and responsibilities grew. The timeline stays explicit."
         />
         <ol className="career-timeline">
           {careerTimeline.map((entry) => (
@@ -207,7 +245,7 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
       <section className="home-section" aria-labelledby="approach-heading">
         <SectionIntro
           eyebrow="Engineering approach"
-          title="Engineering Approach"
+          title="Build for the real production constraints."
           titleId="approach-heading"
           description={engineeringApproach.description}
         />
@@ -226,7 +264,7 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
           eyebrow="Technical expertise"
           title="The backend is the identity. The rest is working range."
           titleId="expertise-heading"
-          description="Grouped by the problems these tools help solve, without percentages or a logo wall."
+          description="Backend is the primary discipline. Infrastructure, frontend and AI-assisted tooling support end-to-end ownership when the work requires them."
         />
         <div className="expertise-grid">
           {expertiseGroups.map((group) => (
@@ -237,6 +275,7 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
             >
               <h3>{group.title}</h3>
               <TechnologyList items={group.items} label={`${group.title} technologies`} />
+              {group.description && <p>{group.description}</p>}
             </Card>
           ))}
         </div>
@@ -245,13 +284,14 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
       <section id="about" className="home-section about-section" aria-labelledby="about-heading">
         <SectionIntro
           eyebrow="About"
-          title="A practical engineer for systems that have to keep working."
+          title="Backend engineer focused on systems that have to work in production."
           titleId="about-heading"
-          description="A short context for the person behind the case studies."
         />
         <div className="about-layout">
           <div className="about-copy">
-            {aboutCopy.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+            {aboutCopy.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
         </div>
       </section>
@@ -260,13 +300,20 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
         <div className="contact-section">
           <SectionIntro
             eyebrow="Contact"
-            title="Have a backend problem worth solving?"
+            title="Looking for a Senior Backend Engineer?"
             titleId="contact-heading"
-            description="Email is the fastest way to reach me. You can also use the form for a first introduction."
+            description={
+              <>
+                I am open to Senior Backend Engineer and hands-on Tech Lead opportunities in Cyprus,
+                as well as remote or relocation opportunities.
+                <br />
+                If my background looks relevant to your team, send me a message.
+              </>
+            }
           />
           <div className="contact-layout">
             <div className="contact-details">
-              <div className="contact-actions" aria-label="Contact links">
+              <nav className="contact-actions" aria-label="Contact links">
                 <a
                   className="contact-link"
                   href={`mailto:${contactDetails.email}`}
@@ -279,32 +326,41 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
                   className="contact-link"
                   href={contactDetails.linkedInUrl}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn profile (opens in a new tab)"
                   onClick={() => trackAnalyticsEvent('linkedin_click')}
                 >
                   <span className="contact-link__label">LinkedIn</span>
-                  <span className="contact-link__value">Profile <span aria-hidden="true">↗</span></span>
+                  <span className="contact-link__value">
+                    Profile <span aria-hidden="true">↗</span>
+                  </span>
                 </a>
                 <a
                   className="contact-link"
                   href={contactDetails.telegramUrl}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
+                  aria-label="Telegram profile (opens in a new tab)"
                   onClick={() => trackAnalyticsEvent('telegram_click')}
                 >
                   <span className="contact-link__label">Telegram</span>
-                  <span className="contact-link__value">{contactDetails.telegramHandle} <span aria-hidden="true">↗</span></span>
+                  <span className="contact-link__value">
+                    {contactDetails.telegramHandle} <span aria-hidden="true">↗</span>
+                  </span>
                 </a>
                 {configuredGithubUrl ? (
                   <a
                     className="contact-link"
                     href={configuredGithubUrl}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
+                    aria-label="GitHub profile (opens in a new tab)"
                     onClick={() => trackAnalyticsEvent('github_click')}
                   >
                     <span className="contact-link__label">GitHub</span>
-                    <span className="contact-link__value">Profile <span aria-hidden="true">↗</span></span>
+                    <span className="contact-link__value">
+                      Profile <span aria-hidden="true">↗</span>
+                    </span>
                   </a>
                 ) : (
                   <Button
@@ -312,13 +368,12 @@ function Homepage({ githubUrl }: { githubUrl?: string }) {
                     type="button"
                     variant="secondary"
                     disabled
-                    aria-describedby="github-config-note"
                   >
                     <span className="contact-link__label">GitHub</span>
                     <span className="contact-link__value">Not configured</span>
                   </Button>
                 )}
-              </div>
+              </nav>
             </div>
             <ContactForm />
           </div>
@@ -334,7 +389,7 @@ function getConfiguredExternalUrl(value: string | undefined) {
 
   try {
     const url = new URL(configuredValue);
-    return url.protocol === 'https:' ? url.href : undefined;
+    return url.protocol === 'https:' && !url.username && !url.password ? url.href : undefined;
   } catch {
     return undefined;
   }

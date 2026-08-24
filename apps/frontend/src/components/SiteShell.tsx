@@ -41,21 +41,25 @@ export default function SiteShell({ pathname, children }: SiteShellProps) {
             <span>Ivan Hubko</span>
           </a>
 
-          <div className="site-nav-links">
-            <a href={homepageAnchor(pathname, 'work')}>
-              Work
-            </a>
-            <a href={homepageAnchor(pathname, 'about')}>About</a>
-            <a href={homepageAnchor(pathname, 'contact')}>Contact</a>
-            <a
-              className="site-nav-link site-nav-link--cv"
-              href="/cv"
-              aria-current={isCv ? 'page' : undefined}
-              onClick={() => trackAnalyticsEvent('cv_click')}
-            >
-              CV
-              <span aria-hidden="true"> ↗</span>
-            </a>
+          <div className="site-nav__right">
+            <span className="site-nav__status">
+              <span className="site-nav__status-dot" aria-hidden="true" />
+              Open to remote / hybrid / relocation
+            </span>
+            <div className="site-nav-links">
+              <a href={homepageAnchor(pathname, 'work')}>Work</a>
+              <a href={homepageAnchor(pathname, 'about')}>About</a>
+              <a href={homepageAnchor(pathname, 'contact')}>Contact</a>
+              <a
+                className="site-nav-link site-nav-link--cv"
+                href="/cv"
+                aria-current={isCv ? 'page' : undefined}
+                onClick={() => trackAnalyticsEvent('cv_click')}
+              >
+                CV
+                <span aria-hidden="true"> ↗</span>
+              </a>
+            </div>
           </div>
         </nav>
       </header>
@@ -67,6 +71,7 @@ export default function SiteShell({ pathname, children }: SiteShellProps) {
       <footer className="site-footer">
         <div className="site-footer-inner">
           <a href="/">Ivan Hubko</a>
+          <span>Senior Backend Engineer &amp; Tech Lead · Limassol, Cyprus</span>
         </div>
       </footer>
     </div>
