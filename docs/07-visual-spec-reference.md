@@ -43,10 +43,12 @@ document disagree, except for the explicit WCAG AA refinements below.
   rather than each card having its own independent border + gap + shadow.
   This reads as one connected system rather than four separate boxes, which
   fits an engineer's "systems" identity better than a generic card grid.
-- **Hero motif:** a low-opacity node/line graph bleeding from the top-right
-  of the hero, built as inline SVG (see `.hero-motif`). This is the one
-  signature element — restrained, on-brand for backend/systems work, present
-  only in the hero, not repeated elsewhere on the page.
+- **Hero motif:** a low-opacity node/line graph held in the top-right of the
+  centered hero composition, built as inline SVG (see `.hero-motif`). Its size
+  scales fluidly and its right edge follows the content container rather than
+  the viewport edge. This is the one signature element — restrained, on-brand
+  for backend/systems work, present only in the hero, not repeated elsewhere
+  on the page.
 - **Numbered case studies (01/02/03/04):** justified here specifically
   because the four cases are in a deliberately curated priority order
   (strongest/safest first, per `03-site-structure-and-domains.md`) — the
@@ -106,7 +108,9 @@ rest and 5.50:1 on hover.
 
 ## Components to rebuild exactly as in the reference file
 - `nav` — logo mark (monogram badge) + nav links + CV link with arrow
-- `.hero` + `.hero-motif` — headline, subhead, tag row, primary/secondary CTA
+- `.hero` + `.hero-motif` — headline, subhead, tag row, primary/secondary CTA;
+  the motif uses a bounded fluid size and container-aligned right inset, with a
+  16px viewport inset on narrow screens.
 - `.impact` / `.impact-inner` / `.impact-item` — hairline-divided stat row
 - `.work-grid` / `.work-card` — bordered grid, hover background shift, arrow
   micro-interaction on hover (`.work-link span` gap animation)

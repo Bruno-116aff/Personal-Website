@@ -983,9 +983,10 @@ a {
 .hero__motif {
   position: absolute;
   z-index: 0;
-  inset: 0 0 auto auto;
-  width: 640px;
-  height: 640px;
+  inset: 0 max(32px, calc((100vw - var(--max-w)) / 2 + 32px)) auto auto;
+  width: clamp(360px, 38vw, 640px);
+  height: auto;
+  aspect-ratio: 1;
   max-width: 100%;
   pointer-events: none;
   opacity: 0.5;
@@ -1586,8 +1587,9 @@ a.contact-link:focus-visible {
   }
 
   .hero__motif {
-    width: 420px;
-    height: 420px;
+    inset-inline-end: 16px;
+    width: min(420px, calc(100vw - 32px));
+    height: auto;
     opacity: 0.32;
   }
 
