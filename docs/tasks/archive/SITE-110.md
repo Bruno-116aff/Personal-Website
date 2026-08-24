@@ -2,7 +2,7 @@
 
 - Batch: 12
 - Area: shell/layout polish
-- State: IMPLEMENTED_PENDING_GATE
+- State: COMPLETE
 - Depends on: Batch 11 gate COMPLETE
 
 ## Goal
@@ -49,9 +49,9 @@ layout.
 - Responsive browser inspection at 1440px, 768px and 390px for header bounds,
   navigation visibility and horizontal overflow.
 
-## Deferred batch gate
+## Batch closure
 
-`SITE-111` will run the complete Batch 12 verification after this task is ready.
+SITE-111 closed Batch 12 after the user confirmed completion of both tasks.
 
 ## External inputs or blockers
 
@@ -69,4 +69,5 @@ None.
   six public routes and 404 at 1440px, 768px and 390px; no horizontal overflow
   was reported. The task-owned Vite process on port 4178 was stopped; the
   pre-existing process on port 4177 was preserved.
-- Full Batch 12 verification is deferred to `SITE-111`.
+- Batch 12 closure was confirmed by the user; no additional verification commands
+  were run during the close-only operation.

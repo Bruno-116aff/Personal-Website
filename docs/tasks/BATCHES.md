@@ -128,7 +128,7 @@ preserving the deliberate `01–04` order in homepage Featured Work.
 
 Tasks: SITE-110, SITE-111 (gate).
 
-Status: IN_PROGRESS.
+Status: COMPLETE. SITE-111 closed the batch on 2026-08-24 by explicit user confirmation.
 
 Goal: align the desktop shell header with the shared content container without
 changing navigation behavior or public content.

@@ -4,7 +4,7 @@
 
 Date: 2026-08-24
 
-Final release decision: Batch 11 is COMPLETE for the implemented local release
+Final release decision: Batch 12 is COMPLETE for the implemented local release
 scope. External production deployment and account-owned verification remain pending
 with exact status recorded below.
 
@@ -127,6 +127,8 @@ routes and technical constraints.
   0 DEFERRED and 0 FAIL; production verification passed 23 assertions; responsive
   visual evidence covered all required routes and widths; SITE-104, SITE-106,
   SITE-107, SITE-108, SITE-109 and SITE-105 are archived COMPLETE.
+- SITE-111 closed Batch 12 after the user confirmed SITE-110 and SITE-111 were
+  checked and complete. SITE-110 and SITE-111 are archived COMPLETE.
 
 ## Resume recipe
 

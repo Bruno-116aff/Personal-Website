@@ -2,7 +2,7 @@
 
 - Batch: 12
 - Area: batch gate / shell layout
-- State: READY
+- State: COMPLETE
 - Depends on: SITE-110
 
 ## Goal
@@ -27,7 +27,7 @@ pass.
 
 ## Acceptance criteria
 
-- SITE-110 is `IMPLEMENTED_PENDING_GATE` with focused evidence.
+- SITE-110 is `COMPLETE` with focused evidence.
 - All available root and frontend checks required by the repository pass, with
   missing or external-only checks recorded explicitly as deferred.
 - Responsive evidence confirms header bounds, navigation usability and no
@@ -56,3 +56,9 @@ pass.
 
 Production deployment/account-owned values remain outside this local gate and must
 be recorded as deferred according to the existing project status.
+
+## Evidence
+
+- The user confirmed that SITE-110 and SITE-111 were fully checked and completed.
+- Batch 12 is closed by explicit user confirmation; no additional verification
+  commands were run during this close-only operation.
