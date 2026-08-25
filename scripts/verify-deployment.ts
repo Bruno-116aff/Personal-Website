@@ -44,11 +44,13 @@ const requiredContactRuntimeMarkers = [
   'RUN mkdir /data && chown node:node /data',
   'ENV CONTACT_DATABASE_PATH=/data/contact.sqlite',
   'USER node',
-  'HEALTHCHECK',
+  "HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD [\"node\", \"-e\", \"fetch('http://127.0.0.1:3001/health')",
   'CMD ["node", "dist/main.js"]',
 ];
 const requiredContactComposeMarkers = [
   'CONTACT_DATABASE_PATH: /data/contact.sqlite',
+  'TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?Set TELEGRAM_BOT_TOKEN}',
+  'TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:?Set TELEGRAM_CHAT_ID}',
   './data/prod/contact-api:/data',
 ];
 const requiredContactDataMarkers = [

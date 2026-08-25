@@ -45,6 +45,8 @@ services:
       CONTACT_DATABASE_PATH: /data/contact.sqlite
       CONTACT_RATE_LIMIT_WINDOW_SECONDS: 60
       CONTACT_RATE_LIMIT_MAX_REQUESTS: 5
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
     volumes:
       - ../apps/contact-api:/app
       - contact_api_node_modules:/app/node_modules

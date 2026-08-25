@@ -244,6 +244,14 @@ async function verifyContactApi(baseUrl: string | undefined, frontendUrl: string
   }
 
   const origin = frontendUrl.replace(/\/$/, '');
+  const health = await waitFor(baseUrl, '/health');
+  if (!health || health.status !== 200) fail(`contact API healthcheck: expected 200, received ${health?.status ?? 'no response'}`);
+  else pass('contact API liveness endpoint responds with 200');
+
+  const readiness = await request(baseUrl, '/health/ready');
+  if (readiness.status !== 200) fail(`contact API readiness endpoint: expected 200, received ${readiness.status}`);
+  else pass('contact API readiness endpoint responds with 200');
+
   const preflight = await waitFor(baseUrl, '/contact');
   if (!preflight) {
     fail(`contact API did not respond at ${baseUrl}`);
