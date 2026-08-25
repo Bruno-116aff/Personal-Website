@@ -10,6 +10,8 @@ IMPLEMENTED_PENDING_GATE; only a gate may archive and mark its batch COMPLETE.
 
 | ID | Batch | Area | State | Depends on | Task file |
 | --- | --- | --- | --- | --- | --- |
+| SITE-115 | 14 | Server architecture | IMPLEMENTED_PENDING_GATE | Batch 13 COMPLETE | `docs/tasks/active/SITE-115.md` |
+| SITE-116 | 14 | Server documentation gate | READY | SITE-115 IMPLEMENTED_PENDING_GATE | `docs/tasks/active/SITE-116.md` |
 Batch 0 through Batch 11 are COMPLETE after their full local batch gates. Batch 12
 is COMPLETE by explicit user confirmation. Batch 13 is COMPLETE by explicit user
 confirmation. External deployment

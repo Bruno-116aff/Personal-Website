@@ -1,6 +1,6 @@
 # Batch Plan
 
-The project has twelve sequential batches. A batch contains small,
+The project has fourteen sequential batches. A batch contains small,
 independently reviewable implementation tasks and ends with one mandatory
 batch-gate task. The gate task is always the final task listed for that batch.
 
@@ -148,6 +148,17 @@ review with 100% available-check closure.
 
 Status: COMPLETE. SITE-114 closed the batch on 2026-08-24 by explicit user
 confirmation after the complete copy, metadata, production and visual checks.
+
+## Batch 14 — Server architecture conventions
+
+Tasks: SITE-115, SITE-116 (gate).
+
+Goal: document the reusable NestJS module structure, shared core capabilities,
+DI boundaries, DTO/repository placement and mirrored test layout for future
+backend expansion.
+
+Gate: run the available repository checks and verify that the documentation
+matches the implemented server contract without changing runtime behavior.
 
 ## Gate policy
 

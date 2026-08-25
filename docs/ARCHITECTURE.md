@@ -16,6 +16,9 @@ The canonical host is ivan.hubko.me.
 | /cv | primary indexable CV page |
 | unknown primary-host path | branded `404.html` fallback with HTTP 404 |
 
+The contact API also exposes internal service checks at `/health` and
+`/health/ready`; these are not public-site content routes.
+
 cv.hubko.me, bare hubko.me and unregistered hubko.me hosts/routes redirect to
 the canonical host as specified in docs/03.
 
@@ -36,8 +39,14 @@ Use a small two-app workspace and keep content separate from UI:
 - `apps/frontend/public` owns static files copied directly to the site output;
   `apps/frontend/src/assets/brand` owns reusable brand source assets.
 - `apps/contact-api` owns the NestJS endpoint, its package manifest, lockfile,
-  source, tests and Dockerfiles. It persists submissions in SQLite and has no
-  public read endpoint.
+  source, tests and Dockerfiles. Business modules live under
+  `apps/contact-api/src/modules/`; shared configuration, SQLite persistence and
+  reusable infrastructure (logger, errors and health) live under
+  `apps/contact-api/src/core/`. The internal notification module lives under
+  `src/modules/notification/`, has no HTTP routes and sends persisted contact
+  submissions to Telegram through environment-provided credentials. Modules
+  interact with SQLite only through repository contracts and DI. The service has
+  no public read endpoint.
 - Root `package.json` owns only workspace orchestration and shared checks.
 - `infra` owns development, production and production-build Compose files.
 - Root `scripts` owns checks that span both applications or inspect deployment
