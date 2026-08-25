@@ -30,6 +30,6 @@ ENV CONTACT_DATABASE_PATH=/data/contact.sqlite
 USER node
 EXPOSE 3001
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD ["node", "-e", "fetch('http://127.0.0.1:3001/').then((response) => process.exit(response.status === 404 ? 0 : 1)).catch(() => process.exit(1))"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD ["node", "-e", "fetch('http://127.0.0.1:3001/health').then((response) => process.exit(response.status === 200 ? 0 : 1)).catch(() => process.exit(1))"]
 
 CMD ["node", "dist/main.js"]

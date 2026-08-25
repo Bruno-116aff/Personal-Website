@@ -8,6 +8,8 @@ export type ContactConfig = {
   };
 };
 
+export const CONTACT_CONFIG = Symbol('CONTACT_CONFIG');
+
 function required(environment: NodeJS.ProcessEnv, name: string) {
   const value = environment[name]?.trim();
 

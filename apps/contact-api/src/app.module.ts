@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 
-import { createContactConfig } from './contact/contact.config.js';
-import { ContactModule } from './contact/contact.module.js';
+import { createContactConfig } from './core/config/contact.config.js';
+import { createTelegramConfig } from './core/config/telegram.config.js';
+import { CoreModule } from './core/core.module.js';
+import { ContactModule } from './modules/contact/contact.module.js';
 
 @Module({
-  imports: [ContactModule.register(createContactConfig())],
+  imports: [CoreModule, ContactModule.register(createContactConfig(), createTelegramConfig())],
 })
 export class AppModule {}

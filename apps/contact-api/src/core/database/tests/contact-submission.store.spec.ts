@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { SQLiteContactSubmissionStore } from './contact-submission.repository.js';
+import { SQLiteContactSubmissionStore } from '../contact-submission.store.js';
 
 describe('SQLiteContactSubmissionStore', () => {
   it('persists a submission in SQLite', () => {

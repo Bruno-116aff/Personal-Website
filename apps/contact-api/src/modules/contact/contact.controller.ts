@@ -1,6 +1,6 @@
 import { Body, Controller, Inject, Post, Req } from '@nestjs/common';
 
-import { ContactRequestDto } from './contact-request.dto.js';
+import { ContactRequestDto } from './dto/contact-request.dto.js';
 import { ContactSubmissionService } from './contact-submission.service.js';
 
 type ContactRequest = {

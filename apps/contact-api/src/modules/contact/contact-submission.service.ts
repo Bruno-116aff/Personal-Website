@@ -1,7 +1,9 @@
-import { BadRequestException, Inject, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, ServiceUnavailableException } from '@nestjs/common';
 
-import { ContactRateLimiter } from './contact-rate-limiter.service.js';
-import type { ContactRequestDto } from './contact-request.dto.js';
+import { AppLogger } from '../../core/logger/app-logger.service.js';
+import { RateLimiter } from '../../core/limiter/rate-limiter.service.js';
+import { NOTIFICATION_SERVICE, type NotificationService } from '../notification/notification.service.js';
+import type { ContactRequestDto } from './dto/contact-request.dto.js';
 import { CONTACT_SUBMISSION_STORE, type ContactSubmissionStore } from './contact-submission.repository.js';
 
 function sanitizeText(value: string) {
@@ -13,11 +15,11 @@ function sanitizeText(value: string) {
 
 @Injectable()
 export class ContactSubmissionService {
-  private readonly logger = new Logger(ContactSubmissionService.name);
-
   constructor(
     @Inject(CONTACT_SUBMISSION_STORE) private readonly store: ContactSubmissionStore,
-    @Inject(ContactRateLimiter) private readonly rateLimiter: ContactRateLimiter,
+    @Inject(RateLimiter) private readonly rateLimiter: RateLimiter,
+    @Inject(AppLogger) private readonly logger: AppLogger,
+    @Inject(NOTIFICATION_SERVICE) private readonly notification: NotificationService,
   ) {}
 
   async submit(request: ContactRequestDto, clientKey: string) {
@@ -34,7 +36,14 @@ export class ContactSubmissionService {
     };
 
     try {
-      this.store.save(submission);
+      const id = this.store.save(submission);
+      void this.notification.sendContactSubmission({ ...submission, id }).catch((error: unknown) => {
+        this.logger.error(
+          'Contact submission notification failed.',
+          error instanceof Error ? error.stack : undefined,
+          ContactSubmissionService.name,
+        );
+      });
     } catch {
       this.logger.error('Contact submission could not be stored.');
       throw new ServiceUnavailableException('Unable to save message. Please try again later.');

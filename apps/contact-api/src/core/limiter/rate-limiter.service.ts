@@ -12,7 +12,7 @@ type RateLimitRecord = {
 };
 
 @Injectable()
-export class ContactRateLimiter {
+export class RateLimiter {
   private readonly records = new Map<string, RateLimitRecord>();
   private readonly maxRecords: number;
   private nextCleanupAt = 0;

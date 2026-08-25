@@ -4,7 +4,7 @@ import { dirname } from 'node:path';
 import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import Database from 'better-sqlite3';
 
-import type { ContactConfig } from './contact.config.js';
+import { CONTACT_CONFIG, type ContactConfig } from '../config/contact.config.js';
 
 export type StoredContactSubmission = {
   email: string;
@@ -21,7 +21,6 @@ export interface ContactSubmissionStore {
 }
 
 export const CONTACT_SUBMISSION_STORE = Symbol('CONTACT_SUBMISSION_STORE');
-export const CONTACT_CONFIG = Symbol('CONTACT_CONFIG');
 
 @Injectable()
 export class SQLiteContactSubmissionStore implements ContactSubmissionStore, OnModuleDestroy {
